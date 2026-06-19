@@ -3,209 +3,67 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <script src="https://unpkg.com/@zxing/library@latest"></script>
-
   <style>
     * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #eef8f0;
-      color: #123524;
-    }
-
-    .app-header {
-      background: #138a3d;
-      color: white;
-      text-align: center;
-      padding: 22px 12px;
-      font-size: 32px;
-      font-weight: 800;
-      letter-spacing: 1px;
-    }
-
-    .wrap {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 12px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 14px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
-      border: 1px solid #d7eadc;
-    }
-
-    button, input {
-      width: 100%;
-      border-radius: 14px;
-      padding: 17px;
-      font-size: 22px;
-      margin-top: 10px;
-    }
-
-    button {
-      border: 0;
-      color: white;
-      font-weight: 800;
-    }
-
-    input {
-      border: 2px solid #b7d7c2;
-      background: white;
-    }
-
-    .scan-btn { background: #138a3d; font-size: 24px; }
-    .stop-btn { background: #d93025; display: none; }
-    .save-btn { background: #138a3d; font-size: 24px; }
-    .clear-btn { background: #6b7280; }
-
-    video {
-      width: 100%;
-      display: none;
-      margin-top: 12px;
-      border-radius: 16px;
-      border: 4px solid #138a3d;
-      background: black;
-    }
-
-    .section-title {
-      font-size: 14px;
-      font-weight: 800;
-      color: #1f6b3b;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-
-    .product {
-      font-size: 28px;
-      font-weight: 800;
-      color: #064e3b;
-      margin-bottom: 12px;
-      line-height: 1.15;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .info {
-      background: #ecfdf3;
-      border: 2px solid #bdf2cc;
-      border-radius: 14px;
-      padding: 14px;
-      min-height: 92px;
-    }
-
-    .label {
-      color: #166534;
-      font-size: 13px;
-      font-weight: 800;
-      text-transform: uppercase;
-    }
-
-    .value {
-      font-size: 26px;
-      font-weight: 800;
-      color: #111827;
-      margin-top: 6px;
-      word-break: break-word;
-    }
-
-    .wide {
-      margin-top: 10px;
-    }
-
-    #msg {
-      text-align: center;
-      font-size: 20px;
-      font-weight: 800;
-      min-height: 28px;
-      color: #166534;
-    }
-
-    .error { color: #d93025 !important; }
-    .success { color: #138a3d !important; }
+    body { margin:0; font-family:Arial,sans-serif; background:#eef8f0; color:#123524; }
+    .header { background:#138a3d; color:white; text-align:center; padding:22px 10px; font-size:32px; font-weight:800; }
+    .wrap { max-width:720px; margin:auto; padding:12px; }
+    .card { background:white; border-radius:18px; padding:16px; margin-bottom:14px; box-shadow:0 4px 14px rgba(0,0,0,.12); }
+    button,input { width:100%; border-radius:14px; padding:18px; font-size:22px; margin-top:10px; }
+    button { border:0; color:white; font-weight:800; }
+    input { border:2px solid #b7d7c2; }
+    .scan,.save { background:#138a3d; }
+    .stop { background:#d93025; display:none; }
+    .clear { background:#6b7280; }
+    video { width:100%; display:none; margin-top:12px; border-radius:16px; border:4px solid #138a3d; background:black; }
+    .title { font-size:14px; font-weight:800; color:#166534; text-transform:uppercase; }
+    .product { font-size:28px; font-weight:800; color:#064e3b; margin-bottom:12px; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .box { background:#ecfdf3; border:2px solid #bdf2cc; border-radius:14px; padding:14px; min-height:88px; }
+    .label { color:#166534; font-size:13px; font-weight:800; text-transform:uppercase; }
+    .value { font-size:26px; font-weight:800; color:#111827; margin-top:6px; word-break:break-word; }
+    #msg { text-align:center; font-size:20px; font-weight:800; color:#166534; min-height:28px; }
+    .error { color:#d93025!important; }
   </style>
 </head>
-
 <body>
+<div class="header">STOCK SCANNER</div>
+<div class="wrap">
 
-  <div class="app-header">STOCK SCANNER</div>
-
-  <div class="wrap">
-
-    <div class="card">
-      <button id="scanBtn" class="scan-btn" onclick="startScanner()">SCAN QR / BARCODE</button>
-      <button id="stopBtn" class="stop-btn" onclick="stopScanner()">STOP SCANNER</button>
-
-      <video id="preview" autoplay muted playsinline></video>
-
-      <input id="barcode" placeholder="Scan barcode or type barcode number" onkeydown="manualEnter(event)">
-    </div>
-
-    <div class="card">
-      <div class="section-title">Product</div>
-      <div id="product" class="product">Not scanned yet</div>
-
-      <div class="grid">
-        <div class="info">
-          <div class="label">Barcode</div>
-          <div id="barcodeDisplay" class="value">-</div>
-        </div>
-
-        <div class="info">
-          <div class="label">Article No</div>
-          <div id="articleNo" class="value">-</div>
-        </div>
-
-        <div class="info">
-          <div class="label">Make</div>
-          <div id="make" class="value">-</div>
-        </div>
-
-        <div class="info">
-          <div class="label">Qty Recorded</div>
-          <div id="recordedQty" class="value">-</div>
-        </div>
-
-        <div class="info">
-          <div class="label">Qty Captured</div>
-          <div id="capturedQty" class="value">-</div>
-        </div>
-
-        <div class="info">
-          <div class="label">Bin No</div>
-          <div id="bin" class="value">-</div>
-        </div>
-
-        <div class="info">
-          <div class="label">Zone</div>
-          <div id="zone" class="value">-</div>
-        </div>
-
-        <div class="info">
-          <div class="label">Location</div>
-          <div id="location" class="value">-</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <input id="qty" type="number" inputmode="numeric" placeholder="Qty counted">
-
-      <button class="save-btn" onclick="saveCount()">SAVE COUNT</button>
-      <button class="clear-btn" onclick="clearForm()">CLEAR</button>
-
-      <p id="msg"></p>
-    </div>
-
+  <div class="card">
+    <button id="scanBtn" class="scan" onclick="startScanner()">📷 SCAN QR / BARCODE</button>
+    <button id="stopBtn" class="stop" onclick="stopScanner()">STOP SCANNER</button>
+    <video id="preview" autoplay muted playsinline></video>
+    <input id="barcode" placeholder="Article No / Barcode" onkeydown="manualEnter(event)">
   </div>
+
+  <div class="card">
+    <div class="title">Product</div>
+    <div id="product" class="product">Not scanned yet</div>
+
+    <div class="grid">
+      <div class="box"><div class="label">Article No</div><div id="articleNo" class="value">-</div></div>
+      <div class="box"><div class="label">Make</div><div id="make" class="value">-</div></div>
+      <div class="box"><div class="label">Qty Recorded</div><div id="recordedQty" class="value">-</div></div>
+      <div class="box"><div class="label">Qty Captured</div><div id="capturedQty" class="value">-</div></div>
+      <div class="box"><div class="label">Bin No</div><div id="bin" class="value">-</div></div>
+      <div class="box"><div class="label">Zone</div><div id="zone" class="value">-</div></div>
+    </div>
+
+    <div class="box" style="margin-top:10px;">
+      <div class="label">Location</div>
+      <div id="location" class="value">-</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <input id="qty" type="number" inputmode="numeric" placeholder="Qty counted">
+    <button class="save" onclick="saveCount()">✅ SAVE COUNT</button>
+    <button class="clear" onclick="clearForm()">CLEAR</button>
+    <p id="msg"></p>
+  </div>
+
+</div>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbzRTg74wXYC_xak3udaWydDjccP0L_47x_xfANu-0FBUgOuHDPY8wHCJ5QAqqfqCsYO/exec";
@@ -213,7 +71,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbzRTg74wXYC_xak3udaWydD
 let codeReader = null;
 let alreadyScanned = false;
 
-function setMsg(text, type = "") {
+function setMsg(text, type="") {
   const el = document.getElementById("msg");
   el.innerText = text;
   el.className = type;
@@ -221,6 +79,7 @@ function setMsg(text, type = "") {
 
 function jsonp(url, callback) {
   const cb = "cb_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+  const script = document.createElement("script");
 
   window[cb] = function(data) {
     callback(data);
@@ -228,10 +87,8 @@ function jsonp(url, callback) {
     script.remove();
   };
 
-  const script = document.createElement("script");
-
   script.onerror = function() {
-    setMsg("Connection error. Check internet/API URL.", "error");
+    setMsg("Connection error.", "error");
     delete window[cb];
     script.remove();
   };
@@ -251,14 +108,11 @@ async function startScanner() {
   const hints = new Map();
   hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
     ZXing.BarcodeFormat.QR_CODE,
-    ZXing.BarcodeFormat.DATA_MATRIX,
-    ZXing.BarcodeFormat.PDF_417,
     ZXing.BarcodeFormat.CODE_128,
     ZXing.BarcodeFormat.CODE_39,
     ZXing.BarcodeFormat.EAN_13,
-    ZXing.BarcodeFormat.EAN_8,
-    ZXing.BarcodeFormat.UPC_A,
-    ZXing.BarcodeFormat.UPC_E
+    ZXing.BarcodeFormat.DATA_MATRIX,
+    ZXing.BarcodeFormat.PDF_417
   ]);
 
   codeReader = new ZXing.BrowserMultiFormatReader(hints);
@@ -270,22 +124,14 @@ async function startScanner() {
       function(result) {
         if (result && !alreadyScanned) {
           alreadyScanned = true;
-
           const scannedText = result.text.trim();
           document.getElementById("barcode").value = scannedText;
-
           if (navigator.vibrate) navigator.vibrate(150);
-
-          setMsg("Scanned: " + scannedText);
-
-          setTimeout(function() {
-            stopScanner();
-            lookupProduct(scannedText);
-          }, 250);
+          stopScanner();
+          lookupProduct(scannedText);
         }
       }
     );
-
     setMsg("Point camera at QR code or barcode");
   } catch (err) {
     setMsg("Camera error: " + err, "error");
@@ -298,75 +144,56 @@ function stopScanner() {
     codeReader.reset();
     codeReader = null;
   }
-
   document.getElementById("preview").style.display = "none";
   document.getElementById("scanBtn").style.display = "block";
   document.getElementById("stopBtn").style.display = "none";
 }
 
 function manualEnter(event) {
-  if (event.key === "Enter") {
-    const barcode = document.getElementById("barcode").value.trim();
-    lookupProduct(barcode);
-  }
+  if (event.key === "Enter") lookupProduct();
 }
 
-function lookupProduct(barcodeInput) {
-  const barcode = (barcodeInput || document.getElementById("barcode").value).trim();
-
-  if (!barcode) {
-    setMsg("Enter or scan a barcode.", "error");
-    return;
-  }
+function lookupProduct(value) {
+  const barcode = (value || document.getElementById("barcode").value).trim();
+  if (!barcode) return setMsg("Enter or scan an article number.", "error");
 
   setMsg("Looking up product...");
 
-  jsonp(
-    API_URL + "?action=find&barcode=" + encodeURIComponent(barcode),
-    function(item) {
-      if (item && item.found) {
-        document.getElementById("product").innerText = item.description || "-";
-        document.getElementById("barcodeDisplay").innerText = item.barcode || "-";
-        document.getElementById("articleNo").innerText = item.articleNo || "-";
-        document.getElementById("make").innerText = item.make || "-";
-        document.getElementById("recordedQty").innerText = item.recordedQty || "-";
-        document.getElementById("capturedQty").innerText = item.capturedQty || "-";
-        document.getElementById("bin").innerText = item.bin || "-";
-        document.getElementById("zone").innerText = item.zone || "-";
-        document.getElementById("location").innerText = item.location || "-";
-        document.getElementById("qty").focus();
-
-        setMsg("Product found", "success");
-      } else {
-        clearProductOnly();
-        setMsg("Barcode not found: " + barcode, "error");
-      }
+  jsonp(API_URL + "?action=find&barcode=" + encodeURIComponent(barcode), function(item) {
+    if (item && item.found) {
+      document.getElementById("product").innerText = item.description || "-";
+      document.getElementById("articleNo").innerText = item.articleNo || item.barcode || "-";
+      document.getElementById("make").innerText = item.make || "-";
+      document.getElementById("recordedQty").innerText = item.recordedQty || "-";
+      document.getElementById("capturedQty").innerText = item.capturedQty || "-";
+      document.getElementById("bin").innerText = item.bin || "-";
+      document.getElementById("zone").innerText = item.zone || "-";
+      document.getElementById("location").innerText = item.location || "-";
+      document.getElementById("qty").focus();
+      setMsg("Product found");
+    } else {
+      clearProductOnly();
+      setMsg("Article not found: " + barcode, "error");
     }
-  );
+  });
 }
 
 function saveCount() {
   const barcode = document.getElementById("barcode").value.trim();
   const qty = document.getElementById("qty").value;
 
-  if (!barcode || qty === "") {
-    setMsg("Enter barcode and quantity.", "error");
-    return;
-  }
+  if (!barcode || qty === "") return setMsg("Enter article number and quantity.", "error");
 
   setMsg("Saving...");
 
-  jsonp(
-    API_URL + "?action=save&barcode=" + encodeURIComponent(barcode) + "&qty=" + encodeURIComponent(qty),
-    function(res) {
-      if (res && res.ok) {
-        clearForm();
-        setMsg("Saved successfully. Ready for next item.", "success");
-      } else {
-        setMsg((res && res.message) ? res.message : "Save failed", "error");
-      }
+  jsonp(API_URL + "?action=save&barcode=" + encodeURIComponent(barcode) + "&qty=" + encodeURIComponent(qty), function(res) {
+    if (res && res.ok) {
+      clearForm();
+      setMsg("Saved successfully. Ready for next item.");
+    } else {
+      setMsg((res && res.message) || "Save failed", "error");
     }
-  );
+  });
 }
 
 function clearForm() {
@@ -377,7 +204,6 @@ function clearForm() {
 
 function clearProductOnly() {
   document.getElementById("product").innerText = "Not scanned yet";
-  document.getElementById("barcodeDisplay").innerText = "-";
   document.getElementById("articleNo").innerText = "-";
   document.getElementById("make").innerText = "-";
   document.getElementById("recordedQty").innerText = "-";
@@ -387,6 +213,5 @@ function clearProductOnly() {
   document.getElementById("location").innerText = "-";
 }
 </script>
-
 </body>
 </html>
