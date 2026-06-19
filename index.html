@@ -1,120 +1,39 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://unpkg.com/@zxing/library@latest"></script>
 
   <style>
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4fbf6;
-      color: #1f2933;
-    }
-
-    .header {
-      background: #0f8a3b;
-      color: white;
-      padding: 20px;
-      text-align: center;
-      font-size: 28px;
-      font-weight: bold;
-    }
-
-    .container { padding: 12px; }
-
-    .card {
-      background: white;
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 8px #ccc;
-    }
-
-    button, input {
-      width: 100%;
-      font-size: 24px;
-      padding: 18px;
-      margin-top: 8px;
-      border-radius: 12px;
-      box-sizing: border-box;
-    }
-
-    button {
-      border: 0;
-      color: white;
-      font-weight: bold;
-    }
-
-    .scan { background: #0f8a3b; }
-    .stop { background: #dc2626; display: none; }
-    .save { background: #15803d; }
-    .clear { background: #666; }
-
-    video {
-      width: 100%;
-      display: none;
-      border: 3px solid #0f8a3b;
-      border-radius: 14px;
-      background: black;
-      margin-top: 10px;
-    }
-
-    .title {
-      color: #166534;
-      font-size: 13px;
-      font-weight: bold;
-      text-transform: uppercase;
-    }
-
-    .product {
-      font-size: 26px;
-      font-weight: bold;
-      color: #064e3b;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .box {
-      background: #ecfdf3;
-      padding: 14px;
-      border-radius: 12px;
-      border: 1px solid #bbf7d0;
-    }
-
-    .value {
-      font-size: 30px;
-      font-weight: bold;
-    }
-
-    #msg {
-      text-align: center;
-      font-size: 22px;
-      font-weight: bold;
-      color: #166534;
-    }
+    body { margin:0; font-family:Arial; background:#f4fbf6; }
+    .header { background:#0f8a3b; color:white; padding:20px; text-align:center; font-size:28px; font-weight:bold; }
+    .container { padding:12px; }
+    .card { background:white; border-radius:16px; padding:16px; margin-bottom:12px; box-shadow:0 2px 8px #ccc; }
+    button, input { width:100%; font-size:24px; padding:18px; margin-top:8px; border-radius:12px; box-sizing:border-box; }
+    button { border:0; color:white; font-weight:bold; }
+    .scan { background:#0f8a3b; }
+    .stop { background:#dc2626; display:none; }
+    .save { background:#15803d; }
+    .clear { background:#666; }
+    video { width:100%; display:none; border:3px solid #0f8a3b; border-radius:14px; background:black; }
+    .title { color:#166534; font-size:13px; font-weight:bold; text-transform:uppercase; }
+    .product { font-size:26px; font-weight:bold; color:#064e3b; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+    .box { background:#ecfdf3; padding:14px; border-radius:12px; border:1px solid #bbf7d0; }
+    .value { font-size:30px; font-weight:bold; }
+    #msg { text-align:center; font-size:22px; font-weight:bold; color:#166534; }
   </style>
 </head>
 
 <body>
-
 <div class="header">STOCK SCANNER</div>
 
 <div class="container">
 
   <div class="card">
-    <button id="scanBtn" class="scan" onclick="startScanner()">📷 SCAN BARCODE</button>
+    <button id="scanBtn" class="scan" onclick="startScanner()">📷 SCAN QR / BARCODE</button>
     <button id="stopBtn" class="stop" onclick="stopScanner()">STOP</button>
-
     <video id="preview" autoplay muted playsinline></video>
-
     <input id="barcode" onchange="lookupProduct()" placeholder="Barcode / Article No">
   </div>
 
@@ -123,25 +42,10 @@
     <div id="product" class="product">Not scanned yet</div>
 
     <div class="grid">
-      <div class="box">
-        <div class="title">Qty Recorded</div>
-        <div id="recordedQty" class="value">-</div>
-      </div>
-
-      <div class="box">
-        <div class="title">Qty Captured</div>
-        <div id="capturedQty" class="value">-</div>
-      </div>
-
-      <div class="box">
-        <div class="title">Bin No</div>
-        <div id="bin" class="value">-</div>
-      </div>
-
-      <div class="box">
-        <div class="title">Zone</div>
-        <div id="zone" class="value">-</div>
-      </div>
+      <div class="box"><div class="title">Qty Recorded</div><div id="recordedQty" class="value">-</div></div>
+      <div class="box"><div class="title">Qty Captured</div><div id="capturedQty" class="value">-</div></div>
+      <div class="box"><div class="title">Bin No</div><div id="bin" class="value">-</div></div>
+      <div class="box"><div class="title">Zone</div><div id="zone" class="value">-</div></div>
     </div>
 
     <div class="box" style="margin-top:12px;">
@@ -152,10 +56,8 @@
 
   <div class="card">
     <input id="qty" type="number" inputmode="numeric" placeholder="Qty counted">
-
     <button class="save" onclick="saveCount()">✅ SAVE COUNT</button>
     <button class="clear" onclick="clearForm()">Clear</button>
-
     <p id="msg"></p>
   </div>
 
@@ -190,38 +92,49 @@ async function startScanner() {
   document.getElementById("stopBtn").style.display = "block";
 
   const hints = new Map();
-  hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-    ZXing.BarcodeFormat.CODE_128
-  ]);
+
+  hints.set(
+    ZXing.DecodeHintType.POSSIBLE_FORMATS,
+    [
+      ZXing.BarcodeFormat.QR_CODE,
+      ZXing.BarcodeFormat.DATA_MATRIX,
+      ZXing.BarcodeFormat.PDF_417,
+      ZXing.BarcodeFormat.CODE_128,
+      ZXing.BarcodeFormat.CODE_39,
+      ZXing.BarcodeFormat.EAN_13,
+      ZXing.BarcodeFormat.EAN_8,
+      ZXing.BarcodeFormat.UPC_A,
+      ZXing.BarcodeFormat.UPC_E
+    ]
+  );
 
   codeReader = new ZXing.BrowserMultiFormatReader(hints);
 
-  codeReader.decodeFromConstraints(
-    {
-      video: {
-        facingMode: "environment"
-      }
-    },
-    "preview",
-    function(result, err) {
-      if (result && !scanned) {
-        scanned = true;
+  try {
+    await codeReader.decodeFromConstraints(
+      { video: { facingMode: "environment" } },
+      "preview",
+      function(result, err) {
+        if (result && !scanned) {
+          scanned = true;
 
-        const articleNo = result.text.trim();
+          const scannedText = result.text.trim();
+          document.getElementById("barcode").value = scannedText;
 
-        document.getElementById("barcode").value = articleNo;
+          if (navigator.vibrate) navigator.vibrate(150);
 
-        if (navigator.vibrate) {
-          navigator.vibrate(150);
+          stopScanner();
+          msg("Scanned: " + scannedText);
+          lookupProduct();
         }
-
-        stopScanner();
-        lookupProduct();
       }
-    }
-  );
+    );
 
-  msg("Point camera at Code 128 article barcode");
+    msg("Point camera at QR code or barcode");
+  } catch (e) {
+    msg("Camera error: " + e);
+    stopScanner();
+  }
 }
 
 function stopScanner() {
@@ -237,7 +150,6 @@ function stopScanner() {
 
 function lookupProduct() {
   const barcode = document.getElementById("barcode").value.trim();
-
   if (!barcode) return;
 
   msg("Looking up product...");
@@ -250,12 +162,10 @@ function lookupProduct() {
       document.getElementById("bin").innerText = item.bin || "-";
       document.getElementById("zone").innerText = item.zone || "-";
       document.getElementById("location").innerText = item.location || "-";
-
       document.getElementById("qty").focus();
-
-      msg("Product found: " + barcode);
+      msg("Product found");
     } else {
-      msg("Barcode not found: " + barcode);
+      msg("Barcode / QR not found: " + barcode);
     }
   });
 }
@@ -271,19 +181,15 @@ function saveCount() {
 
   msg("Saving...");
 
-  jsonp(
-    API_URL + "?action=save&barcode=" + encodeURIComponent(barcode) + "&qty=" + encodeURIComponent(qty),
-    function(res) {
-      msg(res.message || "Saved");
-      clearForm();
-    }
-  );
+  jsonp(API_URL + "?action=save&barcode=" + encodeURIComponent(barcode) + "&qty=" + encodeURIComponent(qty), function(res) {
+    msg(res.message || "Saved");
+    clearForm();
+  });
 }
 
 function clearForm() {
   document.getElementById("barcode").value = "";
   document.getElementById("qty").value = "";
-
   document.getElementById("product").innerText = "Not scanned yet";
   document.getElementById("recordedQty").innerText = "-";
   document.getElementById("capturedQty").innerText = "-";
@@ -296,6 +202,5 @@ function msg(text) {
   document.getElementById("msg").innerText = text;
 }
 </script>
-
 </body>
 </html>
