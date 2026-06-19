@@ -80,6 +80,7 @@
       font-weight: 800;
       color: #064e3b;
       margin-bottom: 12px;
+      line-height: 1.15;
     }
 
     .grid {
@@ -140,7 +141,7 @@
 
   <div class="card">
     <div class="title">Product</div>
-    <div id="product" class="product">Loading stock list...</div>
+    <div id="product" class="product">Ready to scan</div>
 
     <div class="grid">
       <div class="box"><div class="label">Article No</div><div id="articleNo" class="value">-</div></div>
@@ -165,226 +166,186 @@
   </div>
 
 </div>
-
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbzRTg74wXYC_xak3udaWydDjccP0L_47x_xfANu-0FBUgOuHDPY8wHCJ5QAqqfqCsYO/exec";
 
-let codeReader = null;
-let alreadyScanned = false;
-let stockList = {};
-let currentItem = null;
+const API =
+"https://script.google.com/macros/s/YOUR_NEW_DEPLOYMENT_URL/exec";
 
-window.onload = function() {
-  loadStockList();
-};
+let scanner;
 
-function setMsg(text, type = "") {
-  const el = document.getElementById("msg");
-  el.innerText = text;
-  el.className = type;
-}
-
-function jsonp(url, callback) {
-  const cb = "cb_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
-  const script = document.createElement("script");
-
-  window[cb] = function(data) {
-    callback(data);
-    delete window[cb];
-    script.remove();
-  };
-
-  script.onerror = function() {
-    setMsg("Connection error.", "error");
-    delete window[cb];
-    script.remove();
-  };
-
-  script.src = url + (url.includes("?") ? "&" : "?") + "callback=" + cb;
-  document.body.appendChild(script);
-}
-
-function loadStockList() {
-  setMsg("Loading stock list...");
-
-  jsonp(API_URL + "?action=list", function(res) {
-    if (!res || !res.ok) {
-      document.getElementById("product").innerText = "Stock list failed";
-      setMsg("Could not load stock list.", "error");
-      return;
-    }
-
-    stockList = {};
-
-    res.items.forEach(function(item) {
-      stockList[String(item.barcode).trim()] = item;
-    });
-
-    document.getElementById("product").innerText = "Ready to scan";
-    setMsg("Loaded " + res.count + " stock items");
-  });
-}
-
-async function startScanner() {
-  alreadyScanned = false;
-  setMsg("Starting camera...");
-
-  document.getElementById("preview").style.display = "block";
-  document.getElementById("scanBtn").style.display = "none";
-  document.getElementById("stopBtn").style.display = "block";
-
-  const hints = new Map();
-  hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-    ZXing.BarcodeFormat.QR_CODE,
-    ZXing.BarcodeFormat.CODE_128,
-    ZXing.BarcodeFormat.CODE_39,
-    ZXing.BarcodeFormat.EAN_13,
-    ZXing.BarcodeFormat.DATA_MATRIX,
-    ZXing.BarcodeFormat.PDF_417
-  ]);
-
-  codeReader = new ZXing.BrowserMultiFormatReader(hints);
-
-  try {
-    await codeReader.decodeFromConstraints(
-      { video: { facingMode: "environment" } },
-      "preview",
-      function(result) {
-        if (result && !alreadyScanned) {
-          alreadyScanned = true;
-          const scannedText = result.text.trim();
-          document.getElementById("barcode").value = scannedText;
-          if (navigator.vibrate) navigator.vibrate(150);
-          stopScanner();
-          lookupProduct(scannedText);
-        }
-      }
-    );
-
-    setMsg("Point camera at QR code or barcode");
-  } catch (err) {
-    setMsg("Camera error: " + err, "error");
-    stopScanner();
+function manualEnter(e){
+  if(e.key==="Enter"){
+    lookup(document.getElementById("barcode").value);
   }
 }
 
-function stopScanner() {
-  if (codeReader) {
-    codeReader.reset();
-    codeReader = null;
-  }
+function startScanner(){
 
-  document.getElementById("preview").style.display = "none";
-  document.getElementById("scanBtn").style.display = "block";
-  document.getElementById("stopBtn").style.display = "none";
-}
+  document.getElementById("preview").style.display="block";
+  document.getElementById("scanBtn").style.display="none";
+  document.getElementById("stopBtn").style.display="block";
 
-function manualEnter(event) {
-  if (event.key === "Enter") {
-    lookupProduct(document.getElementById("barcode").value);
-  }
-}
+  scanner = new ZXing.BrowserMultiFormatReader();
 
-function lookupProduct(value) {
-  const barcode = String(value || "").trim();
-
-  if (!barcode) {
-    setMsg("Enter or scan a barcode.", "error");
-    return;
-  }
-
-  const item = stockList[barcode];
-
-  if (!item) {
-    clearProductOnly();
-    setMsg("Barcode not found: " + barcode, "error");
-    return;
-  }
-
-  currentItem = item;
-
-  document.getElementById("product").innerText = item.description || "-";
-  document.getElementById("articleNo").innerText = item.articleNo || "-";
-  document.getElementById("make").innerText = item.make || "-";
-  document.getElementById("recordedQty").innerText = item.recordedQty || "-";
-  document.getElementById("capturedQty").innerText = item.capturedQty || "-";
-  document.getElementById("bin").innerText = item.bin || "-";
-  document.getElementById("zone").innerText = item.zone || "-";
-  document.getElementById("location").innerText = item.location || "-";
-
-  document.getElementById("qty").focus();
-  setMsg("Product found");
-}
-
-function checkQuantity() {
-  if (!currentItem) return;
-
-  const counted = Number(document.getElementById("qty").value);
-  const recorded = Number(currentItem.recordedQty);
-
-  if (document.getElementById("qty").value === "") {
-    setMsg("");
-    return;
-  }
-
-  if (counted === recorded) {
-    setMsg("Quantity matches recorded stock", "good");
-  } else {
-    setMsg("Variance: counted " + counted + " vs recorded " + recorded, "bad");
-  }
-}
-
-function saveCount() {
-  const barcode = document.getElementById("barcode").value.trim();
-  const qty = document.getElementById("qty").value;
-
-  if (!barcode || qty === "") {
-    setMsg("Enter barcode and quantity.", "error");
-    return;
-  }
-
-  setMsg("Saving...");
-
-  jsonp(
-    API_URL + "?action=save&barcode=" + encodeURIComponent(barcode) +
-    "&qty=" + encodeURIComponent(qty) +
-    "&who=" + encodeURIComponent("Matthew"),
-    function(res) {
-      if (res && res.ok) {
-        if (stockList[barcode]) {
-          stockList[barcode].capturedQty = qty;
-        }
-
-        clearForm();
-        setMsg("Saved successfully. Opening scanner...");
-
-        setTimeout(function() {
-          startScanner();
-        }, 700);
-      } else {
-        setMsg((res && res.message) || "Save failed", "error");
+  scanner.decodeFromVideoDevice(
+    null,
+    "preview",
+    (result)=>{
+      if(result){
+        stopScanner();
+        document.getElementById("barcode").value=result.text;
+        lookup(result.text);
       }
     }
   );
 }
 
-function clearForm() {
-  document.getElementById("barcode").value = "";
-  document.getElementById("qty").value = "";
-  currentItem = null;
-  clearProductOnly();
+function stopScanner(){
+
+  if(scanner){
+    scanner.reset();
+  }
+
+  document.getElementById("preview").style.display="none";
+  document.getElementById("scanBtn").style.display="block";
+  document.getElementById("stopBtn").style.display="none";
 }
 
-function clearProductOnly() {
-  document.getElementById("product").innerText = "Ready to scan";
-  document.getElementById("articleNo").innerText = "-";
-  document.getElementById("make").innerText = "-";
-  document.getElementById("recordedQty").innerText = "-";
-  document.getElementById("capturedQty").innerText = "-";
-  document.getElementById("bin").innerText = "-";
-  document.getElementById("zone").innerText = "-";
-  document.getElementById("location").innerText = "-";
+
+function lookup(barcode){
+
+  document.getElementById("msg").innerHTML="Looking up product...";
+
+  const url =
+  API +
+  "?action=find" +
+  "&barcode=" +
+  encodeURIComponent(barcode);
+
+  fetch(url)
+  .then(r=>r.json())
+  .then(showProduct)
+  .catch(()=>{
+    msg("Connection error",true);
+  });
+
 }
+
+
+function showProduct(data){
+
+  if(!data.found){
+
+    msg("Barcode not found : "+document.getElementById("barcode").value,true);
+    return;
+
+  }
+
+  document.getElementById("product").innerHTML=data.description;
+  document.getElementById("articleNo").innerHTML=data.articleNo||"-";
+  document.getElementById("make").innerHTML=data.make||"-";
+  document.getElementById("recordedQty").innerHTML=data.recordedQty||"-";
+  document.getElementById("capturedQty").innerHTML=data.capturedQty||"-";
+  document.getElementById("bin").innerHTML=data.bin||"-";
+  document.getElementById("zone").innerHTML=data.zone||"-";
+  document.getElementById("location").innerHTML=data.location||"-";
+
+  checkQuantity();
+
+  msg("Product found");
+}
+
+
+function checkQuantity(){
+
+  let recorded =
+    Number(document.getElementById("recordedQty").innerHTML);
+
+  let counted =
+    Number(document.getElementById("qty").value);
+
+  let m = document.getElementById("msg");
+
+  if(!counted)return;
+
+  if(counted===recorded){
+    m.className="good";
+    m.innerHTML="✓ Quantity correct";
+  }
+  else{
+    m.className="bad";
+    m.innerHTML="⚠ Quantity mismatch";
+  }
+
+}
+
+
+function saveCount(){
+
+  let barcode=document.getElementById("barcode").value;
+  let qty=document.getElementById("qty").value;
+
+  if(!qty){
+    msg("Enter quantity",true);
+    return;
+  }
+
+  fetch(
+    API+
+    "?action=save"+
+    "&barcode="+encodeURIComponent(barcode)+
+    "&qty="+encodeURIComponent(qty)
+  )
+  .then(r=>r.json())
+  .then(data=>{
+
+    if(data.ok){
+      msg("Saved successfully");
+      lookup(barcode);
+    }
+    else{
+      msg(data.message,true);
+    }
+
+  });
+
+}
+
+
+function clearForm(){
+
+  document.getElementById("barcode").value="";
+  document.getElementById("qty").value="";
+
+  document.getElementById("product").innerHTML="Ready to scan";
+
+  document.getElementById("articleNo").innerHTML="-";
+  document.getElementById("make").innerHTML="-";
+  document.getElementById("recordedQty").innerHTML="-";
+  document.getElementById("capturedQty").innerHTML="-";
+  document.getElementById("bin").innerHTML="-";
+  document.getElementById("zone").innerHTML="-";
+  document.getElementById("location").innerHTML="-";
+
+  msg("");
+}
+
+
+function msg(text,error=false){
+
+  let m=document.getElementById("msg");
+
+  m.innerHTML=text;
+
+  if(error){
+    m.className="error";
+  }
+  else{
+    m.className="good";
+  }
+
+}
+
 </script>
+
 </body>
-</html>
