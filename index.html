@@ -18,8 +18,8 @@
       background: #138a3d;
       color: white;
       text-align: center;
-      padding: 24px 12px;
-      font-size: 34px;
+      padding: 22px 12px;
+      font-size: 32px;
       font-weight: 800;
       letter-spacing: 1px;
     }
@@ -27,7 +27,7 @@
     .wrap {
       max-width: 720px;
       margin: 0 auto;
-      padding: 14px;
+      padding: 12px;
     }
 
     .card {
@@ -42,8 +42,8 @@
     button, input {
       width: 100%;
       border-radius: 14px;
-      padding: 18px;
-      font-size: 24px;
+      padding: 17px;
+      font-size: 22px;
       margin-top: 10px;
     }
 
@@ -58,9 +58,9 @@
       background: white;
     }
 
-    .scan-btn { background: #138a3d; font-size: 28px; }
+    .scan-btn { background: #138a3d; font-size: 24px; }
     .stop-btn { background: #d93025; display: none; }
-    .save-btn { background: #138a3d; font-size: 28px; }
+    .save-btn { background: #138a3d; font-size: 24px; }
     .clear-btn { background: #6b7280; }
 
     video {
@@ -81,7 +81,7 @@
     }
 
     .product {
-      font-size: 30px;
+      font-size: 28px;
       font-weight: 800;
       color: #064e3b;
       margin-bottom: 12px;
@@ -99,7 +99,7 @@
       border: 2px solid #bdf2cc;
       border-radius: 14px;
       padding: 14px;
-      min-height: 96px;
+      min-height: 92px;
     }
 
     .label {
@@ -110,14 +110,14 @@
     }
 
     .value {
-      font-size: 30px;
+      font-size: 26px;
       font-weight: 800;
       color: #111827;
       margin-top: 6px;
       word-break: break-word;
     }
 
-    .location {
+    .wide {
       margin-top: 10px;
     }
 
@@ -131,15 +131,6 @@
 
     .error { color: #d93025 !important; }
     .success { color: #138a3d !important; }
-
-    @media (max-width: 480px) {
-      .app-header { font-size: 30px; padding: 22px 10px; }
-      .wrap { padding: 10px; }
-      .product { font-size: 28px; }
-      .value { font-size: 28px; }
-      button, input { font-size: 22px; }
-      .scan-btn, .save-btn { font-size: 24px; }
-    }
   </style>
 </head>
 
@@ -150,12 +141,12 @@
   <div class="wrap">
 
     <div class="card">
-      <button id="scanBtn" class="scan-btn" onclick="startScanner()">📷 SCAN QR / BARCODE</button>
+      <button id="scanBtn" class="scan-btn" onclick="startScanner()">SCAN QR / BARCODE</button>
       <button id="stopBtn" class="stop-btn" onclick="stopScanner()">STOP SCANNER</button>
 
       <video id="preview" autoplay muted playsinline></video>
 
-      <input id="barcode" placeholder="Barcode / Article No" onkeydown="manualEnter(event)">
+      <input id="barcode" placeholder="Scan barcode or type barcode number" onkeydown="manualEnter(event)">
     </div>
 
     <div class="card">
@@ -163,6 +154,21 @@
       <div id="product" class="product">Not scanned yet</div>
 
       <div class="grid">
+        <div class="info">
+          <div class="label">Barcode</div>
+          <div id="barcodeDisplay" class="value">-</div>
+        </div>
+
+        <div class="info">
+          <div class="label">Article No</div>
+          <div id="articleNo" class="value">-</div>
+        </div>
+
+        <div class="info">
+          <div class="label">Make</div>
+          <div id="make" class="value">-</div>
+        </div>
+
         <div class="info">
           <div class="label">Qty Recorded</div>
           <div id="recordedQty" class="value">-</div>
@@ -182,18 +188,18 @@
           <div class="label">Zone</div>
           <div id="zone" class="value">-</div>
         </div>
-      </div>
 
-      <div class="info location">
-        <div class="label">Location</div>
-        <div id="location" class="value">-</div>
+        <div class="info">
+          <div class="label">Location</div>
+          <div id="location" class="value">-</div>
+        </div>
       </div>
     </div>
 
     <div class="card">
       <input id="qty" type="number" inputmode="numeric" placeholder="Qty counted">
 
-      <button class="save-btn" onclick="saveCount()">✅ SAVE COUNT</button>
+      <button class="save-btn" onclick="saveCount()">SAVE COUNT</button>
       <button class="clear-btn" onclick="clearForm()">CLEAR</button>
 
       <p id="msg"></p>
@@ -320,6 +326,9 @@ function lookupProduct(barcodeInput) {
     function(item) {
       if (item && item.found) {
         document.getElementById("product").innerText = item.description || "-";
+        document.getElementById("barcodeDisplay").innerText = item.barcode || "-";
+        document.getElementById("articleNo").innerText = item.articleNo || "-";
+        document.getElementById("make").innerText = item.make || "-";
         document.getElementById("recordedQty").innerText = item.recordedQty || "-";
         document.getElementById("capturedQty").innerText = item.capturedQty || "-";
         document.getElementById("bin").innerText = item.bin || "-";
@@ -368,6 +377,9 @@ function clearForm() {
 
 function clearProductOnly() {
   document.getElementById("product").innerText = "Not scanned yet";
+  document.getElementById("barcodeDisplay").innerText = "-";
+  document.getElementById("articleNo").innerText = "-";
+  document.getElementById("make").innerText = "-";
   document.getElementById("recordedQty").innerText = "-";
   document.getElementById("capturedQty").innerText = "-";
   document.getElementById("bin").innerText = "-";
