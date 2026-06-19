@@ -6,124 +6,27 @@
 
   <style>
     * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #eef8f0;
-      color: #123524;
-    }
-
-    .header {
-      background: #138a3d;
-      color: white;
-      text-align: center;
-      padding: 22px 10px;
-      font-size: 30px;
-      font-weight: 800;
-    }
-
-    .wrap {
-      max-width: 720px;
-      margin: auto;
-      padding: 12px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 14px;
-      box-shadow: 0 4px 14px rgba(0,0,0,.12);
-    }
-
-    button, input {
-      width: 100%;
-      border-radius: 14px;
-      padding: 18px;
-      font-size: 22px;
-      margin-top: 10px;
-    }
-
-    button {
-      border: 0;
-      color: white;
-      font-weight: 800;
-    }
-
-    input {
-      border: 2px solid #b7d7c2;
-    }
-
-    .scan, .save { background: #138a3d; }
-    .stop { background: #d93025; display: none; }
-    .clear { background: #6b7280; }
-
-    video {
-      width: 100%;
-      display: none;
-      margin-top: 12px;
-      border-radius: 16px;
-      border: 4px solid #138a3d;
-      background: black;
-    }
-
-    .title {
-      font-size: 14px;
-      font-weight: 800;
-      color: #166534;
-      text-transform: uppercase;
-    }
-
-    .product {
-      font-size: 28px;
-      font-weight: 800;
-      color: #064e3b;
-      margin-bottom: 12px;
-      line-height: 1.15;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .box {
-      background: #ecfdf3;
-      border: 2px solid #bdf2cc;
-      border-radius: 14px;
-      padding: 14px;
-      min-height: 88px;
-    }
-
-    .label {
-      color: #166534;
-      font-size: 13px;
-      font-weight: 800;
-      text-transform: uppercase;
-    }
-
-    .value {
-      font-size: 24px;
-      font-weight: 800;
-      color: #111827;
-      margin-top: 6px;
-      word-break: break-word;
-      line-height: 1.1;
-    }
-
-    #msg {
-      text-align: center;
-      font-size: 20px;
-      font-weight: 800;
-      color: #166534;
-      min-height: 28px;
-    }
-
-    .error { color: #d93025 !important; }
-    .good { color: #138a3d !important; }
-    .bad { color: #d93025 !important; }
+    body { margin:0; font-family:Arial,sans-serif; background:#eef8f0; color:#123524; }
+    .header { background:#138a3d; color:white; text-align:center; padding:22px 10px; font-size:30px; font-weight:800; }
+    .wrap { max-width:720px; margin:auto; padding:12px; }
+    .card { background:white; border-radius:18px; padding:16px; margin-bottom:14px; box-shadow:0 4px 14px rgba(0,0,0,.12); }
+    button,input { width:100%; border-radius:14px; padding:18px; font-size:22px; margin-top:10px; }
+    button { border:0; color:white; font-weight:800; }
+    input { border:2px solid #b7d7c2; }
+    .scan,.save { background:#138a3d; }
+    .stop { background:#d93025; display:none; }
+    .clear { background:#6b7280; }
+    video { width:100%; display:none; margin-top:12px; border-radius:16px; border:4px solid #138a3d; background:black; }
+    .title { font-size:14px; font-weight:800; color:#166534; text-transform:uppercase; }
+    .product { font-size:28px; font-weight:800; color:#064e3b; margin-bottom:12px; line-height:1.15; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .box { background:#ecfdf3; border:2px solid #bdf2cc; border-radius:14px; padding:14px; min-height:88px; }
+    .label { color:#166534; font-size:13px; font-weight:800; text-transform:uppercase; }
+    .value { font-size:24px; font-weight:800; color:#111827; margin-top:6px; word-break:break-word; line-height:1.1; }
+    #msg { text-align:center; font-size:20px; font-weight:800; color:#166534; min-height:28px; }
+    .error { color:#d93025!important; }
+    .good { color:#138a3d!important; }
+    .bad { color:#d93025!important; }
   </style>
 </head>
 
@@ -131,7 +34,6 @@
 <div class="header">STOCK SCANNER</div>
 
 <div class="wrap">
-
   <div class="card">
     <button id="scanBtn" class="scan" onclick="startScanner()">📷 SCAN QR / BARCODE</button>
     <button id="stopBtn" class="stop" onclick="stopScanner()">STOP SCANNER</button>
@@ -164,188 +66,171 @@
     <button class="clear" onclick="clearForm()">CLEAR</button>
     <p id="msg"></p>
   </div>
-
 </div>
+
 <script>
+const API = "https://script.google.com/macros/s/AKfycbzn6AWyiTjUU0VV5UBp-juZVOxbVuWh_C49KgON44ypNYbPhU0lo1RWaJl5MiD_H7Dz/exec";
 
-const API =
-"https://script.google.com/macros/s/AKfycbyJ6H1B5WQAwQ8i5AfwSmcblc_3wIr4zfAqBV5Wi3QNFPOPXnRhv_ms7mHWj3Mh4aHo/exec";
+let scanner = null;
+let currentItem = null;
 
-let scanner;
+function setMsg(text, type="") {
+  const el = document.getElementById("msg");
+  el.innerText = text;
+  el.className = type;
+}
 
-function manualEnter(e){
-  if(e.key==="Enter"){
+function manualEnter(e) {
+  if (e.key === "Enter") {
     lookup(document.getElementById("barcode").value);
   }
 }
 
-function startScanner(){
+function startScanner() {
+  document.getElementById("preview").style.display = "block";
+  document.getElementById("scanBtn").style.display = "none";
+  document.getElementById("stopBtn").style.display = "block";
+  setMsg("Point camera at QR code or barcode");
 
-  document.getElementById("preview").style.display="block";
-  document.getElementById("scanBtn").style.display="none";
-  document.getElementById("stopBtn").style.display="block";
+  const hints = new Map();
+  hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+    ZXing.BarcodeFormat.QR_CODE,
+    ZXing.BarcodeFormat.CODE_128,
+    ZXing.BarcodeFormat.CODE_39,
+    ZXing.BarcodeFormat.EAN_13,
+    ZXing.BarcodeFormat.DATA_MATRIX,
+    ZXing.BarcodeFormat.PDF_417
+  ]);
 
-  scanner = new ZXing.BrowserMultiFormatReader();
+  scanner = new ZXing.BrowserMultiFormatReader(hints);
 
-  scanner.decodeFromVideoDevice(
-    null,
+  scanner.decodeFromConstraints(
+    { video: { facingMode: "environment" } },
     "preview",
-    (result)=>{
-      if(result){
+    function(result) {
+      if (result) {
+        const code = result.text.trim();
+        document.getElementById("barcode").value = code;
+        if (navigator.vibrate) navigator.vibrate(150);
         stopScanner();
-        document.getElementById("barcode").value=result.text;
-        lookup(result.text);
+        lookup(code);
       }
     }
   );
 }
 
-function stopScanner(){
-
-  if(scanner){
+function stopScanner() {
+  if (scanner) {
     scanner.reset();
+    scanner = null;
   }
-
-  document.getElementById("preview").style.display="none";
-  document.getElementById("scanBtn").style.display="block";
-  document.getElementById("stopBtn").style.display="none";
+  document.getElementById("preview").style.display = "none";
+  document.getElementById("scanBtn").style.display = "block";
+  document.getElementById("stopBtn").style.display = "none";
 }
 
+function lookup(barcode) {
+  barcode = String(barcode || "").trim();
 
-function lookup(barcode){
-
-  document.getElementById("msg").innerHTML="Looking up product...";
-
-  const url =
-  API +
-  "?action=find" +
-  "&barcode=" +
-  encodeURIComponent(barcode);
-
-  fetch(url)
-  .then(r=>r.json())
-  .then(showProduct)
-  .catch(()=>{
-    msg("Connection error",true);
-  });
-
-}
-
-
-function showProduct(data){
-
-  if(!data.found){
-
-    msg("Barcode not found : "+document.getElementById("barcode").value,true);
-    return;
-
-  }
-
-  document.getElementById("product").innerHTML=data.description;
-  document.getElementById("articleNo").innerHTML=data.articleNo||"-";
-  document.getElementById("make").innerHTML=data.make||"-";
-  document.getElementById("recordedQty").innerHTML=data.recordedQty||"-";
-  document.getElementById("capturedQty").innerHTML=data.capturedQty||"-";
-  document.getElementById("bin").innerHTML=data.bin||"-";
-  document.getElementById("zone").innerHTML=data.zone||"-";
-  document.getElementById("location").innerHTML=data.location||"-";
-
-  checkQuantity();
-
-  msg("Product found");
-}
-
-
-function checkQuantity(){
-
-  let recorded =
-    Number(document.getElementById("recordedQty").innerHTML);
-
-  let counted =
-    Number(document.getElementById("qty").value);
-
-  let m = document.getElementById("msg");
-
-  if(!counted)return;
-
-  if(counted===recorded){
-    m.className="good";
-    m.innerHTML="✓ Quantity correct";
-  }
-  else{
-    m.className="bad";
-    m.innerHTML="⚠ Quantity mismatch";
-  }
-
-}
-
-
-function saveCount(){
-
-  let barcode=document.getElementById("barcode").value;
-  let qty=document.getElementById("qty").value;
-
-  if(!qty){
-    msg("Enter quantity",true);
+  if (!barcode) {
+    setMsg("Enter or scan a barcode.", "error");
     return;
   }
 
-  fetch(
-    API+
-    "?action=save"+
-    "&barcode="+encodeURIComponent(barcode)+
-    "&qty="+encodeURIComponent(qty)
-  )
-  .then(r=>r.json())
-  .then(data=>{
+  setMsg("Looking up product...");
 
-    if(data.ok){
-      msg("Saved successfully");
-      lookup(barcode);
-    }
-    else{
-      msg(data.message,true);
-    }
-
-  });
-
+  fetch(API + "?action=find&barcode=" + encodeURIComponent(barcode))
+    .then(r => r.json())
+    .then(showProduct)
+    .catch(() => setMsg("Connection error", "error"));
 }
 
-
-function clearForm(){
-
-  document.getElementById("barcode").value="";
-  document.getElementById("qty").value="";
-
-  document.getElementById("product").innerHTML="Ready to scan";
-
-  document.getElementById("articleNo").innerHTML="-";
-  document.getElementById("make").innerHTML="-";
-  document.getElementById("recordedQty").innerHTML="-";
-  document.getElementById("capturedQty").innerHTML="-";
-  document.getElementById("bin").innerHTML="-";
-  document.getElementById("zone").innerHTML="-";
-  document.getElementById("location").innerHTML="-";
-
-  msg("");
-}
-
-
-function msg(text,error=false){
-
-  let m=document.getElementById("msg");
-
-  m.innerHTML=text;
-
-  if(error){
-    m.className="error";
-  }
-  else{
-    m.className="good";
+function showProduct(data) {
+  if (!data.found) {
+    currentItem = null;
+    clearProductOnly();
+    setMsg("Barcode not found: " + document.getElementById("barcode").value, "error");
+    return;
   }
 
+  currentItem = data;
+
+  document.getElementById("product").innerText = data.description || "-";
+  document.getElementById("articleNo").innerText = data.articleNo || "-";
+  document.getElementById("make").innerText = data.make || "-";
+  document.getElementById("recordedQty").innerText = data.recordedQty || "-";
+  document.getElementById("capturedQty").innerText = data.capturedQty || "-";
+  document.getElementById("bin").innerText = data.bin || "-";
+  document.getElementById("zone").innerText = data.zone || "-";
+  document.getElementById("location").innerText = data.location || "-";
+
+  document.getElementById("qty").focus();
+  setMsg("Product found", "good");
 }
 
+function checkQuantity() {
+  if (!currentItem) return;
+
+  const val = document.getElementById("qty").value;
+  if (val === "") {
+    setMsg("");
+    return;
+  }
+
+  const counted = Number(val);
+  const recorded = Number(currentItem.recordedQty);
+
+  if (counted === recorded) {
+    setMsg("✓ Quantity matches recorded stock", "good");
+  } else {
+    setMsg("⚠ Variance: counted " + counted + " vs recorded " + recorded, "bad");
+  }
+}
+
+function saveCount() {
+  const barcode = document.getElementById("barcode").value.trim();
+  const qty = document.getElementById("qty").value;
+
+  if (!barcode || qty === "") {
+    setMsg("Enter barcode and quantity.", "error");
+    return;
+  }
+
+  setMsg("Saving...");
+
+  fetch(API + "?action=save&barcode=" + encodeURIComponent(barcode) +
+        "&qty=" + encodeURIComponent(qty) +
+        "&who=" + encodeURIComponent("Matthew"))
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        clearForm();
+        setMsg("Saved successfully. Opening scanner...", "good");
+        setTimeout(startScanner, 700);
+      } else {
+        setMsg(data.message || "Save failed", "error");
+      }
+    })
+    .catch(() => setMsg("Connection error", "error"));
+}
+
+function clearForm() {
+  document.getElementById("barcode").value = "";
+  document.getElementById("qty").value = "";
+  currentItem = null;
+  clearProductOnly();
+}
+
+function clearProductOnly() {
+  document.getElementById("product").innerText = "Ready to scan";
+  document.getElementById("articleNo").innerText = "-";
+  document.getElementById("make").innerText = "-";
+  document.getElementById("recordedQty").innerText = "-";
+  document.getElementById("capturedQty").innerText = "-";
+  document.getElementById("bin").innerText = "-";
+  document.getElementById("zone").innerText = "-";
+  document.getElementById("location").innerText = "-";
+}
 </script>
-
 </body>
+</html>
