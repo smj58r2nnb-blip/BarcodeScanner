@@ -5,107 +5,255 @@
   <script src="https://unpkg.com/@zxing/library@latest"></script>
 
   <style>
-    body { margin:0; font-family:Arial; background:#f4fbf6; }
-    .header { background:#0f8a3b; color:white; padding:28px 12px; text-align:center; font-size:42px; font-weight:bold; }
-    .container { padding:12px; }
-    .card { background:white; border-radius:22px; padding:18px; margin-bottom:18px; box-shadow:0 3px 12px #ccc; }
-    button, input { width:100%; font-size:34px; padding:22px; margin-top:10px; border-radius:18px; box-sizing:border-box; }
-    button { border:0; color:white; font-weight:bold; }
-    .scan { background:#0f8a3b; }
-    .stop { background:#dc2626; display:none; }
-    .save { background:#15803d; }
-    .clear { background:#666; }
-    video { width:100%; display:none; border:4px solid #0f8a3b; border-radius:18px; background:black; }
-    .title { color:#166534; font-size:24px; font-weight:bold; text-transform:uppercase; }
-    .product { font-size:42px; font-weight:bold; color:#064e3b; }
-    .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:18px; }
-    .box { background:#ecfdf3; padding:22px; border-radius:18px; border:2px solid #bbf7d0; }
-    .value { font-size:46px; font-weight:bold; }
-    #msg { text-align:center; font-size:28px; font-weight:bold; color:#166534; }
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #eef8f0;
+      color: #123524;
+    }
+
+    .app-header {
+      background: #138a3d;
+      color: white;
+      text-align: center;
+      padding: 24px 12px;
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 14px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+      border: 1px solid #d7eadc;
+    }
+
+    button, input {
+      width: 100%;
+      border-radius: 14px;
+      padding: 18px;
+      font-size: 24px;
+      margin-top: 10px;
+    }
+
+    button {
+      border: 0;
+      color: white;
+      font-weight: 800;
+    }
+
+    input {
+      border: 2px solid #b7d7c2;
+      background: white;
+    }
+
+    .scan-btn { background: #138a3d; font-size: 28px; }
+    .stop-btn { background: #d93025; display: none; }
+    .save-btn { background: #138a3d; font-size: 28px; }
+    .clear-btn { background: #6b7280; }
+
+    video {
+      width: 100%;
+      display: none;
+      margin-top: 12px;
+      border-radius: 16px;
+      border: 4px solid #138a3d;
+      background: black;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #1f6b3b;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .product {
+      font-size: 30px;
+      font-weight: 800;
+      color: #064e3b;
+      margin-bottom: 12px;
+      line-height: 1.15;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .info {
+      background: #ecfdf3;
+      border: 2px solid #bdf2cc;
+      border-radius: 14px;
+      padding: 14px;
+      min-height: 96px;
+    }
+
+    .label {
+      color: #166534;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .value {
+      font-size: 30px;
+      font-weight: 800;
+      color: #111827;
+      margin-top: 6px;
+      word-break: break-word;
+    }
+
+    .location {
+      margin-top: 10px;
+    }
+
+    #msg {
+      text-align: center;
+      font-size: 20px;
+      font-weight: 800;
+      min-height: 28px;
+      color: #166534;
+    }
+
+    .error { color: #d93025 !important; }
+    .success { color: #138a3d !important; }
+
+    @media (max-width: 480px) {
+      .app-header { font-size: 30px; padding: 22px 10px; }
+      .wrap { padding: 10px; }
+      .product { font-size: 28px; }
+      .value { font-size: 28px; }
+      button, input { font-size: 22px; }
+      .scan-btn, .save-btn { font-size: 24px; }
+    }
   </style>
 </head>
 
 <body>
-<div class="header">STOCK SCANNER</div>
 
-<div class="container">
+  <div class="app-header">STOCK SCANNER</div>
 
-  <div class="card">
-    <button id="scanBtn" class="scan" onclick="startScanner()">📷 SCAN QR / BARCODE</button>
-    <button id="stopBtn" class="stop" onclick="stopScanner()">STOP</button>
-    <video id="preview" autoplay muted playsinline></video>
-    <input id="barcode" onchange="lookupProduct()" placeholder="Barcode / Article No">
-  </div>
+  <div class="wrap">
 
-  <div class="card">
-    <div class="title">Product</div>
-    <div id="product" class="product">Not scanned yet</div>
+    <div class="card">
+      <button id="scanBtn" class="scan-btn" onclick="startScanner()">📷 SCAN QR / BARCODE</button>
+      <button id="stopBtn" class="stop-btn" onclick="stopScanner()">STOP SCANNER</button>
 
-    <div class="grid">
-      <div class="box"><div class="title">Qty Recorded</div><div id="recordedQty" class="value">-</div></div>
-      <div class="box"><div class="title">Qty Captured</div><div id="capturedQty" class="value">-</div></div>
-      <div class="box"><div class="title">Bin No</div><div id="bin" class="value">-</div></div>
-      <div class="box"><div class="title">Zone</div><div id="zone" class="value">-</div></div>
+      <video id="preview" autoplay muted playsinline></video>
+
+      <input id="barcode" placeholder="Barcode / Article No" onkeydown="manualEnter(event)">
     </div>
 
-    <div class="box" style="margin-top:18px;">
-      <div class="title">Location</div>
-      <div id="location" class="value">-</div>
+    <div class="card">
+      <div class="section-title">Product</div>
+      <div id="product" class="product">Not scanned yet</div>
+
+      <div class="grid">
+        <div class="info">
+          <div class="label">Qty Recorded</div>
+          <div id="recordedQty" class="value">-</div>
+        </div>
+
+        <div class="info">
+          <div class="label">Qty Captured</div>
+          <div id="capturedQty" class="value">-</div>
+        </div>
+
+        <div class="info">
+          <div class="label">Bin No</div>
+          <div id="bin" class="value">-</div>
+        </div>
+
+        <div class="info">
+          <div class="label">Zone</div>
+          <div id="zone" class="value">-</div>
+        </div>
+      </div>
+
+      <div class="info location">
+        <div class="label">Location</div>
+        <div id="location" class="value">-</div>
+      </div>
     </div>
-  </div>
 
-  <div class="card">
-    <input id="qty" type="number" inputmode="numeric" placeholder="Qty counted">
-    <button class="save" onclick="saveCount()">✅ SAVE COUNT</button>
-    <button class="clear" onclick="clearForm()">Clear</button>
-    <p id="msg"></p>
-  </div>
+    <div class="card">
+      <input id="qty" type="number" inputmode="numeric" placeholder="Qty counted">
 
-</div>
+      <button class="save-btn" onclick="saveCount()">✅ SAVE COUNT</button>
+      <button class="clear-btn" onclick="clearForm()">CLEAR</button>
+
+      <p id="msg"></p>
+    </div>
+
+  </div>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbzRTg74wXYC_xak3udaWydDjccP0L_47x_xfANu-0FBUgOuHDPY8wHCJ5QAqqfqCsYO/exec";
 
 let codeReader = null;
-let scanned = false;
+let alreadyScanned = false;
+
+function setMsg(text, type = "") {
+  const el = document.getElementById("msg");
+  el.innerText = text;
+  el.className = type;
+}
 
 function jsonp(url, callback) {
-  const cb = "cb_" + Date.now();
+  const cb = "cb_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
 
   window[cb] = function(data) {
-    delete window[cb];
-    document.body.removeChild(script);
     callback(data);
+    delete window[cb];
+    script.remove();
   };
 
   const script = document.createElement("script");
-  script.src = url + "&callback=" + cb;
+
+  script.onerror = function() {
+    setMsg("Connection error. Check internet/API URL.", "error");
+    delete window[cb];
+    script.remove();
+  };
+
+  script.src = url + (url.includes("?") ? "&" : "?") + "callback=" + cb;
   document.body.appendChild(script);
 }
 
 async function startScanner() {
-  scanned = false;
-  msg("Starting camera...");
+  alreadyScanned = false;
+  setMsg("Starting camera...");
 
   document.getElementById("preview").style.display = "block";
   document.getElementById("scanBtn").style.display = "none";
   document.getElementById("stopBtn").style.display = "block";
 
   const hints = new Map();
-  hints.set(
-    ZXing.DecodeHintType.POSSIBLE_FORMATS,
-    [
-      ZXing.BarcodeFormat.QR_CODE,
-      ZXing.BarcodeFormat.DATA_MATRIX,
-      ZXing.BarcodeFormat.PDF_417,
-      ZXing.BarcodeFormat.CODE_128,
-      ZXing.BarcodeFormat.CODE_39,
-      ZXing.BarcodeFormat.EAN_13,
-      ZXing.BarcodeFormat.EAN_8,
-      ZXing.BarcodeFormat.UPC_A,
-      ZXing.BarcodeFormat.UPC_E
-    ]
-  );
+  hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+    ZXing.BarcodeFormat.QR_CODE,
+    ZXing.BarcodeFormat.DATA_MATRIX,
+    ZXing.BarcodeFormat.PDF_417,
+    ZXing.BarcodeFormat.CODE_128,
+    ZXing.BarcodeFormat.CODE_39,
+    ZXing.BarcodeFormat.EAN_13,
+    ZXing.BarcodeFormat.EAN_8,
+    ZXing.BarcodeFormat.UPC_A,
+    ZXing.BarcodeFormat.UPC_E
+  ]);
 
   codeReader = new ZXing.BrowserMultiFormatReader(hints);
 
@@ -113,28 +261,28 @@ async function startScanner() {
     await codeReader.decodeFromConstraints(
       { video: { facingMode: "environment" } },
       "preview",
-      function(result, err) {
-        if (result && !scanned) {
-          scanned = true;
+      function(result) {
+        if (result && !alreadyScanned) {
+          alreadyScanned = true;
 
           const scannedText = result.text.trim();
           document.getElementById("barcode").value = scannedText;
 
           if (navigator.vibrate) navigator.vibrate(150);
 
-          msg("Scanned: " + scannedText);
+          setMsg("Scanned: " + scannedText);
 
           setTimeout(function() {
             stopScanner();
-            lookupProduct();
-          }, 300);
+            lookupProduct(scannedText);
+          }, 250);
         }
       }
     );
 
-    msg("Point camera at QR code or barcode");
-  } catch (e) {
-    msg("Camera error: " + e);
+    setMsg("Point camera at QR code or barcode");
+  } catch (err) {
+    setMsg("Camera error: " + err, "error");
     stopScanner();
   }
 }
@@ -150,26 +298,42 @@ function stopScanner() {
   document.getElementById("stopBtn").style.display = "none";
 }
 
-function lookupProduct() {
-  const barcode = document.getElementById("barcode").value.trim();
-  if (!barcode) return;
+function manualEnter(event) {
+  if (event.key === "Enter") {
+    const barcode = document.getElementById("barcode").value.trim();
+    lookupProduct(barcode);
+  }
+}
 
-  msg("Looking up product...");
+function lookupProduct(barcodeInput) {
+  const barcode = (barcodeInput || document.getElementById("barcode").value).trim();
 
-  jsonp(API_URL + "?action=find&barcode=" + encodeURIComponent(barcode), function(item) {
-    if (item.found) {
-      document.getElementById("product").innerText = item.description || "-";
-      document.getElementById("recordedQty").innerText = item.recordedQty || "-";
-      document.getElementById("capturedQty").innerText = item.capturedQty || "-";
-      document.getElementById("bin").innerText = item.bin || "-";
-      document.getElementById("zone").innerText = item.zone || "-";
-      document.getElementById("location").innerText = item.location || "-";
-      document.getElementById("qty").focus();
-      msg("Product found");
-    } else {
-      msg("Barcode / QR not found: " + barcode);
+  if (!barcode) {
+    setMsg("Enter or scan a barcode.", "error");
+    return;
+  }
+
+  setMsg("Looking up product...");
+
+  jsonp(
+    API_URL + "?action=find&barcode=" + encodeURIComponent(barcode),
+    function(item) {
+      if (item && item.found) {
+        document.getElementById("product").innerText = item.description || "-";
+        document.getElementById("recordedQty").innerText = item.recordedQty || "-";
+        document.getElementById("capturedQty").innerText = item.capturedQty || "-";
+        document.getElementById("bin").innerText = item.bin || "-";
+        document.getElementById("zone").innerText = item.zone || "-";
+        document.getElementById("location").innerText = item.location || "-";
+        document.getElementById("qty").focus();
+
+        setMsg("Product found", "success");
+      } else {
+        clearProductOnly();
+        setMsg("Barcode not found: " + barcode, "error");
+      }
     }
-  });
+  );
 }
 
 function saveCount() {
@@ -177,21 +341,32 @@ function saveCount() {
   const qty = document.getElementById("qty").value;
 
   if (!barcode || qty === "") {
-    msg("Enter barcode and quantity");
+    setMsg("Enter barcode and quantity.", "error");
     return;
   }
 
-  msg("Saving...");
+  setMsg("Saving...");
 
-  jsonp(API_URL + "?action=save&barcode=" + encodeURIComponent(barcode) + "&qty=" + encodeURIComponent(qty), function(res) {
-    msg(res.message || "Saved");
-    clearForm();
-  });
+  jsonp(
+    API_URL + "?action=save&barcode=" + encodeURIComponent(barcode) + "&qty=" + encodeURIComponent(qty),
+    function(res) {
+      if (res && res.ok) {
+        clearForm();
+        setMsg("Saved successfully. Ready for next item.", "success");
+      } else {
+        setMsg((res && res.message) ? res.message : "Save failed", "error");
+      }
+    }
+  );
 }
 
 function clearForm() {
   document.getElementById("barcode").value = "";
   document.getElementById("qty").value = "";
+  clearProductOnly();
+}
+
+function clearProductOnly() {
   document.getElementById("product").innerText = "Not scanned yet";
   document.getElementById("recordedQty").innerText = "-";
   document.getElementById("capturedQty").innerText = "-";
@@ -199,10 +374,7 @@ function clearForm() {
   document.getElementById("zone").innerText = "-";
   document.getElementById("location").innerText = "-";
 }
-
-function msg(text) {
-  document.getElementById("msg").innerText = text;
-}
 </script>
+
 </body>
 </html>
