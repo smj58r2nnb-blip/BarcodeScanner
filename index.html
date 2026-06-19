@@ -69,18 +69,10 @@ const API_URL = "https://script.google.com/macros/s/AKfycbycVnq0rwAamSsv-CCr78oU
 let codeReader = null;
 let scanned = false;
 
-function jsonp(url, callback) {
-  const cb = "cb_" + Date.now();
-
-  window[cb] = function(data) {
-    delete window[cb];
-    document.body.removeChild(script);
-    callback(data);
-  };
-
-  const script = document.createElement("script");
-  script.src = url + "&callback=" + cb;
-  document.body.appendChild(script);
+async function apiGet(params) {
+  const url = API_URL + "?" + new URLSearchParams(params).toString();
+  const response = await fetch(url);
+  return await response.json();
 }
 
 async function startScanner() {
@@ -92,7 +84,6 @@ async function startScanner() {
   document.getElementById("stopBtn").style.display = "block";
 
   const hints = new Map();
-
   hints.set(
     ZXing.DecodeHintType.POSSIBLE_FORMATS,
     [
@@ -117,12 +108,9 @@ async function startScanner() {
       function(result, err) {
         if (result && !scanned) {
           scanned = true;
-
           const scannedText = result.text.trim();
           document.getElementById("barcode").value = scannedText;
-
           if (navigator.vibrate) navigator.vibrate(150);
-
           stopScanner();
           msg("Scanned: " + scannedText);
           lookupProduct();
@@ -148,13 +136,18 @@ function stopScanner() {
   document.getElementById("stopBtn").style.display = "none";
 }
 
-function lookupProduct() {
+async function lookupProduct() {
   const barcode = document.getElementById("barcode").value.trim();
   if (!barcode) return;
 
   msg("Looking up product...");
 
-  jsonp(API_URL + "?action=find&barcode=" + encodeURIComponent(barcode), function(item) {
+  try {
+    const item = await apiGet({
+      action: "find",
+      barcode: barcode
+    });
+
     if (item.found) {
       document.getElementById("product").innerText = item.description || "-";
       document.getElementById("recordedQty").innerText = item.recordedQty || "-";
@@ -167,10 +160,12 @@ function lookupProduct() {
     } else {
       msg("Barcode / QR not found: " + barcode);
     }
-  });
+  } catch (e) {
+    msg("Lookup error: " + e);
+  }
 }
 
-function saveCount() {
+async function saveCount() {
   const barcode = document.getElementById("barcode").value.trim();
   const qty = document.getElementById("qty").value;
 
@@ -181,10 +176,18 @@ function saveCount() {
 
   msg("Saving...");
 
-  jsonp(API_URL + "?action=save&barcode=" + encodeURIComponent(barcode) + "&qty=" + encodeURIComponent(qty), function(res) {
+  try {
+    const res = await apiGet({
+      action: "save",
+      barcode: barcode,
+      qty: qty
+    });
+
     msg(res.message || "Saved");
     clearForm();
-  });
+  } catch (e) {
+    msg("Save error: " + e);
+  }
 }
 
 function clearForm() {
