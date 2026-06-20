@@ -1,546 +1,490 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <script src="https://unpkg.com/@zxing/library@latest"></script>
-
-  <style>
-    * { box-sizing: border-box; }
-
-    :root {
-      --green: #16a34a;
-      --dark-green: #064e3b;
-      --blue: #2563eb;
-      --red: #dc2626;
-      --amber: #f59e0b;
-      --bg: #eef8f0;
-      --card: rgba(255,255,255,0.96);
-      --text: #102a1f;
-      --muted: #64748b;
-      --border: #d8eadf;
-    }
-
-    body.dark {
-      --bg: #0f172a;
-      --card: rgba(15,23,42,0.96);
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --border: #334155;
-    }
-
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    .header {
-      background: linear-gradient(135deg, #064e3b, #16a34a);
-      color: white;
-      padding: 24px 16px;
-      text-align: center;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.22);
-    }
-
-    .header h1 {
-      margin: 0;
-      font-size: 30px;
-      font-weight: 900;
-      letter-spacing: 1px;
-    }
-
-    .header p {
-      margin: 6px 0 0;
-      font-size: 14px;
-      font-weight: 700;
-      opacity: .92;
-    }
-        .wrap{
-      max-width:760px;
-      margin:auto;
-      padding:16px;
-    }
-
-    .card{
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:28px;
-      padding:20px;
-      margin-bottom:18px;
-      box-shadow:
-      0 10px 35px rgba(0,0,0,.10);
-      backdrop-filter:blur(18px);
-    }
-
-    button,
-    input,
-    textarea{
-      width:100%;
-      font-family:inherit;
-      border-radius:22px;
-      padding:18px;
-      font-size:20px;
-      margin-top:12px;
-    }
-
-    input,
-    textarea{
-      border:2px solid var(--border);
-      background:white;
-      outline:none;
-    }
-
-    body.dark input,
-    body.dark textarea{
-      background:#1e293b;
-      color:white;
-    }
-
-    input:focus,
-    textarea:focus{
-      border-color:var(--green);
-      box-shadow:
-      0 0 0 4px rgba(22,163,74,.15);
-    }
-
-    textarea{
-      min-height:90px;
-      resize:vertical;
-    }
-
-    button{
-      border:0;
-      color:white;
-      font-weight:900;
-      letter-spacing:.3px;
-      box-shadow:
-      0 8px 18px rgba(0,0,0,.18);
-    }
-
-    .scan{
-      background:
-      linear-gradient(135deg,#065f46,#16a34a);
-    }
-
-    .stop{
-      background:
-      linear-gradient(135deg,#991b1b,#dc2626);
-      display:none;
-    }
-
-    .save{
-      background:
-      linear-gradient(135deg,#15803d,#22c55e);
-    }
-
-    .out{
-      background:
-      linear-gradient(135deg,#991b1b,#ef4444);
-    }
-
-    .in{
-      background:
-      linear-gradient(135deg,#1d4ed8,#3b82f6);
-    }
-
-    .clear{
-      background:
-      linear-gradient(135deg,#475569,#64748b);
-    }
-
-    .mode{
-      background:
-      linear-gradient(135deg,#111827,#334155);
-    }
-
-    video{
-      width:100%;
-      display:none;
-      margin-top:14px;
-      border-radius:24px;
-      border:4px solid var(--green);
-      background:black;
-    }
-        .product-title{
-      font-size:13px;
-      color:var(--muted);
-      text-transform:uppercase;
-      letter-spacing:.8px;
-      font-weight:800;
-    }
-
-    .product{
-      font-size:30px;
-      font-weight:900;
-      line-height:1.15;
-      color:var(--dark-green);
-      margin-top:10px;
-      margin-bottom:18px;
-    }
-
-    body.dark .product{
-      color:#f8fafc;
-    }
-
-    .grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:14px;
-    }
-
-    .box{
-      background:
-      linear-gradient(
-      180deg,
-      rgba(255,255,255,.95),
-      rgba(240,253,244,.9)
-      );
-
-      border:1px solid #dcfce7;
-      border-radius:22px;
-      padding:16px;
-      min-height:95px;
-    }
-
-    body.dark .box{
-      background:#1e293b;
-      border:1px solid #334155;
-    }
-
-    .label{
-      color:var(--muted);
-      font-size:12px;
-      font-weight:800;
-      letter-spacing:.4px;
-    }
-
-    .value{
-      font-size:22px;
-      font-weight:900;
-      margin-top:8px;
-      line-height:1.1;
-      word-break:break-word;
-    }
-
-    .greenStock{
-      color:#16a34a;
-    }
-
-    .amberStock{
-      color:#f59e0b;
-    }
-
-    .redStock{
-      color:#dc2626;
-    }
-
-    #msg{
-      margin-top:14px;
-      min-height:28px;
-      text-align:center;
-      font-size:18px;
-      font-weight:800;
-    }
-
-    .good{
-      color:#16a34a;
-    }
-
-    .bad,
-    .error{
-      color:#dc2626;
-    }
-
-    .banner{
-      background:#dcfce7;
-      border-radius:18px;
-      padding:18px;
-      text-align:center;
-      font-weight:900;
-      margin-top:14px;
-      display:none;
-    }
-
-    body.dark .banner{
-      background:#14532d;
-      color:white;
-    }
-
-    .footer{
-      text-align:center;
-      color:var(--muted);
-      font-size:13px;
-      margin:24px 0;
-      font-weight:700;
-    }
-
-    @media(max-width:650px){
-
-      .grid{
-        grid-template-columns:1fr;
-      }
-
-      .product{
-        font-size:26px;
-      }
-
-      button,
-      input,
-      textarea{
-        font-size:18px;
-      }
-
-    }
-
-  </style>
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1,
+               viewport-fit=cover">
+<script src="https://unpkg.com/@zxing/library@latest"></script>
+<style>
+*{
+  box-sizing:border-box;
+}
+:root{
+  --green:#16a34a;
+  --darkGreen:#065f46;
+  --blue:#2563eb;
+  --red:#dc2626;
+  --bg:#eef8f0;
+  --card:rgba(255,255,255,.96);
+  --text:#102a1f;
+  --muted:#64748b;
+  --border:#d8eadf;
+}
+body.dark{
+  --bg:#0f172a;
+  --card:#1e293b;
+  --text:#f8fafc;
+  --muted:#94a3b8;
+  --border:#334155;
+}
+body{
+  margin:0;
+  font-family:
+  -apple-system,
+  BlinkMacSystemFont,
+  Arial,
+  sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+.header{
+  background:
+  linear-gradient(
+    135deg,
+    #064e3b,
+    #16a34a
+  );
+  color:white;
+  text-align:center;
+  padding:24px;
+  box-shadow:
+  0 8px 24px rgba(0,0,0,.2);
+}
+.header h1{
+  margin:0;
+  font-size:30px;
+  font-weight:900;
+}
+.header p{
+  margin-top:8px;
+  font-size:14px;
+  font-weight:700;
+}
+.wrap{
+  max-width:760px;
+  margin:auto;
+  padding:16px;
+}
+.card{
+  background:var(--card);
+  border-radius:28px;
+  padding:20px;
+  margin-bottom:18px;
+  border:1px solid var(--border);
+  box-shadow:
+  0 10px 35px rgba(0,0,0,.10);
+}
+button,
+input,
+textarea,
+select{
+  width:100%;
+  font-family:inherit;
+  border-radius:22px;
+  padding:18px;
+  font-size:18px;
+  margin-top:12px;
+}
+input,
+textarea,
+select{
+  border:2px solid var(--border);
+  outline:none;
+  background:white;
+}
+body.dark input,
+body.dark textarea,
+body.dark select{
+  background:#1e293b;
+  color:white;
+}
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:var(--green);
+  box-shadow:
+  0 0 0 4px rgba(22,163,74,.15);
+}
+textarea{
+  min-height:90px;
+  resize:vertical;
+}
+button{
+  border:0;
+  color:white;
+  font-weight:900;
+  letter-spacing:.3px;
+  box-shadow:
+  0 8px 18px rgba(0,0,0,.18);
+}
+.scan{
+  background:
+  linear-gradient(
+    135deg,
+    #065f46,
+    #16a34a
+  );
+}
+.stop{
+  background:
+  linear-gradient(
+    135deg,
+    #991b1b,
+    #dc2626
+  );
+  display:none;
+}
+.save{
+  background:
+  linear-gradient(
+    135deg,
+    #15803d,
+    #22c55e
+  );
+}
+.out{
+  background:
+  linear-gradient(
+    135deg,
+    #991b1b,
+    #ef4444
+  );
+}
+.in{
+  background:
+  linear-gradient(
+    135deg,
+    #1d4ed8,
+    #3b82f6
+  );
+}
+.mode{
+  background:
+  linear-gradient(
+    135deg,
+    #111827,
+    #334155
+  );
+}
+.clear{
+  background:
+  linear-gradient(
+    135deg,
+    #475569,
+    #64748b
+  );
+}
+video{
+  width:100%;
+  display:none;
+  margin-top:14px;
+  border-radius:24px;
+  border:4px solid var(--green);
+  background:black;
+}
+.product{
+  font-size:30px;
+  font-weight:900;
+  margin-bottom:18px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:
+  1fr 1fr;
+  gap:14px;
+}
+.box{
+  background:
+  linear-gradient(
+    180deg,
+    rgba(255,255,255,.95),
+    rgba(240,253,244,.9)
+  );
+  border-radius:22px;
+  padding:16px;
+  border:1px solid #dcfce7;
+}
+body.dark .box{
+  background:#1e293b;
+  border:1px solid #334155;
+}
+.label{
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+}
+.value{
+  margin-top:8px;
+  font-size:22px;
+  font-weight:900;
+}
+.greenStock{
+  color:#16a34a;
+}
+.amberStock{
+  color:#f59e0b;
+}
+.redStock{
+  color:#dc2626;
+}
+#msg{
+  text-align:center;
+  font-size:18px;
+  margin-top:14px;
+  font-weight:800;
+}
+.good{
+  color:#16a34a;
+}
+.error{
+  color:#dc2626;
+}
+.banner{
+  display:none;
+  margin-top:14px;
+  background:#dcfce7;
+  border-radius:18px;
+  padding:18px;
+  text-align:center;
+  font-weight:900;
+}
+body.dark .banner{
+  background:#14532d;
+  color:white;
+}
+.footer{
+  text-align:center;
+  color:var(--muted);
+  font-size:13px;
+  margin:24px 0;
+}
+@media(max-width:650px){
+  .grid{
+    grid-template-columns:
+    1fr;
+  }
+}
+</style>
 </head>
-
 <body>
-
 <div class="header">
-  <h1>STORES MANAGEMENT</h1>
-  <p>Stock Take • Book Out • Book In</p>
+  <h1>
+    STORES MANAGEMENT
+  </h1>
+  <p>
+    Stock Take • Book Out • Book In
+  </p>
 </div>
-
 <div class="wrap">
-  <!-- Scanner Card -->
-  <div class="card">
-
-    <button id="scanBtn"
-            class="scan"
-            onclick="startScanner()">
-      📷 SCAN QR / BARCODE
-    </button>
-
-    <button id="stopBtn"
-            class="stop"
-            onclick="stopScanner()">
-      STOP SCANNER
-    </button>
-
-    <video id="preview"
-           autoplay
-           muted
-           playsinline>
-    </video>
-
-    <input id="barcode"
-           placeholder="Scan or enter barcode"
-           onkeydown="manualEnter(event)">
-
-  </div>
-
-
-  <!-- Product Card -->
-  <div class="card">
-
-    <div class="product-title">
-      PRODUCT DETAILS
-    </div>
-
-    <div id="product"
-         class="product">
-      Ready to scan
-    </div>
-
-    <div class="grid">
-
-      <div class="box">
-        <div class="label">
-          📄 Article No
-        </div>
-
-        <div id="articleNo"
-             class="value">
-          -
-        </div>
-      </div>
-
-
-      <div class="box">
-        <div class="label">
-          📦 Qty Recorded
-        </div>
-
-        <div id="recordedQty"
-             class="value greenStock">
-          -
-        </div>
-      </div>
-
-
-      <div class="box">
-        <div class="label">
-          ✅ Qty Captured
-        </div>
-
-        <div id="capturedQty"
-             class="value">
-          -
-        </div>
-      </div>
-
-
-      <div class="box">
-        <div class="label">
-          🗄 Bin No
-        </div>
-
-        <div id="bin"
-             class="value">
-          -
-        </div>
-      </div>
-
-
-      <div class="box">
-        <div class="label">
-          📍 Zone
-        </div>
-
-        <div id="zone"
-             class="value">
-          -
-        </div>
-      </div>
-
-
-      <div class="box">
-        <div class="label">
-          🏭 Location
-        </div>
-
-        <div id="location"
-             class="value">
-          -
-        </div>
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <!-- Actions Card -->
-  <div class="card">
-
-    <input
-      id="qty"
-      type="number"
-      inputmode="numeric"
-      placeholder="Quantity"
-      oninput="checkQuantity()">
-
-    <textarea
-      id="comments"
-      placeholder="Comments (optional)">
-    </textarea>
-
-
-    <button class="save"
-            onclick="saveStockTake()">
-      ✅ SAVE STOCK TAKE
-    </button>
-
-
-    <button class="out"
-            onclick="bookOut()">
-      📤 BOOK OUT
-    </button>
-
-
-    <button class="in"
-            onclick="bookIn()">
-      📥 BOOK IN
-    </button>
-
-
-    <button class="clear"
-            onclick="clearForm()">
-      CLEAR
-    </button>
-
-
-    <button class="mode"
-            onclick="toggleDarkMode()">
-      🌙 DARK MODE
-    </button>
-
-    <div id="banner"
-         class="banner">
-    </div>
-
-    <div id="msg"></div>
-
-  </div>
-    <div class="footer">
-    Stores Scanner System • Supreme Edition
-  </div>
-
+<!-- Scanner Card -->
+<div class="card">
+  <button
+    id="scanBtn"
+    class="scan"
+    onclick="startScanner()">
+    📷 SCAN QR / BARCODE
+  </button>
+  <button
+    id="stopBtn"
+    class="stop"
+    onclick="stopScanner()">
+    STOP SCANNER
+  </button>
+  <video
+    id="preview"
+    autoplay
+    muted
+    playsinline>
+  </video>
+  <input
+    id="barcode"
+    placeholder="Scan or enter barcode"
+    onkeydown="manualEnter(event)">
 </div>
-
+<!-- Product Card -->
+<div class="card">
+  <div
+    id="product"
+    class="product">
+    Ready to scan
+  </div>
+  <div class="grid">
+    <div class="box">
+      <div class="label">
+        📄 Article No
+      </div>
+      <div
+        id="articleNo"
+        class="value">
+        -
+      </div>
+    </div>
+    <div class="box">
+      <div class="label">
+        📦 Qty Recorded
+      </div>
+      <div
+        id="recordedQty"
+        class="value greenStock">
+        -
+      </div>
+    </div>
+    <div class="box">
+      <div class="label">
+        ✅ Qty Captured
+      </div>
+      <div
+        id="capturedQty"
+        class="value">
+        -
+      </div>
+    </div>
+    <div class="box">
+      <div class="label">
+        🗄 Bin No
+      </div>
+      <div
+        id="bin"
+        class="value">
+        -
+      </div>
+    </div>
+    <div class="box">
+      <div class="label">
+        📍 Zone
+      </div>
+      <div
+        id="zone"
+        class="value">
+        -
+      </div>
+    </div>
+    <div class="box">
+      <div class="label">
+        🏭 Location
+      </div>
+      <div
+        id="location"
+        class="value">
+        -
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Actions Card -->
+<div class="card">
+  <div class="label">
+    👤 User
+  </div>
+  <select id="user">
+    <option>
+      Matthew Read
+    </option>
+    <option>
+      Ivor Rees
+    </option>
+    <option>
+      Craig Law
+    </option>
+  </select>
+  <input
+    id="qty"
+    type="number"
+    placeholder="Quantity">
+  <textarea
+    id="comments"
+    placeholder="Comments (optional)">
+  </textarea>
+  <button
+    class="save"
+    onclick="saveStockTake()">
+    ✅ SAVE STOCK TAKE
+  </button>
+  <button
+    class="out"
+    onclick="bookOut()">
+    📤 BOOK OUT
+  </button>
+  <button
+    class="in"
+    onclick="bookIn()">
+    📥 BOOK IN
+  </button>
+  <button
+    class="clear"
+    onclick="clearForm()">
+    CLEAR
+  </button>
+  <button
+    class="mode"
+    onclick="toggleDarkMode()">
+    🌙 DARK MODE
+  </button>
+  <button
+    class="mode"
+    onclick="openDashboard()">
+    📊 DASHBOARD
+  </button>
+  <div
+    id="banner"
+    class="banner">
+  </div>
+  <div id="msg"></div>
+</div>
+<div class="footer">
+  Stores Scanner System
+  <br>
+  Supreme Edition
+</div>
+</div>
 <script>
-
 const API =
 "https://script.google.com/macros/s/AKfycbzn6AWyiTjUU0VV5UBp-juZVOxbVuWh_C49KgON44ypNYbPhU0lo1RWaJl5MiD_H7Dz/exec";
-
 let scanner = null;
 let currentItem = null;
 let scanLocked = false;
-
-function setMsg(text, cls=""){
-  const el = document.getElementById("msg");
+function setMsg(text, cls = "") {
+  const el =
+    document.getElementById("msg");
   el.innerText = text;
   el.className = cls;
 }
-
-function showBanner(text){
-
+function showBanner(text) {
   const banner =
     document.getElementById("banner");
-
   banner.innerHTML = text;
   banner.style.display = "block";
-
   setTimeout(() => {
     banner.style.display = "none";
-  },3000);
-
+  }, 3000);
 }
-
-function toggleDarkMode(){
-
-  document.body.classList.toggle("dark");
-
+function toggleDarkMode() {
+  document.body.classList.toggle(
+    "dark"
+  );
 }
-
-function manualEnter(e){
-
-  if(e.key==="Enter"){
+function manualEnter(e) {
+  if (e.key === "Enter") {
     lookup(
-      document.getElementById("barcode").value
+      document.getElementById(
+        "barcode"
+      ).value
     );
   }
-
 }
-
-function startScanner(){
-
+function startScanner() {
   scanLocked = false;
-
-  document.getElementById("preview")
-    .style.display="block";
-
-  document.getElementById("scanBtn")
-    .style.display="none";
-
-  document.getElementById("stopBtn")
-    .style.display="block";
-
+  document.getElementById(
+    "preview"
+  ).style.display = "block";
+  document.getElementById(
+    "scanBtn"
+  ).style.display = "none";
+  document.getElementById(
+    "stopBtn"
+  ).style.display = "block";
   const hints = new Map();
-
   hints.set(
     ZXing.DecodeHintType.POSSIBLE_FORMATS,
     [
@@ -552,252 +496,334 @@ function startScanner(){
       ZXing.BarcodeFormat.PDF_417
     ]
   );
-
   scanner =
-    new ZXing.BrowserMultiFormatReader(hints);
-
+    new ZXing.BrowserMultiFormatReader(
+      hints
+    );
   scanner.decodeFromConstraints(
-    {video:{facingMode:"environment"}},
+    {
+      video: {
+        facingMode: "environment"
+      }
+    },
     "preview",
-    function(result){
-
-      if(result && !scanLocked){
-
+    function(result) {
+      if (
+        result &&
+        !scanLocked
+      ) {
         scanLocked = true;
-
-        let code =
+        const code =
           result.text.trim();
-
-        document.getElementById("barcode")
-          .value = code;
-
-        if(navigator.vibrate){
+        document.getElementById(
+          "barcode"
+        ).value = code;
+        if (navigator.vibrate) {
           navigator.vibrate(150);
         }
-
         stopScanner();
-
         lookup(code);
-
       }
-
     }
   );
-
 }
-
-function stopScanner(){
-
-  if(scanner){
+function stopScanner() {
+  if (scanner) {
     scanner.reset();
     scanner = null;
   }
-
-  document.getElementById("preview")
-    .style.display="none";
-
-  document.getElementById("scanBtn")
-    .style.display="block";
-
-  document.getElementById("stopBtn")
-    .style.display="none";
-
+  document.getElementById(
+    "preview"
+  ).style.display = "none";
+  document.getElementById(
+    "scanBtn"
+  ).style.display = "block";
+  document.getElementById(
+    "stopBtn"
+  ).style.display = "none";
 }
-function lookup(barcode){
-
-  barcode = String(barcode || "").trim();
-
-  if(!barcode){
-    setMsg("Enter or scan a barcode.","error");
+function lookup(barcode) {
+  barcode =
+    String(barcode || "").trim();
+  if (!barcode) {
+    setMsg(
+      "Enter or scan a barcode",
+      "error"
+    );
     return;
   }
-
-  setMsg("Looking up product...","good");
-
-  fetch(API + "?action=find&barcode=" + encodeURIComponent(barcode))
-    .then(r => r.json())
-    .then(showProduct)
-    .catch(() => setMsg("Connection error","error"));
-
+  setMsg(
+    "Looking up product...",
+    "good"
+  );
+  fetch(
+    API +
+    "?action=find&barcode=" +
+    encodeURIComponent(barcode)
+  )
+  .then(r => r.json())
+  .then(showProduct)
+  .catch(() =>
+    setMsg(
+      "Connection error",
+      "error"
+    )
+  );
 }
-
-function showProduct(data){
-
-  if(!data.found){
+function showProduct(data) {
+  if (!data.found) {
     currentItem = null;
     clearProductOnly();
-    setMsg("Barcode not found","error");
+    setMsg(
+      "Barcode not found",
+      "error"
+    );
     return;
   }
-
   currentItem = data;
-
-  document.getElementById("product").innerText = data.description || "-";
-  document.getElementById("articleNo").innerText = data.articleNo || "-";
-  document.getElementById("recordedQty").innerText = data.recordedQty || "-";
-  document.getElementById("capturedQty").innerText = data.capturedQty || "-";
-  document.getElementById("bin").innerText = data.bin || "-";
-  document.getElementById("zone").innerText = data.zone || "-";
-  document.getElementById("location").innerText = data.location || "-";
-
-  colourStock(data.recordedQty);
-
-  document.getElementById("qty").focus();
-
-  setMsg("Product found","good");
-
+  document.getElementById(
+    "product"
+  ).innerText =
+    data.description || "-";
+  document.getElementById(
+    "articleNo"
+  ).innerText =
+    data.articleNo || "-";
+  document.getElementById(
+    "recordedQty"
+  ).innerText =
+    data.recordedQty || "-";
+  document.getElementById(
+    "capturedQty"
+  ).innerText =
+    data.capturedQty || "-";
+  document.getElementById(
+    "bin"
+  ).innerText =
+    data.bin || "-";
+  document.getElementById(
+    "zone"
+  ).innerText =
+    data.zone || "-";
+  document.getElementById(
+    "location"
+  ).innerText =
+    data.location || "-";
+  colourStock(
+    data.recordedQty
+  );
+  setMsg(
+    "Product found",
+    "good"
+  );
 }
-
-function colourStock(qty){
-
-  const el = document.getElementById("recordedQty");
-  const n = Number(qty);
-
+function colourStock(qty) {
+  const el =
+    document.getElementById(
+      "recordedQty"
+    );
+  const n =
+    Number(qty);
   el.className = "value";
-
-  if(n > 10){
-    el.classList.add("greenStock");
-  } else if(n >= 5){
-    el.classList.add("amberStock");
-  } else {
-    el.classList.add("redStock");
+  if (n > 10) {
+    el.classList.add(
+      "greenStock"
+    );
   }
-
+  else if (n >= 5) {
+    el.classList.add(
+      "amberStock"
+    );
+  }
+  else {
+    el.classList.add(
+      "redStock"
+    );
+  }
 }
-
-function checkQuantity(){
-
-  if(!currentItem) return;
-
-  const entered = Number(document.getElementById("qty").value);
-  const recorded = Number(currentItem.recordedQty);
-
-  if(document.getElementById("qty").value === ""){
-    setMsg("");
-    return;
-  }
-
-  if(entered === recorded){
-    setMsg("✓ Quantity matches recorded stock","good");
-  } else {
-    setMsg("⚠ Quantity differs from recorded stock","bad");
-  }
-
-}
-
-function buildUrl(action){
-
-  const barcode = document.getElementById("barcode").value.trim();
-  const qty = document.getElementById("qty").value;
-  const comments = document.getElementById("comments").value;
-
-  if(!barcode || qty === ""){
-    setMsg("Scan a part and enter quantity.","error");
-    return null;
-  }
-
-  return API +
+function buildUrl(action) {
+  const barcode =
+    document.getElementById(
+      "barcode"
+    ).value;
+  const qty =
+    document.getElementById(
+      "qty"
+    ).value;
+  const comments =
+    document.getElementById(
+      "comments"
+    ).value;
+  const who =
+    document.getElementById(
+      "user"
+    ).value;
+  return (
+    API +
     "?action=" + action +
-    "&barcode=" + encodeURIComponent(barcode) +
-    "&qty=" + encodeURIComponent(qty) +
-    "&who=" + encodeURIComponent("Matthew") +
-    "&comments=" + encodeURIComponent(comments);
-
+    "&barcode=" +
+    encodeURIComponent(barcode) +
+    "&qty=" +
+    encodeURIComponent(qty) +
+    "&who=" +
+    encodeURIComponent(who) +
+    "&comments=" +
+    encodeURIComponent(comments)
+  );
 }
-
-function saveStockTake(){
-
-  const url = buildUrl("save");
-  if(!url) return;
-
-  setMsg("Saving stock take...","good");
-
-  fetch(url)
-    .then(r => r.json())
-    .then(data => {
-      if(data.ok){
-        showBanner("✓ STOCK TAKE SAVED");
-        setMsg("Stock take saved","good");
-        lookup(document.getElementById("barcode").value);
-      } else {
-        setMsg(data.message || "Save failed","error");
+function saveStockTake() {
+  fetch(
+    buildUrl("save")
+  )
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      showBanner(
+        "✅ STOCK TAKE SAVED"
+      );
+      lookup(
+        document.getElementById(
+          "barcode"
+        ).value
+      );
+    }
+    else {
+      setMsg(
+        data.message,
+        "error"
+      );
+    }
+  });
+}
+function bookOut() {
+  fetch(
+    buildUrl("bookout")
+  )
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      showBanner(
+        "📤 BOOKED OUT<br>Stock Remaining: " +
+        data.stockRemaining
+      );
+      clearForm();
+      setTimeout(
+        startScanner,
+        800
+      );
+    }
+    else {
+      setMsg(
+        data.message,
+        "error"
+      );
+    }
+  });
+}
+function bookIn() {
+  fetch(
+    buildUrl("bookin")
+  )
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      showBanner(
+        "📥 BOOKED IN<br>Stock Remaining: " +
+        data.stockRemaining
+      );
+      clearForm();
+      setTimeout(
+        startScanner,
+        800
+      );
+    }
+    else {
+      setMsg(
+        data.message,
+        "error"
+      );
+    }
+  });
+}
+function openDashboard() {
+  fetch(
+    API + "?action=dashboard"
+  )
+  .then(r => r.json())
+  .then(data => {
+    let msg =
+      "📊 DASHBOARD\n\n" +
+      "📤 Booked Out Today: " +
+      data.bookedOutToday +
+      "\n\n📥 Booked In Today: " +
+      data.bookedInToday +
+      "\n\n👤 Top Users\n";
+    data.topUsers.forEach(
+      x => {
+        msg +=
+          "\n" +
+          x[0] +
+          " : " +
+          x[1];
       }
-    })
-    .catch(() => setMsg("Connection error","error"));
-
-}
-
-function bookOut(){
-
-  const url = buildUrl("bookout");
-  if(!url) return;
-
-  setMsg("Booking out...","good");
-
-  fetch(url)
-    .then(r => r.json())
-    .then(data => {
-      if(data.ok){
-        clearForm();
-        showBanner("✓ BOOKED OUT<br>Stock Remaining: " + data.stockRemaining);
-        setMsg("Booked out successfully","good");
-        setTimeout(startScanner,800);
-      } else {
-        setMsg(data.message || "Book out failed","error");
+    );
+    msg +=
+      "\n\n🔥 Top Used Parts\n";
+    data.topParts.forEach(
+      x => {
+        msg +=
+          "\n" +
+          x[0] +
+          " : " +
+          x[1];
       }
-    })
-    .catch(() => setMsg("Connection error","error"));
-
+    );
+    alert(msg);
+  });
 }
-
-function bookIn(){
-
-  const url = buildUrl("bookin");
-  if(!url) return;
-
-  setMsg("Booking in...","good");
-
-  fetch(url)
-    .then(r => r.json())
-    .then(data => {
-      if(data.ok){
-        clearForm();
-        showBanner("✓ BOOKED IN<br>Stock Remaining: " + data.stockRemaining);
-        setMsg("Booked in successfully","good");
-        setTimeout(startScanner,800);
-      } else {
-        setMsg(data.message || "Book in failed","error");
-      }
-    })
-    .catch(() => setMsg("Connection error","error"));
-
-}
-
-function clearForm(){
-
-  document.getElementById("barcode").value = "";
-  document.getElementById("qty").value = "";
-  document.getElementById("comments").value = "";
-
+function clearForm() {
+  document.getElementById(
+    "barcode"
+  ).value = "";
+  document.getElementById(
+    "qty"
+  ).value = "";
+  document.getElementById(
+    "comments"
+  ).value = "";
   currentItem = null;
-
   clearProductOnly();
-
 }
-
-function clearProductOnly(){
-
-  document.getElementById("product").innerText = "Ready to scan";
-  document.getElementById("articleNo").innerText = "-";
-  document.getElementById("recordedQty").innerText = "-";
-  document.getElementById("capturedQty").innerText = "-";
-  document.getElementById("bin").innerText = "-";
-  document.getElementById("zone").innerText = "-";
-  document.getElementById("location").innerText = "-";
-
+function clearProductOnly() {
+  document.getElementById(
+    "product"
+  ).innerText =
+    "Ready to scan";
+  document.getElementById(
+    "articleNo"
+  ).innerText =
+    "-";
+  document.getElementById(
+    "recordedQty"
+  ).innerText =
+    "-";
+  document.getElementById(
+    "capturedQty"
+  ).innerText =
+    "-";
+  document.getElementById(
+    "bin"
+  ).innerText =
+    "-";
+  document.getElementById(
+    "zone"
+  ).innerText =
+    "-";
+  document.getElementById(
+    "location"
+  ).innerText =
+    "-";
 }
-
 </script>
-
 </body>
 </html>
