@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
 <meta name="viewport"
-      content="width=device-width,
-               initial-scale=1,
-               viewport-fit=cover">
+content="width=device-width,
+initial-scale=1,
+viewport-fit=cover">
+<title>
+Stores Management
+</title>
 <script src="https://unpkg.com/@zxing/library@latest"></script>
 <style>
 *{
@@ -30,13 +34,13 @@ body.dark{
 }
 body{
   margin:0;
+  background:var(--bg);
+  color:var(--text);
   font-family:
   -apple-system,
   BlinkMacSystemFont,
   Arial,
   sans-serif;
-  background:var(--bg);
-  color:var(--text);
 }
 .header{
   background:
@@ -47,33 +51,33 @@ body{
   );
   color:white;
   text-align:center;
-  padding:24px;
+  padding:20px;
   box-shadow:
-  0 8px 24px rgba(0,0,0,.2);
+  0 8px 20px rgba(0,0,0,.18);
 }
 .header h1{
   margin:0;
-  font-size:30px;
+  font-size:28px;
   font-weight:900;
 }
 .header p{
-  margin-top:8px;
+  margin-top:6px;
   font-size:14px;
   font-weight:700;
 }
 .wrap{
   max-width:760px;
   margin:auto;
-  padding:16px;
+  padding:14px;
 }
 .card{
   background:var(--card);
-  border-radius:28px;
-  padding:20px;
-  margin-bottom:18px;
   border:1px solid var(--border);
+  border-radius:18px;
+  padding:14px;
+  margin-bottom:12px;
   box-shadow:
-  0 10px 35px rgba(0,0,0,.10);
+  0 6px 20px rgba(0,0,0,.08);
 }
 button,
 input,
@@ -81,10 +85,10 @@ textarea,
 select{
   width:100%;
   font-family:inherit;
-  border-radius:22px;
-  padding:18px;
-  font-size:18px;
-  margin-top:12px;
+  border-radius:16px;
+  padding:13px;
+  font-size:16px;
+  margin-top:10px;
 }
 input,
 textarea,
@@ -99,110 +103,84 @@ body.dark select{
   background:#1e293b;
   color:white;
 }
-input:focus,
-textarea:focus,
-select:focus{
-  border-color:var(--green);
-  box-shadow:
-  0 0 0 4px rgba(22,163,74,.15);
-}
-textarea{
-  min-height:90px;
-  resize:vertical;
-}
 button{
   border:0;
   color:white;
-  font-weight:900;
-  letter-spacing:.3px;
+  font-weight:800;
+  letter-spacing:.2px;
   box-shadow:
-  0 8px 18px rgba(0,0,0,.18);
+  0 5px 12px rgba(0,0,0,.15);
 }
 .scan{
   background:
   linear-gradient(
-    135deg,
-    #065f46,
-    #16a34a
-  );
+  135deg,
+  #065f46,
+  #16a34a);
 }
 .stop{
   background:
   linear-gradient(
-    135deg,
-    #991b1b,
-    #dc2626
-  );
+  135deg,
+  #991b1b,
+  #dc2626);
   display:none;
 }
 .save{
   background:
   linear-gradient(
-    135deg,
-    #15803d,
-    #22c55e
-  );
+  135deg,
+  #15803d,
+  #22c55e);
 }
 .out{
   background:
   linear-gradient(
-    135deg,
-    #991b1b,
-    #ef4444
-  );
+  135deg,
+  #991b1b,
+  #ef4444);
 }
 .in{
   background:
   linear-gradient(
-    135deg,
-    #1d4ed8,
-    #3b82f6
-  );
+  135deg,
+  #1d4ed8,
+  #3b82f6);
 }
 .mode{
   background:
   linear-gradient(
-    135deg,
-    #111827,
-    #334155
-  );
+  135deg,
+  #111827,
+  #334155);
 }
 .clear{
   background:
   linear-gradient(
-    135deg,
-    #475569,
-    #64748b
-  );
-}
-video{
-  width:100%;
-  display:none;
-  margin-top:14px;
-  border-radius:24px;
-  border:4px solid var(--green);
-  background:black;
+  135deg,
+  #475569,
+  #64748b);
 }
 .product{
-  font-size:30px;
+  font-size:22px;
   font-weight:900;
-  margin-bottom:18px;
+  margin-bottom:12px;
 }
 .grid{
   display:grid;
   grid-template-columns:
   1fr 1fr;
-  gap:14px;
+  gap:10px;
 }
 .box{
   background:
   linear-gradient(
-    180deg,
-    rgba(255,255,255,.95),
-    rgba(240,253,244,.9)
+  180deg,
+  rgba(255,255,255,.95),
+  rgba(240,253,244,.9)
   );
-  border-radius:22px;
-  padding:16px;
+  border-radius:16px;
+  padding:12px;
   border:1px solid #dcfce7;
 }
 body.dark .box{
@@ -211,13 +189,14 @@ body.dark .box{
 }
 .label{
   color:var(--muted);
-  font-size:12px;
+  font-size:11px;
   font-weight:800;
 }
 .value{
-  margin-top:8px;
-  font-size:22px;
+  margin-top:6px;
+  font-size:18px;
   font-weight:900;
+  word-break:break-word;
 }
 .greenStock{
   color:#16a34a;
@@ -230,8 +209,8 @@ body.dark .box{
 }
 #msg{
   text-align:center;
-  font-size:18px;
-  margin-top:14px;
+  font-size:16px;
+  margin-top:10px;
   font-weight:800;
 }
 .good{
@@ -242,10 +221,10 @@ body.dark .box{
 }
 .banner{
   display:none;
-  margin-top:14px;
+  margin-top:12px;
   background:#dcfce7;
-  border-radius:18px;
-  padding:18px;
+  border-radius:14px;
+  padding:14px;
   text-align:center;
   font-weight:900;
 }
@@ -253,11 +232,25 @@ body.dark .banner{
   background:#14532d;
   color:white;
 }
+.actions{
+  display:grid;
+  grid-template-columns:
+  1fr 1fr;
+  gap:10px;
+}
+video{
+  width:100%;
+  display:none;
+  margin-top:10px;
+  border-radius:16px;
+  border:3px solid var(--green);
+  background:black;
+}
 .footer{
   text-align:center;
   color:var(--muted);
-  font-size:13px;
-  margin:24px 0;
+  font-size:12px;
+  margin:20px 0;
 }
 @media(max-width:650px){
   .grid{
@@ -277,165 +270,178 @@ body.dark .banner{
   </p>
 </div>
 <div class="wrap">
-<!-- Scanner Card -->
+<!-- Scanner + Product Card -->
 <div class="card">
-  <button
-    id="scanBtn"
-    class="scan"
-    onclick="startScanner()">
-    📷 SCAN QR / BARCODE
-  </button>
-  <button
-    id="stopBtn"
-    class="stop"
-    onclick="stopScanner()">
-    STOP SCANNER
-  </button>
-  <video
-    id="preview"
-    autoplay
-    muted
-    playsinline>
-  </video>
-  <input
-    id="barcode"
-    placeholder="Scan or enter barcode"
-    onkeydown="manualEnter(event)">
+<button
+id="scanBtn"
+class="scan"
+onclick="startScanner()">
+📷 SCAN
+</button>
+<button
+id="stopBtn"
+class="stop"
+onclick="stopScanner()">
+STOP
+</button>
+<video
+id="preview"
+autoplay
+muted
+playsinline>
+</video>
+<input
+id="barcode"
+placeholder="Scan or enter barcode"
+onkeydown="manualEnter(event)">
+<div
+id="product"
+class="product">
+Ready to scan
 </div>
-<!-- Product Card -->
-<div class="card">
-  <div
-    id="product"
-    class="product">
-    Ready to scan
-  </div>
-  <div class="grid">
-    <div class="box">
-      <div class="label">
-        📄 Article No
-      </div>
-      <div
-        id="articleNo"
-        class="value">
-        -
-      </div>
-    </div>
-    <div class="box">
-      <div class="label">
-        📦 Qty Recorded
-      </div>
-      <div
-        id="recordedQty"
-        class="value greenStock">
-        -
-      </div>
-    </div>
-    <div class="box">
-      <div class="label">
-        ✅ Qty Captured
-      </div>
-      <div
-        id="capturedQty"
-        class="value">
-        -
-      </div>
-    </div>
-    <div class="box">
-      <div class="label">
-        🗄 Bin No
-      </div>
-      <div
-        id="bin"
-        class="value">
-        -
-      </div>
-    </div>
-    <div class="box">
-      <div class="label">
-        📍 Zone
-      </div>
-      <div
-        id="zone"
-        class="value">
-        -
-      </div>
-    </div>
-    <div class="box">
-      <div class="label">
-        🏭 Location
-      </div>
-      <div
-        id="location"
-        class="value">
-        -
-      </div>
-    </div>
-  </div>
+<div class="grid">
+<div class="box">
+<div class="label">
+📄 Article No
+</div>
+<div
+id="articleNo"
+class="value">
+-
+</div>
+</div>
+<div class="box">
+<div class="label">
+📦 Qty Recorded
+</div>
+<div
+id="recordedQty"
+class="value greenStock">
+-
+</div>
+</div>
+<div class="box">
+<div class="label">
+✅ Qty Captured
+</div>
+<div
+id="capturedQty"
+class="value">
+-
+</div>
+</div>
+<div class="box">
+<div class="label">
+🗄 Bin No
+</div>
+<div
+id="bin"
+class="value">
+-
+</div>
+</div>
+<div class="box">
+<div class="label">
+📍 Zone
+</div>
+<div
+id="zone"
+class="value">
+-
+</div>
+</div>
+<div class="box">
+<div class="label">
+🏭 Location
+</div>
+<div
+id="location"
+class="value">
+-
+</div>
+</div>
+</div>
 </div>
 <!-- Actions Card -->
 <div class="card">
-  <div class="label">
-    👤 User
-  </div>
-  <select id="user">
-    <option>
-      Matthew Read
-    </option>
-    <option>
-      Ivor Rees
-    </option>
-    <option>
-      Craig Law
-    </option>
-  </select>
-  <input
-    id="qty"
-    type="number"
-    placeholder="Quantity">
-  <textarea
-    id="comments"
-    placeholder="Comments (optional)">
-  </textarea>
-  <button
-    class="save"
-    onclick="saveStockTake()">
-    ✅ SAVE STOCK TAKE
-  </button>
-  <button
-    class="out"
-    onclick="bookOut()">
-    📤 BOOK OUT
-  </button>
-  <button
-    class="in"
-    onclick="bookIn()">
-    📥 BOOK IN
-  </button>
-  <button
-    class="clear"
-    onclick="clearForm()">
-    CLEAR
-  </button>
-  <button
-    class="mode"
-    onclick="toggleDarkMode()">
-    🌙 DARK MODE
-  </button>
-  <button
-    class="mode"
-    onclick="openDashboard()">
-    📊 DASHBOARD
-  </button>
-  <div
-    id="banner"
-    class="banner">
-  </div>
-  <div id="msg"></div>
+<div class="label">
+👤 User
+</div>
+<select id="user">
+<option>
+Matthew Read
+</option>
+<option>
+Ivor Rees
+</option>
+<option>
+Craig Law
+</option>
+</select>
+<input
+id="qty"
+type="number"
+placeholder="Quantity">
+<textarea
+id="comments"
+placeholder="Comments (optional)">
+</textarea>
+<div class="actions">
+<button
+class="save"
+onclick="saveStockTake()">
+✅ SAVE
+</button>
+<button
+class="out"
+onclick="bookOut()">
+📤 OUT
+</button>
+<button
+class="in"
+onclick="bookIn()">
+📥 IN
+</button>
+<button
+class="mode"
+onclick="openDashboard()">
+📊 DASHBOARD
+</button>
+<button
+class="clear"
+onclick="clearForm()">
+CLEAR
+</button>
+<button
+class="mode"
+onclick="toggleDarkMode()">
+🌙 DARK
+</button>
+</div>
+<div
+id="banner"
+class="banner">
+</div>
+<div
+id="msg">
+</div>
+</div>
+<!-- Dashboard Card -->
+<div
+id="dashboardCard"
+class="card"
+style="display:none">
+<div class="product">
+📊 Dashboard
+</div>
+<div
+id="dashboardContent">
+</div>
 </div>
 <div class="footer">
-  Stores Scanner System
-  <br>
-  Supreme Edition
+Stores Scanner System
+<br>
+Supreme Compact Edition
 </div>
 </div>
 <script>
@@ -444,25 +450,30 @@ const API =
 let scanner = null;
 let currentItem = null;
 let scanLocked = false;
-function setMsg(text, cls = "") {
+function setMsg(text, cls="") {
   const el =
-    document.getElementById("msg");
+    document.getElementById(
+      "msg"
+    );
   el.innerText = text;
   el.className = cls;
 }
 function showBanner(text) {
   const banner =
-    document.getElementById("banner");
+    document.getElementById(
+      "banner"
+    );
   banner.innerHTML = text;
-  banner.style.display = "block";
+  banner.style.display =
+    "block";
   setTimeout(() => {
-    banner.style.display = "none";
-  }, 3000);
+    banner.style.display =
+      "none";
+  },3000);
 }
 function toggleDarkMode() {
-  document.body.classList.toggle(
-    "dark"
-  );
+  document.body.classList
+    .toggle("dark");
 }
 function manualEnter(e) {
   if (e.key === "Enter") {
@@ -486,24 +497,29 @@ function startScanner() {
   ).style.display = "block";
   const hints = new Map();
   hints.set(
-    ZXing.DecodeHintType.POSSIBLE_FORMATS,
+    ZXing.DecodeHintType
+      .POSSIBLE_FORMATS,
     [
-      ZXing.BarcodeFormat.QR_CODE,
-      ZXing.BarcodeFormat.CODE_128,
-      ZXing.BarcodeFormat.CODE_39,
-      ZXing.BarcodeFormat.EAN_13,
-      ZXing.BarcodeFormat.DATA_MATRIX,
-      ZXing.BarcodeFormat.PDF_417
+      ZXing.BarcodeFormat
+        .QR_CODE,
+      ZXing.BarcodeFormat
+        .CODE_128,
+      ZXing.BarcodeFormat
+        .CODE_39,
+      ZXing.BarcodeFormat
+        .EAN_13
     ]
   );
   scanner =
-    new ZXing.BrowserMultiFormatReader(
-      hints
-    );
+    new ZXing
+      .BrowserMultiFormatReader(
+        hints
+      );
   scanner.decodeFromConstraints(
     {
       video: {
-        facingMode: "environment"
+        facingMode:
+          "environment"
       }
     },
     "preview",
@@ -513,13 +529,17 @@ function startScanner() {
         !scanLocked
       ) {
         scanLocked = true;
-        const code =
+        let code =
           result.text.trim();
         document.getElementById(
           "barcode"
         ).value = code;
-        if (navigator.vibrate) {
-          navigator.vibrate(150);
+        if (
+          navigator.vibrate
+        ) {
+          navigator.vibrate(
+            150
+          );
         }
         stopScanner();
         lookup(code);
@@ -543,23 +563,12 @@ function stopScanner() {
   ).style.display = "none";
 }
 function lookup(barcode) {
-  barcode =
-    String(barcode || "").trim();
-  if (!barcode) {
-    setMsg(
-      "Enter or scan a barcode",
-      "error"
-    );
-    return;
-  }
-  setMsg(
-    "Looking up product...",
-    "good"
-  );
   fetch(
     API +
     "?action=find&barcode=" +
-    encodeURIComponent(barcode)
+    encodeURIComponent(
+      barcode
+    )
   )
   .then(r => r.json())
   .then(showProduct)
@@ -572,7 +581,6 @@ function lookup(barcode) {
 }
 function showProduct(data) {
   if (!data.found) {
-    currentItem = null;
     clearProductOnly();
     setMsg(
       "Barcode not found",
@@ -584,31 +592,31 @@ function showProduct(data) {
   document.getElementById(
     "product"
   ).innerText =
-    data.description || "-";
+    data.description;
   document.getElementById(
     "articleNo"
   ).innerText =
-    data.articleNo || "-";
+    data.articleNo;
   document.getElementById(
     "recordedQty"
   ).innerText =
-    data.recordedQty || "-";
+    data.recordedQty;
   document.getElementById(
     "capturedQty"
   ).innerText =
-    data.capturedQty || "-";
+    data.capturedQty;
   document.getElementById(
     "bin"
   ).innerText =
-    data.bin || "-";
+    data.bin;
   document.getElementById(
     "zone"
   ).innerText =
-    data.zone || "-";
+    data.zone;
   document.getElementById(
     "location"
   ).innerText =
-    data.location || "-";
+    data.location;
   colourStock(
     data.recordedQty
   );
@@ -617,7 +625,7 @@ function showProduct(data) {
     "good"
   );
 }
-function colourStock(qty) {
+function colourStock(qty){
   const el =
     document.getElementById(
       "recordedQty"
@@ -625,23 +633,23 @@ function colourStock(qty) {
   const n =
     Number(qty);
   el.className = "value";
-  if (n > 10) {
+  if(n > 10){
     el.classList.add(
       "greenStock"
     );
   }
-  else if (n >= 5) {
+  else if(n >= 5){
     el.classList.add(
       "amberStock"
     );
   }
-  else {
+  else{
     el.classList.add(
       "redStock"
     );
   }
 }
-function buildUrl(action) {
+function buildUrl(action){
   const barcode =
     document.getElementById(
       "barcode"
@@ -662,22 +670,32 @@ function buildUrl(action) {
     API +
     "?action=" + action +
     "&barcode=" +
-    encodeURIComponent(barcode) +
+    encodeURIComponent(
+      barcode
+    ) +
     "&qty=" +
-    encodeURIComponent(qty) +
+    encodeURIComponent(
+      qty
+    ) +
     "&who=" +
-    encodeURIComponent(who) +
+    encodeURIComponent(
+      who
+    ) +
     "&comments=" +
-    encodeURIComponent(comments)
+    encodeURIComponent(
+      comments
+    )
   );
 }
-function saveStockTake() {
+function saveStockTake(){
   fetch(
-    buildUrl("save")
+    buildUrl(
+      "save"
+    )
   )
   .then(r => r.json())
   .then(data => {
-    if (data.ok) {
+    if(data.ok){
       showBanner(
         "✅ STOCK TAKE SAVED"
       );
@@ -687,7 +705,7 @@ function saveStockTake() {
         ).value
       );
     }
-    else {
+    else{
       setMsg(
         data.message,
         "error"
@@ -695,13 +713,15 @@ function saveStockTake() {
     }
   });
 }
-function bookOut() {
+function bookOut(){
   fetch(
-    buildUrl("bookout")
+    buildUrl(
+      "bookout"
+    )
   )
   .then(r => r.json())
   .then(data => {
-    if (data.ok) {
+    if(data.ok){
       showBanner(
         "📤 BOOKED OUT<br>Stock Remaining: " +
         data.stockRemaining
@@ -712,7 +732,7 @@ function bookOut() {
         800
       );
     }
-    else {
+    else{
       setMsg(
         data.message,
         "error"
@@ -720,13 +740,15 @@ function bookOut() {
     }
   });
 }
-function bookIn() {
+function bookIn(){
   fetch(
-    buildUrl("bookin")
+    buildUrl(
+      "bookin"
+    )
   )
   .then(r => r.json())
   .then(data => {
-    if (data.ok) {
+    if(data.ok){
       showBanner(
         "📥 BOOKED IN<br>Stock Remaining: " +
         data.stockRemaining
@@ -737,7 +759,7 @@ function bookIn() {
         800
       );
     }
-    else {
+    else{
       setMsg(
         data.message,
         "error"
@@ -745,43 +767,43 @@ function bookIn() {
     }
   });
 }
-function openDashboard() {
+function openDashboard(){
   fetch(
-    API + "?action=dashboard"
+    API +
+    "?action=dashboard"
   )
   .then(r => r.json())
   .then(data => {
-    let msg =
-      "📊 DASHBOARD\n\n" +
-      "📤 Booked Out Today: " +
-      data.bookedOutToday +
-      "\n\n📥 Booked In Today: " +
-      data.bookedInToday +
-      "\n\n👤 Top Users\n";
-    data.topUsers.forEach(
-      x => {
-        msg +=
-          "\n" +
-          x[0] +
-          " : " +
-          x[1];
-      }
-    );
-    msg +=
-      "\n\n🔥 Top Used Parts\n";
-    data.topParts.forEach(
-      x => {
-        msg +=
-          "\n" +
-          x[0] +
-          " : " +
-          x[1];
-      }
-    );
-    alert(msg);
+    let html = `
+    <div class="grid">
+      <div class="box">
+        <div class="label">
+        📤 Booked Out Today
+        </div>
+        <div class="value">
+        ${data.bookedOutToday}
+        </div>
+      </div>
+      <div class="box">
+        <div class="label">
+        📥 Booked In Today
+        </div>
+        <div class="value">
+        ${data.bookedInToday}
+        </div>
+      </div>
+    </div>
+    `;
+    document.getElementById(
+      "dashboardContent"
+    ).innerHTML = html;
+    document.getElementById(
+      "dashboardCard"
+    ).style.display =
+      "block";
   });
 }
-function clearForm() {
+function clearForm(){
   document.getElementById(
     "barcode"
   ).value = "";
@@ -794,7 +816,7 @@ function clearForm() {
   currentItem = null;
   clearProductOnly();
 }
-function clearProductOnly() {
+function clearProductOnly(){
   document.getElementById(
     "product"
   ).innerText =
