@@ -207,6 +207,13 @@ body.dark .box{
 .redStock{
   color:#dc2626;
 }
+.doneBox{
+  background:#dcfce7 !important;
+  border:2px solid #16a34a !important;
+}
+.doneValue{
+  color:#16a34a;
+}
 #msg{
   text-align:center;
   font-size:16px;
@@ -321,8 +328,10 @@ class="value greenStock">
 </div>
 </div>
 <div class="box">
-<div class="label">
-✅ Qty Captured
+<div
+id="capturedLabel"
+class="label">
+⚪ Not Counted
 </div>
 <div
 id="capturedQty"
@@ -604,7 +613,7 @@ function showProduct(data) {
   document.getElementById(
     "capturedQty"
   ).innerText =
-    data.capturedQty;
+    data.capturedQty || "-";
   document.getElementById(
     "bin"
   ).innerText =
@@ -617,6 +626,38 @@ function showProduct(data) {
     "location"
   ).innerText =
     data.location;
+  if(data.capturedQty){
+    document.getElementById(
+      "capturedLabel"
+    ).innerText =
+      "✅ Counted";
+    document.getElementById(
+      "capturedQty"
+    ).classList.add(
+      "doneValue"
+    );
+    document.getElementById(
+      "capturedQty"
+    ).parentElement.classList.add(
+      "doneBox"
+    );
+  }
+  else{
+    document.getElementById(
+      "capturedLabel"
+    ).innerText =
+      "⚪ Not Counted";
+    document.getElementById(
+      "capturedQty"
+    ).classList.remove(
+      "doneValue"
+    );
+    document.getElementById(
+      "capturedQty"
+    ).parentElement.classList.remove(
+      "doneBox"
+    );
+  }
   colourStock(
     data.recordedQty
   );
@@ -689,9 +730,7 @@ function buildUrl(action){
 }
 function saveStockTake(){
   fetch(
-    buildUrl(
-      "save"
-    )
+    buildUrl("save")
   )
   .then(r => r.json())
   .then(data => {
@@ -715,9 +754,7 @@ function saveStockTake(){
 }
 function bookOut(){
   fetch(
-    buildUrl(
-      "bookout"
-    )
+    buildUrl("bookout")
   )
   .then(r => r.json())
   .then(data => {
@@ -742,9 +779,7 @@ function bookOut(){
 }
 function bookIn(){
   fetch(
-    buildUrl(
-      "bookin"
-    )
+    buildUrl("bookin")
   )
   .then(r => r.json())
   .then(data => {
@@ -769,8 +804,7 @@ function bookIn(){
 }
 function openDashboard(){
   fetch(
-    API +
-    "?action=dashboard"
+    API + "?action=dashboard"
   )
   .then(r => r.json())
   .then(data => {
@@ -833,6 +867,20 @@ function clearProductOnly(){
     "capturedQty"
   ).innerText =
     "-";
+  document.getElementById(
+    "capturedLabel"
+  ).innerText =
+    "⚪ Not Counted";
+  document.getElementById(
+    "capturedQty"
+  ).classList.remove(
+    "doneValue"
+  );
+  document.getElementById(
+    "capturedQty"
+  ).parentElement.classList.remove(
+    "doneBox"
+  );
   document.getElementById(
     "bin"
   ).innerText =
