@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Stores Management</title>
-<link rel="apple-touch-icon" href="EBF97A0E-
-DFD1-418E-9294-54F476B5B47F.png">
-<link rel="icon" type="image/png" href="EBF97A0E-
-DFD1-418E-9294-54F476B5B47F.png">
+
+<link rel="apple-touch-icon" href="EBF97A0E-DFD1-418E-9294-54F476B5B47F.png">
+<link rel="icon" type="image/png" href="EBF97A0E-DFD1-418E-9294-54F476B5B47F.png">
 <meta name="apple-mobile-web-app-title" content="Stores">
+
 <script src="https://unpkg.com/@zxing/library@latest"></script>
 
 <style>
@@ -207,6 +207,34 @@ body.dark .banner{
 .good{color:#16a34a}
 .error{color:#dc2626}
 
+.statusBig{
+  display:none;
+  margin-top:12px;
+  padding:14px;
+  border-radius:14px;
+  text-align:center;
+  font-size:22px;
+  font-weight:900;
+}
+
+.statusSearching{
+  display:block;
+  background:#dbeafe;
+  color:#1d4ed8;
+}
+
+.statusFound{
+  display:block;
+  background:#dcfce7;
+  color:#15803d;
+}
+
+.statusNotFound{
+  display:block;
+  background:#fee2e2;
+  color:#dc2626;
+}
+
 .progressWrap{
   background:#e2e8f0;
   border-radius:999px;
@@ -238,6 +266,7 @@ body.dark .banner{
 }
 </style>
 </head>
+
 <body>
 <div class="header">
   <h1>STORES MANAGEMENT</h1>
@@ -253,6 +282,8 @@ body.dark .banner{
     <video id="preview" autoplay muted playsinline></video>
 
     <input id="barcode" placeholder="Scan or enter barcode" onkeydown="manualEnter(event)">
+
+    <div id="statusBig" class="statusBig"></div>
 
     <div id="product" class="product">Ready to scan</div>
 
@@ -293,16 +324,14 @@ body.dark .banner{
       <div id="lastMovement" class="value">-</div>
     </div>
   </div>
-    <div class="card">
+
+  <div class="card">
     <div class="label">👤 User</div>
 
     <select id="user">
-      <option>M Read</option>
+      <option>Matt Read</option>
       <option>Ivor Rees</option>
       <option>Craig Law</option>
-      <option>M Goodhall</option>
-      <option>J Meakin</option>
-      <option>M Peters</option>
     </select>
 
     <input id="qty" type="number" placeholder="Quantity">
@@ -341,10 +370,21 @@ const API =
 let scanner = null;
 let currentItem = null;
 let scanLocked = false;
+
+if (localStorage.getItem("darkMode") === "yes") {
+  document.body.classList.add("dark");
+}
+
 function setMsg(text, cls="") {
   const el = document.getElementById("msg");
   el.innerText = text;
   el.className = cls;
+}
+
+function setStatus(text, type) {
+  const el = document.getElementById("statusBig");
+  el.innerText = text;
+  el.className = "statusBig " + type;
 }
 
 function showBanner(text) {
@@ -359,6 +399,11 @@ function showBanner(text) {
 
 function toggleDarkMode() {
   document.body.classList.toggle("dark");
+
+  localStorage.setItem(
+    "darkMode",
+    document.body.classList.contains("dark") ? "yes" : "no"
+  );
 }
 
 function manualEnter(e) {
@@ -420,24 +465,62 @@ function stopScanner() {
   document.getElementById("scanBtn").style.display = "block";
   document.getElementById("stopBtn").style.display = "none";
 }
+
 function lookup(barcode) {
   barcode = String(barcode || "").trim();
 
   if (!barcode) {
     setMsg("Enter or scan a barcode", "error");
+    setStatus("❌ NO CODE", "statusNotFound");
+
+    if (navigator.vibrate) {
+      navigator.vibrate([100, 50, 100]);
+    }
+
     return;
+  }
+
+  setMsg("Searching...", "good");
+  setStatus("🔎 SEARCHING...", "statusSearching");
+
+  const cached = localStorage.getItem("item_" + barcode);
+
+  if (cached) {
+    showProduct(JSON.parse(cached));
   }
 
   fetch(API + "?action=find&barcode=" + encodeURIComponent(barcode))
     .then(r => r.json())
-    .then(showProduct)
-    .catch(() => setMsg("Connection error", "error"));
+    .then(data => {
+      if (data.found) {
+        localStorage.setItem(
+          "item_" + barcode,
+          JSON.stringify(data)
+        );
+      }
+
+      showProduct(data);
+    })
+    .catch(() => {
+      setMsg("Connection error", "error");
+      setStatus("❌ CONNECTION ERROR", "statusNotFound");
+
+      if (navigator.vibrate) {
+        navigator.vibrate([100, 50, 100, 50, 100]);
+      }
+    });
 }
 
 function showProduct(data) {
   if (!data.found) {
     clearProductOnly();
     setMsg("Barcode not found", "error");
+    setStatus("❌ NOT FOUND", "statusNotFound");
+
+    if (navigator.vibrate) {
+      navigator.vibrate([100, 50, 100]);
+    }
+
     return;
   }
 
@@ -456,7 +539,13 @@ function showProduct(data) {
   showLastMovement(data.lastMovement);
 
   setMsg("Product found", "good");
+  setStatus("✅ FOUND", "statusFound");
+
+  if (navigator.vibrate) {
+    navigator.vibrate(80);
+  }
 }
+
 function setCapturedStatus(capturedQty) {
   const label = document.getElementById("capturedLabel");
   const qtyEl = document.getElementById("capturedQty");
@@ -506,6 +595,7 @@ function colourStock(qty) {
     el.classList.add("redStock");
   }
 }
+
 function buildUrl(action) {
   const barcode = document.getElementById("barcode").value;
   const qty = document.getElementById("qty").value;
@@ -522,11 +612,17 @@ function buildUrl(action) {
   );
 }
 
+function clearCachedItem() {
+  const barcode = document.getElementById("barcode").value;
+  localStorage.removeItem("item_" + barcode);
+}
+
 function saveStockTake() {
   fetch(buildUrl("save"))
     .then(r => r.json())
     .then(data => {
       if (data.ok) {
+        clearCachedItem();
         showBanner("✅ STOCK TAKE SAVED");
         lookup(document.getElementById("barcode").value);
       } else {
@@ -541,6 +637,8 @@ function bookOut() {
     .then(r => r.json())
     .then(data => {
       if (data.ok) {
+        clearCachedItem();
+
         showBanner(
           "📤 BOOKED OUT<br>Stock Remaining: " +
           data.stockRemaining
@@ -560,6 +658,8 @@ function bookIn() {
     .then(r => r.json())
     .then(data => {
       if (data.ok) {
+        clearCachedItem();
+
         showBanner(
           "📥 BOOKED IN<br>Stock Remaining: " +
           data.stockRemaining
@@ -573,6 +673,7 @@ function bookIn() {
     })
     .catch(() => setMsg("Connection error", "error"));
 }
+
 function openDashboard() {
   fetch(API + "?action=dashboard")
     .then(r => r.json())
@@ -682,7 +783,6 @@ function openDashboard() {
       html += `</div>`;
 
       document.getElementById("dashboardContent").innerHTML = html;
-
       document.getElementById("dashboardCard").style.display = "block";
 
       document.getElementById("dashboardCard").scrollIntoView({
@@ -691,6 +791,7 @@ function openDashboard() {
     })
     .catch(() => setMsg("Dashboard connection error", "error"));
 }
+
 function clearForm() {
   document.getElementById("barcode").value = "";
   document.getElementById("qty").value = "";
@@ -714,8 +815,11 @@ function clearProductOnly() {
   document.getElementById("lastMovement").innerText = "-";
 
   setCapturedStatus("");
-}
 
+  const status = document.getElementById("statusBig");
+  status.innerText = "";
+  status.className = "statusBig";
+}
 </script>
 </body>
 </html>
