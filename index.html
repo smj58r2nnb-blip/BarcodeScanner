@@ -284,6 +284,54 @@ body.dark .banner{
   color:#92400e;
 }
 
+
+.managerCard{
+  border:2px solid #16a34a;
+}
+.managerLocked{
+  display:none;
+}
+.toggleRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:10px;
+  padding:12px;
+  border-radius:14px;
+  background:#ecfdf3;
+  border:1px solid #bbf7d0;
+  font-weight:900;
+}
+body.dark .toggleRow{
+  background:#0f172a;
+  border:1px solid #334155;
+}
+.toggleRow input{
+  width:auto;
+  transform:scale(1.4);
+  margin:0;
+}
+.managerTitle{
+  font-size:22px;
+  font-weight:900;
+  color:#064e3b;
+  margin-bottom:6px;
+}
+body.dark .managerTitle{color:white}
+.managerSub{
+  color:var(--muted);
+  font-size:13px;
+  font-weight:800;
+}
+.smallNote{
+  margin-top:8px;
+  font-size:12px;
+  color:var(--muted);
+  font-weight:800;
+  text-align:center;
+}
+
 </style>
 </head>
 
@@ -377,8 +425,39 @@ body.dark .banner{
       ⬇️ DOWNLOAD STOCK FOR OFFLINE
     </button>
 
+    <div class="toggleRow">
+      <span>📷 Continuous Scan Mode</span>
+      <input id="continuousScan" type="checkbox" onchange="saveContinuousMode()">
+    </div>
 
   </div>
+
+  <div class="card managerCard">
+    <div class="managerTitle">👑 Manager Mode</div>
+    <div class="managerSub">Add or remove items from Stores</div>
+
+    <input id="managerPin" type="password" placeholder="Manager PIN">
+    <button class="mode" onclick="unlockManager()">🔓 UNLOCK MANAGER</button>
+
+    <div id="managerPanel" class="managerLocked">
+      <div class="label" style="margin-top:14px;">➕ Add New Item</div>
+      <input id="newDescription" placeholder="Description">
+      <input id="newBarcode" placeholder="Barcode / Bin No">
+      <input id="newArticle" placeholder="Article No">
+      <input id="newMake" placeholder="Make">
+      <input id="newQty" type="number" placeholder="Starting Quantity">
+      <input id="newBin" placeholder="Bin No">
+      <input id="newZone" placeholder="Zone">
+      <input id="newLocation" placeholder="Location">
+      <button class="save" onclick="addNewItem()">➕ ADD ITEM</button>
+
+      <div class="label" style="margin-top:18px;">🗑 Remove Item</div>
+      <input id="removeBarcode" placeholder="Scan / enter barcode or bin to remove">
+      <button class="out" onclick="removeItem()">🗑 REMOVE ITEM</button>
+
+      <div class="smallNote">Removed items are copied to a Deleted Items sheet first.</div>
+    </div>
+
 
   <div id="dashboardCard" class="card" style="display:none">
     <div class="product">📊 Dashboard</div>
@@ -519,6 +598,7 @@ function queueStockTakeOffline() {
 
   clearCachedItem();
   clearForm();
+  maybeRestartScanner();
 
   if (navigator.vibrate) {
     navigator.vibrate([80, 40, 80]);
@@ -994,6 +1074,7 @@ function saveStockTake() {
         showBanner("✅ STOCK TAKE SAVED");
         lookup(savedBarcode);
         syncPendingStocktakes();
+        maybeRestartScanner();
       } else {
         setMsg(data.message || "Save failed", "error");
       }
@@ -1016,7 +1097,7 @@ function bookOut() {
         );
 
         clearForm();
-        setTimeout(startScanner, 800);
+        maybeRestartScanner();
       } else {
         setMsg(data.message || "Book out failed", "error");
       }
@@ -1037,7 +1118,7 @@ function bookIn() {
         );
 
         clearForm();
-        setTimeout(startScanner, 800);
+        maybeRestartScanner();
       } else {
         setMsg(data.message || "Book in failed", "error");
       }
@@ -1191,6 +1272,164 @@ function clearProductOnly() {
   status.innerText = "";
   status.className = "statusBig";
 }
+
+let managerUnlocked = false;
+
+if (localStorage.getItem("continuousScan") === "yes") {
+  const continuousBox = document.getElementById("continuousScan");
+  if (continuousBox) continuousBox.checked = true;
+}
+
+function saveContinuousMode() {
+  const on =
+    document.getElementById("continuousScan").checked;
+
+  localStorage.setItem(
+    "continuousScan",
+    on ? "yes" : "no"
+  );
+
+  showBanner(
+    on
+      ? "📷 CONTINUOUS SCAN ON"
+      : "📷 CONTINUOUS SCAN OFF"
+  );
+}
+
+function shouldContinuousScan() {
+  return localStorage.getItem("continuousScan") === "yes";
+}
+
+function maybeRestartScanner() {
+  if (shouldContinuousScan()) {
+    setTimeout(startScanner, 500);
+  }
+}
+
+function unlockManager() {
+  const pin =
+    document.getElementById("managerPin").value.trim();
+
+  if (pin !== "2408") {
+    setMsg("Wrong manager PIN", "error");
+    setStatus("❌ MANAGER LOCKED", "statusNotFound");
+    return;
+  }
+
+  managerUnlocked = true;
+  document.getElementById("managerPanel").style.display = "block";
+  setMsg("Manager mode unlocked", "good");
+  setStatus("👑 MANAGER UNLOCKED", "statusFound");
+}
+
+function managerUrl(action) {
+  const pin =
+    document.getElementById("managerPin").value.trim();
+
+  return API +
+    "?action=" + action +
+    "&pin=" + encodeURIComponent(pin);
+}
+
+function addNewItem() {
+  if (!managerUnlocked) {
+    unlockManager();
+    if (!managerUnlocked) return;
+  }
+
+  const description = document.getElementById("newDescription").value.trim();
+  const barcode = document.getElementById("newBarcode").value.trim();
+  const article = document.getElementById("newArticle").value.trim();
+  const make = document.getElementById("newMake").value.trim();
+  const qty = document.getElementById("newQty").value;
+  const bin = document.getElementById("newBin").value.trim();
+  const zone = document.getElementById("newZone").value.trim();
+  const location = document.getElementById("newLocation").value.trim();
+
+  if (!description || !barcode || !bin) {
+    setMsg("Description, barcode and bin are required", "error");
+    return;
+  }
+
+  setMsg("Adding item...", "good");
+  setStatus("➕ ADDING ITEM...", "statusSearching");
+
+  const url =
+    managerUrl("additem") +
+    "&description=" + encodeURIComponent(description) +
+    "&barcode=" + encodeURIComponent(barcode) +
+    "&article=" + encodeURIComponent(article) +
+    "&make=" + encodeURIComponent(make) +
+    "&qty=" + encodeURIComponent(qty || 0) +
+    "&bin=" + encodeURIComponent(bin) +
+    "&zone=" + encodeURIComponent(zone) +
+    "&location=" + encodeURIComponent(location);
+
+  fetch(url)
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        showBanner("✅ ITEM ADDED");
+        setMsg("Item added to Stores", "good");
+        setStatus("✅ ITEM ADDED", "statusFound");
+        downloadStockData();
+      } else {
+        setMsg(data.message || "Add item failed", "error");
+        setStatus("❌ ADD FAILED", "statusNotFound");
+      }
+    })
+    .catch(() => {
+      setMsg("Connection error adding item", "error");
+      setStatus("❌ CONNECTION ERROR", "statusNotFound");
+    });
+}
+
+function removeItem() {
+  if (!managerUnlocked) {
+    unlockManager();
+    if (!managerUnlocked) return;
+  }
+
+  const barcode =
+    document.getElementById("removeBarcode").value.trim() ||
+    document.getElementById("barcode").value.trim();
+
+  if (!barcode) {
+    setMsg("Enter or scan an item to remove", "error");
+    return;
+  }
+
+  if (!confirm("Remove this item from Stores?\n\n" + barcode)) {
+    return;
+  }
+
+  setMsg("Removing item...", "good");
+  setStatus("🗑 REMOVING...", "statusSearching");
+
+  fetch(
+    managerUrl("removeitem") +
+    "&barcode=" + encodeURIComponent(barcode)
+  )
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        showBanner("🗑 ITEM REMOVED");
+        setMsg("Item moved to Deleted Items", "good");
+        setStatus("✅ REMOVED", "statusFound");
+        clearCachedItem();
+        downloadStockData();
+        clearForm();
+      } else {
+        setMsg(data.message || "Remove failed", "error");
+        setStatus("❌ REMOVE FAILED", "statusNotFound");
+      }
+    })
+    .catch(() => {
+      setMsg("Connection error removing item", "error");
+      setStatus("❌ CONNECTION ERROR", "statusNotFound");
+    });
+}
+
 updateOfflineBar();
 syncPendingStocktakes();
 </script>
