@@ -612,7 +612,19 @@ function findOfflineProduct(barcode) {
       String(items[i].barcode || "").trim() === search ||
       String(items[i].bin || "").trim() === search
     ) {
-      return items[i];
+      return {
+        found: true,
+        description: items[i].description || "",
+        barcode: items[i].barcode || "",
+        articleNo: items[i].articleNo || "",
+        make: items[i].make || "",
+        recordedQty: items[i].recordedQty || "",
+        capturedQty: items[i].capturedQty || "",
+        bin: items[i].bin || "",
+        zone: items[i].zone || "",
+        location: items[i].location || "",
+        lastMovement: items[i].lastMovement || null
+      };
     }
   }
 
