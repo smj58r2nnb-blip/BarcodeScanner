@@ -332,6 +332,34 @@ body.dark .managerTitle{color:white}
   text-align:center;
 }
 
+
+.managerGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.managerDivider{
+  margin-top:18px;
+  padding-top:14px;
+  border-top:1px solid var(--border);
+}
+.searchResults{
+  margin-top:10px;
+  max-height:300px;
+  overflow:auto;
+}
+.searchResult{
+  border-top:1px solid var(--border);
+  padding:10px 0;
+  font-size:14px;
+  font-weight:700;
+}
+.searchResult small{
+  color:var(--muted);
+  display:block;
+  margin-top:4px;
+}
+
 </style>
 </head>
 
@@ -442,25 +470,62 @@ body.dark .managerTitle{color:white}
     <button class="mode" onclick="unlockManager()">🔓 UNLOCK MANAGER</button>
 
     <div id="managerPanel" class="managerLocked">
-      <div class="label" style="margin-top:14px;">➕ Add New Item</div>
-      <input id="newDescription" placeholder="Description">
-      <input id="newBarcode" placeholder="Barcode / Bin No">
-      <input id="newArticle" placeholder="Article No">
-      <input id="newMake" placeholder="Make">
-      <input id="newQty" type="number" placeholder="Starting Quantity">
-      <input id="newBin" placeholder="Bin No">
-      <input id="newZone" placeholder="Zone">
-      <input id="newLocation" placeholder="Location">
-      <button class="save" onclick="addNewItem()">➕ ADD ITEM</button>
+      <div class="managerDivider">
+        <div class="label">➕ Add New Item</div>
+        <input id="newDescription" placeholder="Description">
+        <input id="newBarcode" placeholder="Barcode / Bin No">
+        <input id="newArticle" placeholder="Article No">
+        <input id="newMake" placeholder="Make">
+        <input id="newQty" type="number" placeholder="Starting Quantity">
+        <input id="newBin" placeholder="Bin No">
+        <input id="newZone" placeholder="Zone">
+        <input id="newLocation" placeholder="Location">
+        <button class="save" onclick="addNewItem()">➕ ADD ITEM</button>
+      </div>
 
-      <div class="label" style="margin-top:18px;">🔄 Reset Stock Take</div>
-      <button class="out" onclick="resetStocktakeManager()">🔄 RESET STOCK TAKE</button>
+      <div class="managerDivider">
+        <div class="label">✏️ Edit Current Item</div>
+        <input id="editDescription" placeholder="New description">
+        <input id="editArticle" placeholder="New article no">
+        <input id="editMake" placeholder="New make">
+        <input id="editQty" type="number" placeholder="New quantity">
+        <input id="editBin" placeholder="New bin">
+        <input id="editZone" placeholder="New zone">
+        <input id="editLocation" placeholder="New location">
+        <button class="in" onclick="editItem()">✏️ EDIT SCANNED ITEM</button>
+      </div>
 
-      <div class="label" style="margin-top:18px;">🗑 Remove Item</div>
-      <input id="removeBarcode" placeholder="Scan / enter barcode or bin to remove">
-      <button class="out" onclick="removeItem()">🗑 REMOVE ITEM</button>
+      <div class="managerDivider">
+        <div class="label">🔎 Search Stores</div>
+        <input id="managerSearch" placeholder="Search description, article, barcode or bin">
+        <button class="mode" onclick="managerSearchItems()">🔎 SEARCH</button>
+        <div id="managerSearchResults" class="searchResults"></div>
+      </div>
 
-      <div class="smallNote">Removed items are copied to a Deleted Items sheet first.</div>
+      <div class="managerDivider">
+        <div class="label">🔄 Reset Stock Take</div>
+        <button class="out" onclick="resetStocktakeManager()">🔄 RESET STOCK TAKE</button>
+      </div>
+
+      <div class="managerDivider">
+        <div class="label">🗑 Remove Item</div>
+        <input id="removeBarcode" placeholder="Scan / enter barcode or bin to remove">
+        <textarea id="removeReason" placeholder="Reason for removal (optional)"></textarea>
+        <button class="out" onclick="removeItem()">🗑 MOVE TO DELETED ITEMS</button>
+      </div>
+
+      <div class="managerDivider">
+        <div class="label">♻ Restore Deleted Item</div>
+        <input id="restoreBarcode" placeholder="Barcode or bin to restore">
+        <button class="save" onclick="restoreItem()">♻ RESTORE ITEM</button>
+      </div>
+
+      <div class="managerDivider">
+        <div class="label">📤 Export</div>
+        <button class="mode" onclick="exportStockCsv()">📤 EXPORT STOCK CSV</button>
+      </div>
+
+      <div class="smallNote">Removed items are copied to a Deleted Items sheet first and can be restored.</div>
     </div>
   </div>
 
@@ -1451,6 +1516,10 @@ function addNewItem() {
         showBanner("✅ ITEM ADDED");
         setMsg("Item added to Stores", "good");
         setStatus("✅ ITEM ADDED", "statusFound");
+
+        ["newDescription","newBarcode","newArticle","newMake","newQty","newBin","newZone","newLocation"]
+          .forEach(id => document.getElementById(id).value = "");
+
         downloadStockData();
       } else {
         setMsg(data.message || "Add item failed", "error");
@@ -1473,12 +1542,17 @@ function removeItem() {
     document.getElementById("removeBarcode").value.trim() ||
     document.getElementById("barcode").value.trim();
 
+  const reason =
+    document.getElementById("removeReason")
+      ? document.getElementById("removeReason").value.trim()
+      : "";
+
   if (!barcode) {
     setMsg("Enter or scan an item to remove", "error");
     return;
   }
 
-  if (!confirm("Remove this item from Stores?\n\n" + barcode)) {
+  if (!confirm("Move this item to Deleted Items?\n\n" + barcode)) {
     return;
   }
 
@@ -1487,17 +1561,22 @@ function removeItem() {
 
   fetch(
     managerUrl("removeitem") +
-    "&barcode=" + encodeURIComponent(barcode)
+    "&barcode=" + encodeURIComponent(barcode) +
+    "&reason=" + encodeURIComponent(reason)
   )
     .then(r => r.json())
     .then(data => {
       if (data.ok) {
-        showBanner("🗑 ITEM REMOVED");
+        showBanner("🗑 ITEM MOVED TO DELETED ITEMS");
         setMsg("Item moved to Deleted Items", "good");
         setStatus("✅ REMOVED", "statusFound");
         clearCachedItem();
         downloadStockData();
         clearForm();
+        document.getElementById("removeBarcode").value = "";
+        if (document.getElementById("removeReason")) {
+          document.getElementById("removeReason").value = "";
+        }
       } else {
         setMsg(data.message || "Remove failed", "error");
         setStatus("❌ REMOVE FAILED", "statusNotFound");
@@ -1507,6 +1586,145 @@ function removeItem() {
       setMsg("Connection error removing item", "error");
       setStatus("❌ CONNECTION ERROR", "statusNotFound");
     });
+}
+
+function editItem() {
+  if (!managerUnlocked) {
+    unlockManager();
+    if (!managerUnlocked) return;
+  }
+
+  const barcode =
+    document.getElementById("barcode").value.trim();
+
+  if (!barcode) {
+    setMsg("Scan an item first before editing", "error");
+    return;
+  }
+
+  const url =
+    managerUrl("edititem") +
+    "&barcode=" + encodeURIComponent(barcode) +
+    "&description=" + encodeURIComponent(document.getElementById("editDescription").value.trim()) +
+    "&article=" + encodeURIComponent(document.getElementById("editArticle").value.trim()) +
+    "&make=" + encodeURIComponent(document.getElementById("editMake").value.trim()) +
+    "&qty=" + encodeURIComponent(document.getElementById("editQty").value) +
+    "&bin=" + encodeURIComponent(document.getElementById("editBin").value.trim()) +
+    "&zone=" + encodeURIComponent(document.getElementById("editZone").value.trim()) +
+    "&location=" + encodeURIComponent(document.getElementById("editLocation").value.trim());
+
+  fetch(url)
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        showBanner("✏️ ITEM UPDATED");
+        setMsg("Item updated", "good");
+        setStatus("✅ UPDATED", "statusFound");
+        clearCachedItem();
+        downloadStockData();
+        lookup(barcode);
+      } else {
+        setMsg(data.message || "Edit failed", "error");
+        setStatus("❌ EDIT FAILED", "statusNotFound");
+      }
+    })
+    .catch(() => {
+      setMsg("Connection error editing item", "error");
+      setStatus("❌ CONNECTION ERROR", "statusNotFound");
+    });
+}
+
+function restoreItem() {
+  if (!managerUnlocked) {
+    unlockManager();
+    if (!managerUnlocked) return;
+  }
+
+  const barcode =
+    document.getElementById("restoreBarcode").value.trim();
+
+  if (!barcode) {
+    setMsg("Enter barcode or bin to restore", "error");
+    return;
+  }
+
+  fetch(
+    managerUrl("restoreitem") +
+    "&barcode=" + encodeURIComponent(barcode)
+  )
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        showBanner("♻ ITEM RESTORED");
+        setMsg("Item restored to STStores", "good");
+        setStatus("✅ RESTORED", "statusFound");
+        document.getElementById("restoreBarcode").value = "";
+        downloadStockData();
+      } else {
+        setMsg(data.message || "Restore failed", "error");
+        setStatus("❌ RESTORE FAILED", "statusNotFound");
+      }
+    })
+    .catch(() => {
+      setMsg("Connection error restoring item", "error");
+      setStatus("❌ CONNECTION ERROR", "statusNotFound");
+    });
+}
+
+function managerSearchItems() {
+  if (!managerUnlocked) {
+    unlockManager();
+    if (!managerUnlocked) return;
+  }
+
+  const q =
+    document.getElementById("managerSearch").value.trim();
+
+  fetch(
+    managerUrl("searchitems") +
+    "&q=" + encodeURIComponent(q)
+  )
+    .then(r => r.json())
+    .then(data => {
+      const box =
+        document.getElementById("managerSearchResults");
+
+      if (!data.ok) {
+        box.innerHTML = "<div class='searchResult'>Search failed</div>";
+        return;
+      }
+
+      if (!data.items.length) {
+        box.innerHTML = "<div class='searchResult'>No results</div>";
+        return;
+      }
+
+      box.innerHTML =
+        data.items.map(item => `
+          <div class="searchResult">
+            ${item.description || "-"}
+            <small>
+              Barcode: ${item.barcode || "-"} •
+              Article: ${item.articleNo || "-"} •
+              Bin: ${item.bin || "-"} •
+              Qty: ${item.recordedQty || "0"}
+            </small>
+          </div>
+        `).join("");
+    })
+    .catch(() => setMsg("Search connection error", "error"));
+}
+
+function exportStockCsv() {
+  if (!managerUnlocked) {
+    unlockManager();
+    if (!managerUnlocked) return;
+  }
+
+  window.open(
+    managerUrl("exportstock"),
+    "_blank"
+  );
 }
 
 updateOfflineBar();
