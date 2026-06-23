@@ -425,6 +425,8 @@ body.dark .managerTitle{color:white}
       ⬇️ DOWNLOAD STOCK FOR OFFLINE
     </button>
 
+    <button class="mode" onclick="toggleManagerMode()">👑 MANAGER</button>
+
     <div class="toggleRow">
       <span>📷 Continuous Scan Mode</span>
       <input id="continuousScan" type="checkbox" onchange="saveContinuousMode()">
@@ -432,7 +434,7 @@ body.dark .managerTitle{color:white}
 
   </div>
 
-  <div class="card managerCard">
+  <div id="managerCard" class="card managerCard" style="display:none;">
     <div class="managerTitle">👑 Manager Mode</div>
     <div class="managerSub">Add or remove items from Stores</div>
 
@@ -451,12 +453,16 @@ body.dark .managerTitle{color:white}
       <input id="newLocation" placeholder="Location">
       <button class="save" onclick="addNewItem()">➕ ADD ITEM</button>
 
+      <div class="label" style="margin-top:18px;">🔄 Reset Stock Take</div>
+      <button class="out" onclick="resetStocktakeManager()">🔄 RESET STOCK TAKE</button>
+
       <div class="label" style="margin-top:18px;">🗑 Remove Item</div>
       <input id="removeBarcode" placeholder="Scan / enter barcode or bin to remove">
       <button class="out" onclick="removeItem()">🗑 REMOVE ITEM</button>
 
       <div class="smallNote">Removed items are copied to a Deleted Items sheet first.</div>
     </div>
+  </div>
 
 
   <div id="dashboardCard" class="card" style="display:none">
@@ -1126,11 +1132,25 @@ function bookIn() {
     .catch(() => setMsg("Connection error", "error"));
 }
 
+let dashboardOpen = false;
+
 function openDashboard() {
+  const card =
+    document.getElementById("dashboardCard");
+
+  if (dashboardOpen) {
+    card.style.display = "none";
+    dashboardOpen = false;
+    return;
+  }
+
+  dashboardOpen = true;
+
   fetch(API + "?action=dashboard")
     .then(r => r.json())
     .then(data => {
       if (!data.ok) {
+        dashboardOpen = false;
         setMsg("Dashboard failed", "error");
         return;
       }
@@ -1241,7 +1261,10 @@ function openDashboard() {
         behavior: "smooth"
       });
     })
-    .catch(() => setMsg("Dashboard connection error", "error"));
+    .catch(() => {
+      dashboardOpen = false;
+      setMsg("Dashboard connection error", "error");
+    });
 }
 
 function clearForm() {
@@ -1306,7 +1329,31 @@ function maybeRestartScanner() {
   }
 }
 
+function toggleManagerMode() {
+  const card =
+    document.getElementById("managerCard");
+
+  if (card.style.display === "block") {
+    card.style.display = "none";
+    setMsg("Manager mode closed");
+    return;
+  }
+
+  card.style.display = "block";
+  card.scrollIntoView({ behavior: "smooth" });
+}
+
 function unlockManager() {
+  const panel =
+    document.getElementById("managerPanel");
+
+  if (managerUnlocked) {
+    panel.style.display = "none";
+    managerUnlocked = false;
+    setMsg("Manager tools hidden");
+    return;
+  }
+
   const pin =
     document.getElementById("managerPin").value.trim();
 
@@ -1317,9 +1364,41 @@ function unlockManager() {
   }
 
   managerUnlocked = true;
-  document.getElementById("managerPanel").style.display = "block";
+  panel.style.display = "block";
   setMsg("Manager mode unlocked", "good");
   setStatus("👑 MANAGER UNLOCKED", "statusFound");
+}
+
+function resetStocktakeManager() {
+  if (!managerUnlocked) {
+    unlockManager();
+    if (!managerUnlocked) return;
+  }
+
+  if (!confirm("Reset the whole stocktake? This clears all captured quantities.")) {
+    return;
+  }
+
+  setMsg("Resetting stocktake...", "good");
+  setStatus("🔄 RESETTING...", "statusSearching");
+
+  fetch(managerUrl("resetstocktake"))
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        showBanner("🔄 STOCK TAKE RESET");
+        setMsg("Stocktake reset complete", "good");
+        setStatus("✅ RESET COMPLETE", "statusFound");
+        downloadStockData();
+      } else {
+        setMsg(data.message || "Reset failed", "error");
+        setStatus("❌ RESET FAILED", "statusNotFound");
+      }
+    })
+    .catch(() => {
+      setMsg("Reset connection error", "error");
+      setStatus("❌ CONNECTION ERROR", "statusNotFound");
+    });
 }
 
 function managerUrl(action) {
