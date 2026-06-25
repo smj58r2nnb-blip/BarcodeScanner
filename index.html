@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -12,425 +12,494 @@
 <script src="https://unpkg.com/@zxing/library@latest"></script>
 
 <style>
-*{box-sizing:border-box}
+/* Global Reset & Modern Box Model */
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root{
-  --green:#16a34a;
-  --bg:#eef8f0;
-  --card:rgba(255,255,255,.96);
-  --text:#102a1f;
-  --muted:#64748b;
-  --border:#d8eadf;
+:root {
+  /* Crisp Modern Green Theme */
+  --green: #10b981;
+  --green-dark: #047857;
+  --green-light: #d1fae5;
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --input-bg: #f1f5f9;
+  
+  /* Status Colors */
+  --success-bg: #ecfdf5;
+  --success-text: #065f46;
+  --error-bg: #fef2f2;
+  --error-text: #991b1b;
+  --warn-bg: #fffbeb;
+  --warn-text: #92400e;
+  --info-bg: #eff6ff;
+  --info-text: #1e40af;
 }
 
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
 }
 
-.header{
-  background:linear-gradient(135deg,#064e3b,#16a34a);
-  color:white;
-  text-align:center;
-  padding:20px;
-  box-shadow:0 8px 20px rgba(0,0,0,.18);
+/* App Header */
+.header {
+  background: linear-gradient(135deg, var(--green-dark), var(--green));
+  color: white;
+  padding: 24px 20px;
+  text-align: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+.header h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+.header p { margin-top: 4px; font-size: 13px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Main Layout Setup */
+.wrap {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
 }
 
-.header h1{
-  margin:0;
-  font-size:28px;
-  font-weight:900;
-}
-
-.header p{
-  margin-top:6px;
-  font-size:14px;
-  font-weight:700;
-}
-
-.wrap{
-  max-width:760px;
-  margin:auto;
-  padding:14px;
-}
-
-/* --- RESPONSIVE PC vs MOBILE LAYOUT --- */
-@media(min-width: 850px) {
+@media(min-width: 900px) {
   .wrap {
-    max-width: 1200px;
-    display: grid;
-    grid-template-columns: 1fr 1fr; 
-    gap: 20px;
+    max-width: 1300px;
+    grid-template-columns: 1fr 1fr;
     align-items: start;
   }
-  .card {
-    margin-bottom: 0;
-    height: 100%; 
-  }
-  .header {
-    margin-bottom: 10px;
-  }
-  .full-width {
-    grid-column: 1 / -1;
-    height: auto;
-  }
+  .full-width { grid-column: 1 / -1; }
 }
 
-body.pc-view #scanBtn {
-  background: linear-gradient(135deg, #475569, #64748b);
+/* Cards */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  transition: box-shadow 0.2s ease;
 }
-/* ------------------------------------- */
+.card:hover { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); }
 
-.card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:18px;
-  padding:14px;
-  margin-bottom:12px;
-  box-shadow:0 6px 20px rgba(0,0,0,.08);
+/* Form Elements */
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+input, textarea, select {
+  width: 100%;
+  font-family: inherit;
+  border-radius: 10px;
+  padding: 14px 16px;
+  font-size: 15px;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text);
+  outline: none;
+  transition: all 0.2s ease;
 }
-
-button,input,textarea,select{
-  width:100%;
-  font-family:inherit;
-  border-radius:16px;
-  padding:13px;
-  font-size:16px;
-  margin-top:10px;
-}
-
-input,textarea,select{
-  border:2px solid var(--border);
-  outline:none;
-  background:white;
-}
-
-button{
-  border:0;
-  color:white;
-  font-weight:800;
-  letter-spacing:.2px;
-  padding:10px 8px;
-  font-size:14px;
-  border-radius:14px;
-  min-height:52px;
-  box-shadow:0 4px 10px rgba(0,0,0,.12);
-  cursor:pointer;
+input:focus, textarea:focus, select:focus {
+  background: var(--card);
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
-.scan{background:linear-gradient(135deg,#065f46,#16a34a)}
-.stop{background:linear-gradient(135deg,#991b1b,#dc2626);display:none}
-.save{background:linear-gradient(135deg,#15803d,#22c55e)}
-.out{background:linear-gradient(135deg,#991b1b,#ef4444)}
-.in{background:linear-gradient(135deg,#1d4ed8,#3b82f6)}
-.mode{background:linear-gradient(135deg,#111827,#334155)}
-.clear{background:linear-gradient(135deg,#475569,#64748b)}
+/* Buttons */
+button {
+  width: 100%;
+  font-family: inherit;
+  border: none;
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  border-radius: 10px;
+  min-height: 48px;
+  padding: 0 16px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+button:hover { filter: brightness(1.05); transform: translateY(-1px); }
+button:active { transform: translateY(1px); box-shadow: none; }
 
-.product{
-  font-size:26px;
-  font-weight:900;
-  margin:14px 0 12px;
-  line-height:1.15;
-  color:#064e3b;
+.scan { background: var(--green); font-size: 15px; }
+body.pc-view #scanBtn { background: var(--muted); } /* Dim on PC */
+.stop { background: #e11d48; display: none; }
+.save { background: #0284c7; }
+.in { background: #2563eb; }
+.out { background: #e11d48; }
+.clear { background: var(--border); color: var(--text); box-shadow: none; }
+.clear:hover { background: #cbd5e1; }
+.mode { background: #475569; }
+
+/* Grid & Data Presentation */
+.product {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--border);
 }
 
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
+.data-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media(max-width: 480px) { .data-grid { grid-template-columns: 1fr; } }
+
+.box {
+  background: var(--card);
+  border-radius: 10px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.box .label { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.box .value { margin-top: 6px; font-size: 17px; font-weight: 800; word-break: break-word; }
+
+.greenStock { color: var(--green); }
+.amberStock { color: #d97706; }
+.redStock { color: #dc2626; }
+
+.doneBox { background: var(--success-bg); border-color: var(--green); }
+.doneValue { color: var(--green-dark); }
+
+/* Video Scanner */
+video {
+  width: 100%;
+  display: none;
+  margin-top: 12px;
+  border-radius: 12px;
+  border: 3px solid var(--green);
+  background: black;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
 }
 
-.box{
-  background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(240,253,244,.9));
-  border-radius:16px;
-  padding:12px;
-  border:1px solid #dcfce7;
+/* Actions Grid */
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 20px;
 }
 
-.label{
-  color:var(--muted);
-  font-size:11px;
-  font-weight:800;
+/* Status Notifications */
+#msg { text-align: center; font-size: 14px; font-weight: 700; margin-top: 12px; min-height: 21px; }
+.good { color: var(--green); }
+.error { color: #dc2626; }
+
+.banner {
+  display: none;
+  margin-top: 16px;
+  background: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid var(--green-light);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 14px;
 }
 
-.value{
-  margin-top:6px;
-  font-size:18px;
-  font-weight:900;
-  word-break:break-word;
+.statusBig {
+  display: none;
+  margin: 16px 0;
+  padding: 16px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.statusSearching { display: block; background: var(--info-bg); color: var(--info-text); border: 1px solid #bfdbfe; }
+.statusFound { display: block; background: var(--success-bg); color: var(--success-text); border: 1px solid var(--green-light); }
+.statusNotFound { display: block; background: var(--error-bg); color: var(--error-text); border: 1px solid #fecaca; }
+
+/* Offline Bar */
+.offlineBar {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 13px;
+  background: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid var(--green-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.offlineBar.offline { background: var(--error-bg); color: var(--error-text); border-color: #fecaca; }
+.offlineBar.queue { background: var(--warn-bg); color: var(--warn-text); border-color: #fde68a; }
+
+/* Toggles */
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+}
+.toggleRow input[type="checkbox"] {
+  width: auto;
+  transform: scale(1.3);
+  margin: 0;
+  cursor: pointer;
 }
 
-.greenStock{color:#16a34a}
-.amberStock{color:#f59e0b}
-.redStock{color:#dc2626}
-
-.doneBox{
-  background:#dcfce7 !important;
-  border:2px solid #16a34a !important;
+/* --- DASHBOARD / ANALYTICS --- */
+.analytics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
 }
-.doneValue{color:#16a34a}
-
-.actions{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
+.analytics-header:hover .product { color: var(--green); }
+.analytics-header .product { margin: 0; border: none; padding: 0; transition: color 0.2s ease; }
+.toggle-icon {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--input-bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 900; color: var(--muted);
+  transition: all 0.2s ease;
 }
+.analytics-header:hover .toggle-icon { background: var(--green-light); color: var(--green-dark); }
 
-video{
-  width:100%;
-  display:none;
-  margin-top:10px;
-  border-radius:16px;
-  border:3px solid var(--green);
-  background:black;
-}
+.progressWrap { background: var(--border); border-radius: 999px; overflow: hidden; height: 10px; margin-top: 12px; }
+.progressBar { height: 100%; background: var(--green); width: 0%; transition: width 0.5s ease-out; }
 
-.banner{
-  display:none;
-  margin-top:12px;
-  background:#dcfce7;
-  border-radius:14px;
-  padding:14px;
-  text-align:center;
-  font-weight:900;
+.table-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-top: 16px;
 }
+.ledger-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+  background: var(--card);
+}
+.ledger-table th {
+  background: var(--input-bg);
+  padding: 12px 16px;
+  color: var(--muted);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.ledger-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 500;
+}
+.ledger-table tr:last-child td { border-bottom: none; }
+.ledger-table tr:hover td { background: var(--bg); }
 
-#msg{
-  text-align:center;
-  font-size:16px;
-  margin-top:10px;
-  font-weight:800;
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
+.badge-in { background: #dbeafe; color: #1d4ed8; }
+.badge-out { background: #fee2e2; color: #b91c1c; }
+.badge-bin { background: var(--input-bg); color: var(--text); border: 1px solid var(--border); font-family: monospace; font-size: 12px; }
 
-.good{color:#16a34a}
-.error{color:#dc2626}
-
-.statusBig{
-  display:none;
-  margin-top:12px;
-  padding:14px;
-  border-radius:14px;
-  text-align:center;
-  font-size:22px;
-  font-weight:900;
-}
-.statusSearching{ display:block; background:#dbeafe; color:#1d4ed8; }
-.statusFound{ display:block; background:#dcfce7; color:#15803d; }
-.statusNotFound{ display:block; background:#fee2e2; color:#dc2626; }
-
-.footer{
-  text-align:center;
-  color:var(--muted);
-  font-size:12px;
-  margin:20px 0;
-}
-
-@media(max-width:650px){
-  .grid{grid-template-columns:1fr}
-}
-
-.offlineBar{
-  margin-top:12px;
-  padding:14px;
-  border-radius:14px;
-  text-align:center;
-  font-weight:900;
-  font-size:15px;
-  background:#dcfce7;
-  color:#15803d;
-}
-.offlineBar.offline{ background:#fee2e2; color:#dc2626; }
-.offlineBar.queue{ background:#fef3c7; color:#92400e; }
-
-.toggleRow{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-top:10px;
-  padding:12px;
-  border-radius:14px;
-  background:#ecfdf3;
-  border:1px solid #bbf7d0;
-  font-weight:900;
-}
-.toggleRow input{
-  width:auto;
-  transform:scale(1.4);
-  margin:0;
-}
-
-/* --- ANALYTICS SPECIFIC STYLES --- */
-.progressWrap{
-  background:#e2e8f0;
-  border-radius:999px;
-  overflow:hidden;
-  height:16px;
-  margin-top:8px;
-}
-.progressBar{
-  height:16px;
-  background:#16a34a;
-  width:0%;
-  transition: width 0.4s ease;
-}
-.ledger-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
-.ledger-table th { background: #f1f5f9; padding: 10px; color: var(--muted); font-weight: 800; text-transform: uppercase; font-size: 11px; }
-.ledger-table td { padding: 12px 10px; border-bottom: 1px solid var(--border); font-weight: 700; }
-.action-out { color: #dc2626; font-weight: 900;}
-.action-in { color: #2563eb; font-weight: 900;}
-.bin-pill { background:var(--bg); padding:4px 8px; border-radius:6px; border:1px solid var(--border); font-size:12px; white-space:nowrap; }
-
+.footer { text-align: center; color: var(--muted); font-size: 13px; font-weight: 500; padding: 20px 0 40px; }
 </style>
 </head>
 
 <body>
 <div class="header">
-  <h1>STORES MANAGEMENT</h1>
-  <p>Stock Take • Book Out • Book In</p>
+  <h1>Stores Management</h1>
+  <p>Precision Inventory Control</p>
 </div>
 
 <div class="wrap">
 
+  <!-- LEFT COLUMN: SCANNER & DATA -->
   <div class="card">
-    <button id="scanBtn" class="scan" onclick="startScanner()">📷 SCAN</button>
-    <button id="stopBtn" class="stop" onclick="stopScanner()">STOP</button>
+    <button id="scanBtn" class="scan" onclick="startScanner()">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 7V4h3m10 0h3v3M4 17v3h3m10 0h3v-3M12 8v8M8 12h8"/></svg>
+      Open Camera Scanner
+    </button>
+    <button id="stopBtn" class="stop" onclick="stopScanner()">Stop Scanner</button>
 
     <video id="preview" autoplay muted playsinline></video>
 
-    <input id="barcode" placeholder="Scan or enter barcode" onkeydown="manualEnter(event)">
+    <div class="form-group" style="margin-top: 16px;">
+      <label for="barcode">Barcode / Search</label>
+      <input id="barcode" placeholder="Scan or type barcode here..." autocomplete="off" onkeydown="manualEnter(event)">
+    </div>
 
     <div id="statusBig" class="statusBig"></div>
 
     <div id="product" class="product">Ready to scan</div>
 
-    <div class="grid">
+    <div class="data-grid">
       <div class="box">
-        <div class="label">📄 Article No</div>
-        <div id="articleNo" class="value">-</div>
+        <div class="label">Article No</div>
+        <div id="articleNo" class="value" style="color:var(--muted)">-</div>
       </div>
-
       <div class="box">
-        <div class="label">📦 Qty Recorded</div>
+        <div class="label">Qty Recorded</div>
         <div id="recordedQty" class="value greenStock">-</div>
       </div>
-
       <div class="box">
-        <div id="capturedLabel" class="label">⚪ Not Counted</div>
-        <div id="capturedQty" class="value">-</div>
+        <div id="capturedLabel" class="label">Not Counted</div>
+        <div id="capturedQty" class="value" style="color:var(--muted)">-</div>
       </div>
-
       <div class="box">
-        <div class="label">🗄 Bin No</div>
-        <div id="bin" class="value">-</div>
+        <div class="label">Bin No</div>
+        <div id="bin" class="value" style="color:var(--muted)">-</div>
       </div>
-
       <div class="box">
-        <div class="label">📍 Zone</div>
-        <div id="zone" class="value">-</div>
+        <div class="label">Zone</div>
+        <div id="zone" class="value" style="color:var(--muted)">-</div>
       </div>
-
       <div class="box">
-        <div class="label">🏭 Location</div>
-        <div id="location" class="value">-</div>
+        <div class="label">Location</div>
+        <div id="location" class="value" style="color:var(--muted)">-</div>
       </div>
-    </div>
-
-    <div id="lastMovementBox" class="box" style="display:none;margin-top:10px;">
-      <div class="label">🕘 Last Movement</div>
-      <div id="lastMovement" class="value">-</div>
     </div>
   </div>
 
+  <!-- RIGHT COLUMN: ACTIONS -->
   <div class="card">
-    <div class="label">👤 User</div>
+    <div class="form-group">
+      <label for="user">Active User</label>
+      <select id="user">
+        <option>M Read</option>
+        <option>I Rees</option>
+        <option>C Law</option>
+        <option>M Peters</option>
+        <option>J Meakin</option>
+        <option>M Goodhall</option>
+      </select>
+    </div>
 
-    <select id="user">
-      <option>M Read</option>
-      <option>I Rees</option>
-      <option>C Law</option>
-      <option>M Peters</option>
-      <option>J Meakin</option>
-      <option>M Goodhall</option>
-    </select>
+    <div class="form-group">
+      <label for="qty">Quantity</label>
+      <input id="qty" type="number" placeholder="Enter amount...">
+    </div>
 
-    <input id="qty" type="number" placeholder="Quantity">
-
-    <textarea id="comments" placeholder="Comments (optional)"></textarea>
+    <div class="form-group">
+      <label for="comments">Comments (Optional)</label>
+      <textarea id="comments" rows="2" placeholder="Add notes here..."></textarea>
+    </div>
 
     <div class="actions">
-      <button class="save" onclick="saveStockTake()">✅ SAVE</button>
-      <button class="clear" onclick="clearForm()">CLEAR</button>
-      <button class="in" onclick="bookIn()">📥 IN</button>
-      <button class="out" onclick="bookOut()">📤 OUT</button>
+      <button class="save" onclick="saveStockTake()">✓ Save Count</button>
+      <button class="clear" onclick="clearForm()">✕ Clear</button>
+      <button class="in" onclick="bookIn()">↓ Book In</button>
+      <button class="out" onclick="bookOut()">↑ Book Out</button>
     </div>
 
     <div id="banner" class="banner"></div>
     <div id="msg"></div>
+    
     <div id="offlineBar" class="offlineBar">
-      🟢 ONLINE
+      Checking System Status...
     </div>
 
-    <button id="downloadStockBtn" class="mode" onclick="downloadStockData()">
-      ⬇️ DOWNLOAD STOCK FOR OFFLINE
+    <button id="downloadStockBtn" class="mode" style="margin-top: 16px;" onclick="downloadStockData()">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3"/></svg>
+      Cache Data for Offline Use
     </button>
 
     <div class="toggleRow">
-      <span>📷 Continuous Scan Mode</span>
+      <span>Continuous Scan Tracking</span>
       <input id="continuousScan" type="checkbox" onchange="saveContinuousMode()">
     </div>
   </div>
 
-  <div class="card full-width" style="margin-top: 10px;">
-    <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleAnalytics()">
-      <div class="product" style="margin:0; font-size:20px;">📊 Analytics Summary</div>
-      <div id="analyticsToggleIcon" style="font-size:24px; font-weight:bold; color:var(--green);">+</div>
+  <!-- BOTTOM FULL WIDTH: ANALYTICS DASHBOARD -->
+  <div class="card full-width">
+    <div class="analytics-header" onclick="toggleAnalytics()">
+      <div class="product">📊 Live Analytics & Feed</div>
+      <div id="analyticsToggleIcon" class="toggle-icon">+</div>
     </div>
     
     <div id="analyticsContainer" style="display:none; margin-top:20px;">
-      <div class="grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="data-grid">
          <div class="box">
-           <div class="label">OUTBOUND (TODAY)</div>
-           <div class="value" id="statOut">0 units</div>
+           <div class="label">Outbound Transactions (Today)</div>
+           <div class="value" id="statOut" style="font-size:24px;">0 units</div>
          </div>
          <div class="box">
-           <div class="label">INBOUND (TODAY)</div>
-           <div class="value" id="statIn">0 units</div>
+           <div class="label">Inbound Transactions (Today)</div>
+           <div class="value" id="statIn" style="font-size:24px;">0 units</div>
          </div>
       </div>
 
-      <div class="box" style="margin-top:15px; text-align: left;">
-         <div class="label">STOCKTAKE PROGRESS CHECK</div>
-         <div class="value" id="statProg" style="font-size: 22px; margin-bottom:4px;">0% Complete</div>
-         <div style="font-size: 12px; color: var(--muted); font-weight: 700;" id="statDetails">
-           Verified: 0 lines • Pending Field Count: 0 lines • Master Directory Size: 0 profiles
+      <div class="box" style="margin-top:16px; align-items:flex-start;">
+         <div class="label">Stocktake Compliance</div>
+         <div class="value" id="statProg" style="font-size: 24px; color:var(--text);">0% Complete</div>
+         <div style="font-size: 13px; color: var(--muted); font-weight: 600; margin-top: 4px;" id="statDetails">
+           Awaiting synchronization...
          </div>
-         <div class="progressWrap" style="margin-top:10px;">
-            <div id="progBar" class="progressBar" style="width:0%"></div>
+         <div class="progressWrap" style="width: 100%;">
+            <div id="progBar" class="progressBar"></div>
          </div>
       </div>
 
-      <div style="margin-top:20px;">
-         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-           <div class="label">▼ RECENT ACTIVITY LEDGER</div>
-           <button class="mode" style="width:auto; min-height:30px; font-size:11px; padding:6px 12px; margin:0;" onclick="refreshAnalytics()">🔄 SYNC HISTORY</button>
+      <div style="margin-top:28px;">
+         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+           <div class="label" style="font-size:13px; color:var(--text);">Recent Activity Ledger</div>
+           <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="refreshAnalytics()">
+             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+             Sync Feed
+           </button>
          </div>
-         <div style="overflow-x:auto;">
+         
+         <div class="table-wrapper">
            <table class="ledger-table">
              <thead>
                <tr>
-                 <th>Date & Time</th>
+                 <th>Timestamp</th>
                  <th>User</th>
-                 <th>Barcode / Item</th>
-                 <th>Bin No</th>
-                 <th>Action</th>
+                 <th>Product Match</th>
+                 <th>Bin Location</th>
+                 <th>Type</th>
                  <th>Qty</th>
                </tr>
              </thead>
              <tbody id="ledgerBody">
-               <tr><td colspan="6" style="text-align:center;">Loading live feed...</td></tr>
+               <tr><td colspan="6" style="text-align:center; padding: 30px; color: var(--muted);">Loading live feed data...</td></tr>
              </tbody>
            </table>
          </div>
@@ -439,8 +508,7 @@ video{
   </div>
 
   <div class="footer full-width">
-    Stores Scanner System<br>
-    Supreme Compact Edition
+    Corporate Stores System • Supreme Edition
   </div>
 
 </div>
@@ -470,7 +538,6 @@ window.addEventListener("DOMContentLoaded", () => {
     }, 300);
   }
 });
-// ------------------------------
 
 // --- ANALYTICS DASHBOARD LOGIC ---
 function toggleAnalytics() {
@@ -481,10 +548,10 @@ function toggleAnalytics() {
   
   if (analyticsOpen) {
     container.style.display = "block";
-    icon.innerText = "-";
+    icon.innerText = "−";
     refreshAnalytics();
     
-    // Auto-scroll so it's fully in view
+    // Smooth scroll down
     setTimeout(() => {
         container.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
@@ -495,9 +562,9 @@ function toggleAnalytics() {
 }
 
 function refreshAnalytics() {
-  document.getElementById("statOut").innerText = "Loading...";
-  document.getElementById("statIn").innerText = "Loading...";
-  document.getElementById("ledgerBody").innerHTML = "<tr><td colspan='6' style='text-align:center;'>Fetching live feed...</td></tr>";
+  document.getElementById("statOut").innerText = "...";
+  document.getElementById("statIn").innerText = "...";
+  document.getElementById("ledgerBody").innerHTML = "<tr><td colspan='6' style='text-align:center; padding:30px; color:var(--muted);'>Connecting to remote database...</td></tr>";
 
   fetch(API + "?action=dashboard")
     .then(r => r.json())
@@ -518,30 +585,31 @@ function refreshAnalytics() {
 
       const ledger = document.getElementById("ledgerBody");
       if (!data.recentActivity || data.recentActivity.length === 0) {
-        ledger.innerHTML = "<tr><td colspan='6' style='text-align:center;'>No recent activity found.</td></tr>";
+        ledger.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:30px; color:var(--muted);'>No recent activity found.</td></tr>";
         return;
       }
 
-      ledger.innerHTML = data.recentActivity.map(act => `
+      ledger.innerHTML = data.recentActivity.map(act => {
+        const badgeCls = act.action === 'OUT' ? 'badge-out' : 'badge-in';
+        return `
         <tr>
-          <td style="color:var(--muted); font-weight:600;">${act.dateStr}</td>
-          <td>${act.user}</td>
+          <td style="color:var(--muted); font-weight:600; font-size:12px;">${act.dateStr}</td>
+          <td style="font-weight:700;">${act.user}</td>
           <td>
-            <div style="font-weight:900;">${act.barcode}</div>
-            <div style="font-size:11px; color:var(--muted);">${act.item}</div>
+            <div style="font-weight:800; color:var(--text);">${act.barcode}</div>
+            <div style="font-size:12px; color:var(--muted); margin-top:2px;">${act.item}</div>
           </td>
-          <td><span class="bin-pill">${act.bin || "-"}</span></td>
-          <td><span class="${act.action === 'OUT' ? 'action-out' : 'action-in'}">${act.action}</span></td>
-          <td>${act.qty}</td>
+          <td><span class="badge badge-bin">${act.bin || "-"}</span></td>
+          <td><span class="badge ${badgeCls}">${act.action}</span></td>
+          <td style="font-weight:800; font-size:15px;">${act.qty}</td>
         </tr>
-      `).join("");
+      `}).join("");
 
     })
     .catch(() => {
-      document.getElementById("ledgerBody").innerHTML = "<tr><td colspan='6' style='text-align:center; color:red;'>Connection error.</td></tr>";
+      document.getElementById("ledgerBody").innerHTML = "<tr><td colspan='6' style='text-align:center; padding:30px; color:var(--error-text);'>Connection error. Please check your network.</td></tr>";
     });
 }
-// ------------------------------
 
 let pendingStocktake = JSON.parse(localStorage.getItem("pendingStocktake") || "[]");
 
@@ -558,19 +626,19 @@ function updateOfflineBar() {
 
   if (!navigator.onLine) {
     bar.className = "offlineBar offline";
-    bar.innerHTML = "🔴 OFFLINE" + (offlineItems ? " - OFFLINE STOCK READY (" + offlineItems + " ITEMS)" : " - NO STOCK DOWNLOADED") +
-      (pendingStocktake.length ? "<br>" + pendingStocktake.length + " STOCKTAKES QUEUED" : "");
+    bar.innerHTML = "🔴 System Offline" + (offlineItems ? " — Cache Ready (" + offlineItems + " items)" : " — Cache Empty") +
+      (pendingStocktake.length ? "<br>" + pendingStocktake.length + " entries queued" : "");
     return;
   }
 
   if (pendingStocktake.length) {
     bar.className = "offlineBar queue";
-    bar.innerHTML = "🟡 ONLINE - " + pendingStocktake.length + " STOCKTAKES WAITING TO SYNC";
+    bar.innerHTML = "🟡 Connection Restored — " + pendingStocktake.length + " entries syncing";
     return;
   }
 
   bar.className = "offlineBar";
-  bar.innerHTML = "🟢 ONLINE" + (offlineItems ? "<br>Offline stock: " + offlineItems + " items" + (offlineDate ? " • " + offlineDate : "") : "");
+  bar.innerHTML = "🟢 System Online" + (offlineItems ? "<br><span style='font-size:11px; opacity:0.9;'>Local Cache: " + offlineItems + " profiles</span>" : "");
 }
 
 function queueStockTakeOffline() {
@@ -581,7 +649,7 @@ function queueStockTakeOffline() {
 
   if (!barcode) {
     setMsg("Scan or enter a barcode first", "error");
-    setStatus("❌ NO CODE", "statusNotFound");
+    setStatus("❌ ALIGNMENT FIELD NULL", "statusNotFound");
     return;
   }
 
@@ -596,8 +664,8 @@ function queueStockTakeOffline() {
   savePendingStocktakeQueue();
   updateOfflineBar();
 
-  showBanner("📴 OFFLINE STOCKTAKE SAVED<br>" + pendingStocktake.length + " waiting to sync");
-  setMsg("Stocktake queued offline", "good");
+  showBanner("📴 OFFLINE LOG SAVED<br>" + pendingStocktake.length + " waiting to sync");
+  setMsg("Transaction queued to local storage", "good");
   setStatus("🟡 QUEUED OFFLINE", "statusSearching");
 
   clearCachedItem();
@@ -628,17 +696,17 @@ function syncPendingStocktakes() {
         if (pendingStocktake.length) {
           syncPendingStocktakes();
         } else {
-          showBanner("🟢 ALL OFFLINE STOCKTAKES SYNCED");
-          setMsg("Offline stocktakes synced", "good");
+          showBanner("🟢 CACHE SYNC COMPLETE");
+          setMsg("All offline entries synchronized to server", "good");
         }
       } else {
         updateOfflineBar();
-        setMsg(data.message || "Offline sync failed", "error");
+        setMsg(data.message || "Cache sync failed", "error");
       }
     })
     .catch(() => {
       updateOfflineBar();
-      setMsg("Still offline - stocktakes remain queued", "error");
+      setMsg("Connection unstable — entries remain queued", "error");
     });
 }
 
@@ -677,31 +745,31 @@ function findOfflineProduct(barcode) {
 
 function downloadStockData() {
   if (!navigator.onLine) {
-    setMsg("Cannot download stock while offline", "error");
-    setStatus("🔴 OFFLINE", "statusNotFound");
+    setMsg("Cannot refresh cache while offline", "error");
+    setStatus("🔴 SYSTEM OFFLINE", "statusNotFound");
     return;
   }
 
-  setMsg("Downloading stock for offline use...", "good");
-  setStatus("⬇️ DOWNLOADING STOCK...", "statusSearching");
+  setMsg("Downloading directory for offline staging...", "good");
+  setStatus("⬇️ DOWNLOADING...", "statusSearching");
 
   fetch(API + "?action=stockdata")
     .then(r => r.json())
     .then(data => {
       if (!data.ok || !data.items) {
-        setMsg(data.message || "Stock download failed", "error");
+        setMsg(data.message || "Directory download failed", "error");
         setStatus("❌ DOWNLOAD FAILED", "statusNotFound");
         return;
       }
       saveOfflineStockData(data.items);
-      showBanner("✅ OFFLINE STOCK SAVED<br>" + data.items.length + " items downloaded");
-      setMsg("Offline stock updated: " + data.items.length + " items", "good");
-      setStatus("✅ OFFLINE READY", "statusFound");
+      showBanner("✅ OFFLINE CACHE SECURED<br>" + data.items.length + " profiles updated");
+      setMsg("Cache refreshed: " + data.items.length + " profiles", "good");
+      setStatus("✅ CACHE READY", "statusFound");
       updateOfflineBar();
     })
     .catch(() => {
-      setMsg("Stock download failed", "error");
-      setStatus("❌ DOWNLOAD FAILED", "statusNotFound");
+      setMsg("Directory download failed due to network error", "error");
+      setStatus("❌ CONNECTION ERROR", "statusNotFound");
     });
 }
 
@@ -732,7 +800,7 @@ function startScanner() {
   scanLocked = false;
   document.getElementById("preview").style.display = "block";
   document.getElementById("scanBtn").style.display = "none";
-  document.getElementById("stopBtn").style.display = "block";
+  document.getElementById("stopBtn").style.display = "flex";
 
   const hints = new Map();
   hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
@@ -756,21 +824,21 @@ function startScanner() {
 function stopScanner() {
   if (scanner) { scanner.reset(); scanner = null; }
   document.getElementById("preview").style.display = "none";
-  document.getElementById("scanBtn").style.display = "block";
+  document.getElementById("scanBtn").style.display = "flex";
   document.getElementById("stopBtn").style.display = "none";
 }
 
 function lookup(barcode) {
   barcode = String(barcode || "").trim();
   if (!barcode) {
-    setMsg("Enter or scan a barcode", "error");
-    setStatus("❌ NO CODE", "statusNotFound");
+    setMsg("Enter or scan a product code", "error");
+    setStatus("❌ ALIGNMENT FIELD NULL", "statusNotFound");
     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
     return;
   }
 
-  setMsg("Searching...", "good");
-  setStatus("🔎 SEARCHING...", "statusSearching");
+  setMsg("Querying database...", "good");
+  setStatus("🔎 SEARCHING DIRECTORY...", "statusSearching");
 
   const cached = localStorage.getItem("item_" + barcode);
   if (cached) showProduct(JSON.parse(cached));
@@ -779,12 +847,12 @@ function lookup(barcode) {
     const offlineItem = findOfflineProduct(barcode);
     if (offlineItem) {
       showProduct(offlineItem);
-      setMsg("Offline product found", "good");
-      setStatus("✅ OFFLINE FOUND", "statusFound");
+      setMsg("Product sourced from local cache", "good");
+      setStatus("✅ CACHE MATCH", "statusFound");
     } else {
       clearProductOnly();
-      setMsg("Not found in offline stock", "error");
-      setStatus("❌ NOT IN OFFLINE STOCK", "statusNotFound");
+      setMsg("Index key missed in offline cache", "error");
+      setStatus("❌ NOT IN CACHE", "statusNotFound");
     }
     updateOfflineBar();
     return;
@@ -801,10 +869,10 @@ function lookup(barcode) {
       const offlineItem = findOfflineProduct(barcode);
       if (offlineItem) {
         showProduct(offlineItem);
-        setMsg("Offline product found", "good");
-        setStatus("✅ OFFLINE FOUND", "statusFound");
+        setMsg("Product sourced from local cache", "good");
+        setStatus("✅ CACHE MATCH", "statusFound");
       } else {
-        setMsg("Connection error", "error");
+        setMsg("Database connection error", "error");
         setStatus("❌ CONNECTION ERROR", "statusNotFound");
       }
       if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
@@ -815,27 +883,35 @@ function lookup(barcode) {
 function showProduct(data) {
   if (!data.found) {
     clearProductOnly();
-    setMsg("Barcode not found", "error");
-    setStatus("❌ NOT FOUND", "statusNotFound");
+    setMsg("Record unallocated", "error");
+    setStatus("❌ RECORD NOT FOUND", "statusNotFound");
     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
     return;
   }
 
   currentItem = data;
   document.getElementById("product").innerText = data.description || "-";
-  document.getElementById("articleNo").innerText = data.articleNo || "-";
+  
+  // Style fields dynamically
+  const styleVal = (id, val) => {
+      const el = document.getElementById(id);
+      el.innerText = val || "-";
+      el.style.color = val ? "var(--text)" : "var(--muted)";
+  };
+
+  styleVal("articleNo", data.articleNo);
+  styleVal("bin", data.bin);
+  styleVal("zone", data.zone);
+  styleVal("location", data.location);
+
   document.getElementById("recordedQty").innerText = data.recordedQty || "-";
   document.getElementById("capturedQty").innerText = data.capturedQty || "-";
-  document.getElementById("bin").innerText = data.bin || "-";
-  document.getElementById("zone").innerText = data.zone || "-";
-  document.getElementById("location").innerText = data.location || "-";
 
   setCapturedStatus(data.capturedQty);
   colourStock(data.recordedQty);
-  showLastMovement(data.lastMovement);
 
-  setMsg("Product found", "good");
-  setStatus("✅ FOUND", "statusFound");
+  setMsg("Product match confirmed", "good");
+  setStatus("✅ MATCH CONFIRMED", "statusFound");
   if (navigator.vibrate) navigator.vibrate(80);
 }
 
@@ -845,28 +921,15 @@ function setCapturedStatus(capturedQty) {
   const box = qtyEl.parentElement;
 
   if (capturedQty) {
-    label.innerText = "✅ Counted";
+    label.innerText = "Count Verified";
     qtyEl.classList.add("doneValue");
     box.classList.add("doneBox");
   } else {
-    label.innerText = "⚪ Not Counted";
+    label.innerText = "Awaiting Audit";
     qtyEl.classList.remove("doneValue");
     box.classList.remove("doneBox");
+    qtyEl.style.color = "var(--muted)";
   }
-}
-
-function showLastMovement(movement) {
-  const box = document.getElementById("lastMovementBox");
-  const el = document.getElementById("lastMovement");
-
-  if (!movement) {
-    box.style.display = "none";
-    el.innerText = "-";
-    return;
-  }
-
-  box.style.display = "block";
-  el.innerHTML = movement.action + " • Qty " + movement.qty + " • " + movement.user + "<br>" + movement.date;
 }
 
 function colourStock(qty) {
@@ -923,15 +986,14 @@ function saveStockTake() {
 
         clearCachedItem();
         updateOfflineItemQty(savedBarcode, savedQty);
-        showBanner("✅ STOCK TAKE SAVED");
+        showBanner("✅ FIELD AUDIT SAVED");
         lookup(savedBarcode);
         syncPendingStocktakes();
         maybeRestartScanner();
         
-        // Auto-refresh analytics if it's open
         if (analyticsOpen) refreshAnalytics();
       } else {
-        setMsg(data.message || "Save failed", "error");
+        setMsg(data.message || "Database write failed", "error");
       }
     })
     .catch(() => { queueStockTakeOffline(); });
@@ -943,15 +1005,15 @@ function bookOut() {
     .then(data => {
       if (data.ok) {
         clearCachedItem();
-        showBanner("📤 BOOKED OUT<br>Stock Remaining: " + data.stockRemaining);
+        showBanner("📤 OUTBOUND LOGGED<br>Current Level: " + data.stockRemaining);
         clearForm();
         maybeRestartScanner();
         if (analyticsOpen) refreshAnalytics();
       } else {
-        setMsg(data.message || "Book out failed", "error");
+        setMsg(data.message || "Transaction rejected", "error");
       }
     })
-    .catch(() => setMsg("Connection error", "error"));
+    .catch(() => setMsg("Network threshold error", "error"));
 }
 
 function bookIn() {
@@ -960,15 +1022,15 @@ function bookIn() {
     .then(data => {
       if (data.ok) {
         clearCachedItem();
-        showBanner("📥 BOOKED IN<br>Stock Remaining: " + data.stockRemaining);
+        showBanner("📥 INBOUND LOGGED<br>Current Level: " + data.stockRemaining);
         clearForm();
         maybeRestartScanner();
         if (analyticsOpen) refreshAnalytics();
       } else {
-        setMsg(data.message || "Book in failed", "error");
+        setMsg(data.message || "Transaction rejected", "error");
       }
     })
-    .catch(() => setMsg("Connection error", "error"));
+    .catch(() => setMsg("Network threshold error", "error"));
 }
 
 function clearForm() {
@@ -987,15 +1049,19 @@ function clearForm() {
 
 function clearProductOnly() {
   document.getElementById("product").innerText = "Ready to scan";
-  document.getElementById("articleNo").innerText = "-";
-  document.getElementById("recordedQty").innerText = "-";
-  document.getElementById("capturedQty").innerText = "-";
-  document.getElementById("bin").innerText = "-";
-  document.getElementById("zone").innerText = "-";
-  document.getElementById("location").innerText = "-";
+  
+  const resetVal = (id) => {
+    const el = document.getElementById(id);
+    el.innerText = "-";
+    el.style.color = "var(--muted)";
+  };
 
-  document.getElementById("lastMovementBox").style.display = "none";
-  document.getElementById("lastMovement").innerText = "-";
+  resetVal("articleNo");
+  resetVal("recordedQty");
+  resetVal("capturedQty");
+  resetVal("bin");
+  resetVal("zone");
+  resetVal("location");
 
   setCapturedStatus("");
 
@@ -1012,7 +1078,7 @@ if (localStorage.getItem("continuousScan") === "yes") {
 function saveContinuousMode() {
   const on = document.getElementById("continuousScan").checked;
   localStorage.setItem("continuousScan", on ? "yes" : "no");
-  showBanner(on ? "📷 CONTINUOUS SCAN ON" : "📷 CONTINUOUS SCAN OFF");
+  showBanner(on ? "📷 TRACKING ENABLED" : "📷 TRACKING DISABLED");
 }
 
 function shouldContinuousScan() {
@@ -1020,7 +1086,7 @@ function shouldContinuousScan() {
 }
 
 function maybeRestartScanner() {
-  if (shouldContinuousScan()) setTimeout(startScanner, 500);
+  if (shouldContinuousScan()) setTimeout(startScanner, 800);
 }
 
 updateOfflineBar();
