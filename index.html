@@ -1,48 +1,364 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Stores Management</title>
-  <script src="https://unpkg.com/html5-qrcode"></script>
-  <style>
-    /* ... Keep all your existing CSS from your current index.html ... */
-    #reader { width: 100%; display: none; margin-bottom: 20px; border-radius: 12px; overflow: hidden; }
-  </style>
-</head>
-<body>
-  <div id="reader"></div>
-  <button id="scanBtn" class="scan" onclick="startInlineScanner()">📷 START CAMERA SCAN</button>
-  <button id="stopBtn" class="scan" style="background:#dc2626; display:none;" onclick="stopInlineScanner()">❌ STOP SCANNER</button>
+const STOCK_SHEET = "STStores";
+const BOOK_OUT_SHEET = "Booking out";
+const BOOK_IN_SHEET = "Booking In";
 
-  <script>
-    // REPLACE THIS URL WITH YOUR NEW DEPLOYED WEB APP URL
-    const API = "https://script.google.com/macros/s/AKfycbxdLzxMvXUx1rPJ7WO6DPkl8z-5n7vwmxeLMSo-1ZspYtiqN9xERcBU9D0dY0fRVMlg/exec";
+const BOOKING_SPREADSHEET_ID = "1TubBa88VE4YLxNT0fiiOLl94hBbSxeFAX9F4WHqxaAI";
+const MAIN_STORES_SPREADSHEET_ID = "1cuzuxmSaYwj7D41J2AD4wDl2bUWZ0TzvakjrDvSWIDg";
+const MAIN_STORES_SHEET = "Stores";
+const HEADER_ROW = 4;
 
-    let html5QrCode;
-    function startInlineScanner() {
-      document.getElementById("reader").style.display = "block";
-      document.getElementById("scanBtn").style.display = "none";
-      document.getElementById("stopBtn").style.display = "inline-flex";
-      html5QrCode = new Html5Qrcode("reader");
-      html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (decodedText) => {
-        document.getElementById("barcode").value = decodedText;
-        lookup(decodedText);
-        stopInlineScanner();
-      });
+const COL_DESCRIPTION = 3;
+const COL_BARCODE = 4;
+const COL_ARTICLE = 5;
+const COL_MAKE = 6;
+const COL_QTY_RECORDED = 7;
+const COL_QTY_CAPTURED = 8;
+const COL_BIN = 9;
+const COL_ZONE = 10;
+const COL_LOCATION = 11;
+const COL_WHO = 12;
+const COL_DATE = 13;
+
+const MAIN_QTY_COL = 12;
+const MAIN_BIN_COL = 15;
+const MANAGER_PIN = "1601";
+
+function doGet(e) {
+  const action = String(e.parameter.action || "").toLowerCase();
+  
+  if (action) {
+    const barcode = e.parameter.barcode || "";
+    const qty = Number(e.parameter.qty || 0);
+    const who = e.parameter.who || "M Read";
+    const comments = e.parameter.comments || "";
+
+    if (action === "find") return json(findProduct(barcode));
+    if (action === "save") return json(saveStockTake(barcode, qty, who));
+    if (action === "bookout") return json(bookOut(barcode, qty, who, comments));
+    if (action === "bookin") return json(bookIn(barcode, qty, who, comments));
+    if (action === "dashboard") return json(getDashboard());
+    if (action === "stockdata") return json(getStockData());
+    if (action === "resetstocktake") return json(resetStocktake(e.parameter.pin));
+
+    return json({ ok: true, message: "Stock Scanner API running" });
+  }
+
+  const template = HtmlService.createTemplateFromFile('Index');
+  const output = template.evaluate();
+  output.setTitle('Stores Manager Pro')
+        .addMetaTag('viewport', 'width=device-width, initial-scale=1')
+        .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  return output;
+}
+
+function stockValue(row, col) { return row[col - COL_DESCRIPTION]; }
+
+function findStockRow(barcode) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(STOCK_SHEET);
+  if (!sheet) return null;
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= HEADER_ROW) return null;
+
+  const values = sheet.getRange(HEADER_ROW + 1, COL_DESCRIPTION, lastRow - HEADER_ROW, COL_DATE - COL_DESCRIPTION + 1).getDisplayValues();
+  const search = String(barcode || "").trim();
+
+  for (let i = 0; i < values.length; i++) {
+    if (String(values[i][COL_BARCODE - COL_DESCRIPTION]).trim() === search || String(values[i][COL_BIN - COL_DESCRIPTION]).trim() === search) {
+      return { sheet: sheet, row: values[i], rowNumber: HEADER_ROW + 1 + i };
     }
+  }
+  return null;
+}
 
-    function stopInlineScanner() {
-      if (html5QrCode) {
-        html5QrCode.stop().then(() => {
-          document.getElementById("reader").style.display = "none";
-          document.getElementById("scanBtn").style.display = "inline-flex";
-          document.getElementById("stopBtn").style.display = "none";
+function findProduct(barcode) {
+  const found = findStockRow(barcode);
+  return found ? makeStockItem(found.row, found.rowNumber) : { found: false, barcode: String(barcode || "").trim() };
+}
+
+function makeStockItem(row, rowNumber) {
+  return {
+    found: true, row: rowNumber,
+    description: stockValue(row, COL_DESCRIPTION), barcode: stockValue(row, COL_BARCODE),
+    articleNo: stockValue(row, COL_ARTICLE), make: stockValue(row, COL_MAKE),
+    recordedQty: stockValue(row, COL_QTY_RECORDED), capturedQty: stockValue(row, COL_QTY_CAPTURED),
+    bin: stockValue(row, COL_BIN), zone: stockValue(row, COL_ZONE), location: stockValue(row, COL_LOCATION),
+    lastMovement: null
+  };
+}
+
+function saveStockTake(barcode, qty, who) {
+  const found = findStockRow(barcode);
+  if (!found) return { ok: false, message: "Barcode not found" };
+  if (qty < 0 || isNaN(qty)) return { ok: false, message: "Enter a valid quantity" };
+
+  found.sheet.getRange(found.rowNumber, COL_QTY_RECORDED).setValue(qty);
+  found.sheet.getRange(found.rowNumber, COL_QTY_CAPTURED).setValue(qty);
+  found.sheet.getRange(found.rowNumber, COL_WHO).setValue(who);
+  const timestampUK = Utilities.formatDate(new Date(), "Europe/London", "dd/MM/yyyy HH:mm:ss");
+  found.sheet.getRange(found.rowNumber, COL_DATE).setValue(timestampUK);
+
+  updateMainStoresByBin(String(stockValue(found.row, COL_BIN) || "").trim(), qty);
+  SpreadsheetApp.flush();
+  return { ok: true, message: "Stock take saved", newQty: qty };
+}
+
+function bookOut(barcode, qty, who, comments) {
+  const found = findStockRow(barcode);
+  if (!found) return { ok: false, message: "Barcode not found" };
+  if (!qty || qty <= 0) return { ok: false, message: "Enter a valid quantity" };
+
+  const row = found.row;
+  const currentStock = Number(stockValue(row, COL_QTY_RECORDED)) || 0;
+  if (qty > currentStock) return { ok: false, message: "Not enough stock. Current: " + currentStock };
+
+  const newStock = currentStock - qty;
+  const binNo = String(stockValue(row, COL_BIN) || "").trim();
+  const articleNo = String(stockValue(row, COL_ARTICLE) || "").trim();
+
+  found.sheet.getRange(found.rowNumber, COL_QTY_RECORDED).setValue(newStock);
+  updateMainStoresByBin(binNo, newStock);
+
+  const bookingFile = SpreadsheetApp.openById(BOOKING_SPREADSHEET_ID);
+  const bookSheet = bookingFile.getSheetByName(BOOK_OUT_SHEET);
+  if (bookSheet) {
+    const timestampUK = Utilities.formatDate(new Date(), "Europe/London", "dd/MM/yyyy HH:mm:ss");
+    // Column D: Bin Number
+    bookSheet.appendRow([timestampUK, "'" + articleNo, stockValue(row, COL_DESCRIPTION), "'" + binNo, qty, newStock, who, who, comments]);
+  }
+
+  SpreadsheetApp.flush();
+  return { ok: true, message: "Booked out successfully", stockRemaining: newStock };
+}
+
+function bookIn(barcode, qty, who, comments) {
+  const found = findStockRow(barcode);
+  if (!found) return { ok: false, message: "Barcode not found" };
+  if (!qty || qty <= 0) return { ok: false, message: "Enter a valid quantity" };
+
+  const row = found.row;
+  const currentStock = Number(stockValue(row, COL_QTY_RECORDED)) || 0;
+  const newStock = currentStock + qty;
+  const binNo = String(stockValue(row, COL_BIN) || "").trim();
+  const articleNo = String(stockValue(row, COL_ARTICLE) || "").trim();
+
+  found.sheet.getRange(found.rowNumber, COL_QTY_RECORDED).setValue(newStock);
+  updateMainStoresByBin(binNo, newStock);
+
+  const bookingFile = SpreadsheetApp.openById(BOOKING_SPREADSHEET_ID);
+  const bookSheet = bookingFile.getSheetByName(BOOK_IN_SHEET);
+  if (bookSheet) {
+    const timestampUK = Utilities.formatDate(new Date(), "Europe/London", "dd/MM/yyyy HH:mm:ss");
+    // UPDATED: Column D is now Bin Number, Column E is Qty, Column F is New Stock
+    bookSheet.appendRow([timestampUK, "'" + articleNo, stockValue(row, COL_DESCRIPTION), "'" + binNo, qty, newStock, who, who, comments]);
+  }
+
+  SpreadsheetApp.flush();
+  return { ok: true, message: "Booked in successfully", stockRemaining: newStock };
+}
+
+function updateMainStoresByBin(binNo, newQty) {
+  const mainFile = SpreadsheetApp.openById(MAIN_STORES_SPREADSHEET_ID);
+  const mainSheet = mainFile.getSheetByName(MAIN_STORES_SHEET);
+  if (!mainSheet) return;
+
+  const lastRow = mainSheet.getLastRow();
+  const bins = mainSheet.getRange(2, 15, lastRow - 1, 1).getDisplayValues();
+  const searchBin = String(binNo || "").trim();
+
+  for (let i = 0; i < bins.length; i++) {
+    if (String(bins[i][0] || "").trim() === searchBin) {
+      mainSheet.getRange(i + 2, 12).setValue(newQty);
+      return;
+    }
+  }
+}
+
+function getStockData() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(STOCK_SHEET);
+  if (!sheet) return { ok: false, message: "Sheet missing" };
+  const lastRow = sheet.getLastRow();
+  const values = sheet.getRange(HEADER_ROW + 1, COL_DESCRIPTION, lastRow - HEADER_ROW, COL_LOCATION - COL_DESCRIPTION + 1).getDisplayValues();
+
+  let items = [];
+  for (let i = 0; i < values.length; i++) {
+    const desc = values[i][COL_DESCRIPTION - COL_DESCRIPTION];
+    const barcode = values[i][COL_BARCODE - COL_DESCRIPTION];
+    const bin = values[i][COL_BIN - COL_DESCRIPTION];
+    if (!barcode || !bin) continue;
+
+    items.push({
+      description: desc, barcode: barcode, bin: bin,
+      articleNo: values[i][COL_ARTICLE - COL_DESCRIPTION], make: values[i][COL_MAKE - COL_DESCRIPTION],
+      recordedQty: values[i][COL_QTY_RECORDED - COL_DESCRIPTION], capturedQty: values[i][COL_QTY_CAPTURED - COL_DESCRIPTION],
+      zone: values[i][COL_ZONE - COL_DESCRIPTION], location: values[i][COL_LOCATION - COL_DESCRIPTION]
+    });
+  }
+  return { ok: true, items: items };
+}
+
+function parseSheetDate(rawDate) {
+  if (rawDate instanceof Date) return rawDate;
+  if (!rawDate) return null; 
+  
+  try {
+    const str = String(rawDate).trim();
+    if (str.toLowerCase().includes("date") || str.toLowerCase().includes("print")) return null;
+    
+    const parts = str.split(/[\s,]+/);
+    const dateParts = parts[0].split(/[\/\-]/);
+    if (dateParts.length === 3) {
+      const day = parseInt(dateParts[0], 10);
+      const month = parseInt(dateParts[1], 10) - 1;
+      let year = parseInt(dateParts[2], 10);
+      
+      if (year < 100) { year += 2000; }
+      
+      let hour = 0, min = 0, sec = 0;
+      if (parts[1]) {
+        const timeParts = parts[1].split(":");
+        hour = parseInt(timeParts[0], 10) || 0;
+        min = parseInt(timeParts[1], 10) || 0;
+        sec = parseInt(timeParts[2], 10) || 0;
+      }
+      
+      const d = new Date(year, month, day, hour, min, sec);
+      return d;
+    }
+  } catch(e) {}
+  
+  const d = new Date(rawDate);
+  if (!isNaN(d.getTime())) return d;
+  
+  return null; 
+}
+
+function getDashboard() {
+  const bookingFile = SpreadsheetApp.openById(BOOKING_SPREADSHEET_ID);
+  const outSheet = bookingFile.getSheetByName(BOOK_OUT_SHEET);
+  const inSheet = bookingFile.getSheetByName(BOOK_IN_SHEET);
+  const stockSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(STOCK_SHEET);
+
+  const now = new Date();
+  const todayUK = Utilities.formatDate(now, "Europe/London", "EEE MMM dd yyyy");
+  const thisMonth = parseInt(Utilities.formatDate(now, "Europe/London", "M")) - 1;
+  const thisYear = parseInt(Utilities.formatDate(now, "Europe/London", "yyyy"));
+
+  const outData = outSheet ? outSheet.getDataRange().getDisplayValues() : [];
+  const inData = inSheet ? inSheet.getDataRange().getDisplayValues() : [];
+  
+  const stockSheetLastRow = stockSheet ? stockSheet.getLastRow() : HEADER_ROW;
+  const stockData = stockSheetLastRow > HEADER_ROW ? stockSheet.getRange(HEADER_ROW + 1, 1, stockSheetLastRow - HEADER_ROW, COL_DATE).getDisplayValues() : [];
+
+  let bookedOutToday = 0, bookedInToday = 0, bookedOutMonth = 0, bookedInMonth = 0;
+  let serverHistory = [];
+
+  // 1. Parse Booking Out History Logs (Column D [3] = Bin, Column E [4] = Qty, Column G [6] = User)
+  try {
+    for (let i = 1; i < outData.length; i++) {
+      if (!outData[i] || !outData[i][0]) continue;
+      
+      const partNumber = String(outData[i][1] || "").trim();
+      const userField = String(outData[i][6] || "").trim();
+      if (partNumber.includes("Part Code") || partNumber.includes("Date taken") || userField.includes("Print Name")) continue;
+
+      const rawDate = outData[i][0];
+      const d = parseSheetDate(rawDate);
+      
+      if (d && !isNaN(d.getTime())) {
+        const qtyVal = Number(outData[i][4]) || 0;
+        const entryDateUK = Utilities.formatDate(d, "Europe/London", "EEE MMM dd yyyy");
+        const entryMonthUK = parseInt(Utilities.formatDate(d, "Europe/London", "M")) - 1;
+        const entryYearUK = parseInt(Utilities.formatDate(d, "Europe/London", "yyyy"));
+
+        if (entryDateUK === todayUK) bookedOutToday += qtyVal;
+        if (entryMonthUK === thisMonth && entryYearUK === thisYear) bookedOutMonth += qtyVal;
+        
+        serverHistory.push({
+          date: d.getTime(),
+          formattedDate: rawDate, 
+          who: userField || "System",
+          barcode: partNumber, 
+          bin: String(outData[i][3] || "").trim(), 
+          description: outData[i][2] ? String(outData[i][2]) : "Item",
+          action: "Book Out",
+          qty: qtyVal
         });
       }
     }
-    
-    // ... Keep all your other existing JavaScript functions below ...
-  </script>
-</body>
-</html>
+  } catch (err) {}
+
+  // 2. Parse Booking In History Logs (Column D [3] = Bin, Column E [4] = Qty, Column G [6] = User)
+  try {
+    for (let i = 1; i < inData.length; i++) {
+      if (!inData[i] || !inData[i][0]) continue;
+      
+      const partNumber = String(inData[i][1] || "").trim();
+      // UPDATED: User field is now Column G (Index 6) due to the new column layout shift
+      const userField = String(inData[i][6] || "").trim();
+      if (partNumber.includes("Part Code") || partNumber.includes("Date received") || userField.includes("Print Name")) continue;
+
+      const rawDate = inData[i][0];
+      const d = parseSheetDate(rawDate);
+      
+      if (d && !isNaN(d.getTime())) {
+        // UPDATED: Quantity is now Column E (Index 4) due to the layout shift
+        const qtyVal = Number(inData[i][4]) || 0;
+        const entryDateUK = Utilities.formatDate(d, "Europe/London", "EEE MMM dd yyyy");
+        const entryMonthUK = parseInt(Utilities.formatDate(d, "Europe/London", "M")) - 1;
+        const entryYearUK = parseInt(Utilities.formatDate(d, "Europe/London", "yyyy"));
+
+        if (entryDateUK === todayUK) bookedInToday += qtyVal;
+        if (entryMonthUK === thisMonth && entryYearUK === thisYear) bookedInMonth += qtyVal;
+        
+        serverHistory.push({
+          date: d.getTime(),
+          formattedDate: rawDate, 
+          who: userField || "System",
+          barcode: partNumber,
+          // UPDATED: Pulls directly from the newly added Bin column on Column D (Index 3)
+          bin: String(inData[i][3] || "").trim(),
+          description: inData[i][2] ? String(inData[i][2]) : "Item",
+          action: "Book In",
+          qty: qtyVal
+        });
+      }
+    }
+  } catch (err) {}
+
+  serverHistory.sort(function(a, b) { return b.date - a.date; });
+  serverHistory = serverHistory.slice(0, 30);
+
+  let totalItems = 0, countedItems = 0, remainingItems = 0;
+  for (let i = 0; i < stockData.length; i++) {
+    const barcode = String(stockData[i][COL_BARCODE - 1] || "").trim();
+    const bin = String(stockData[i][COL_BIN - 1] || "").trim();
+    const captured = String(stockData[i][COL_QTY_CAPTURED - 1] || "").trim();
+
+    if (!barcode || !bin) continue;
+    totalItems++;
+    if (captured !== "") countedItems++;
+    else remainingItems++;
+  }
+
+  return {
+    ok: true, bookedOutToday, bookedInToday, bookedOutMonth, bookedInMonth, serverHistory,
+    stocktake: { total: totalItems, counted: countedItems, remaining: remainingItems, percent: totalItems > 0 ? Math.round((countedItems / totalItems) * 100) : 0 }
+  };
+}
+
+function resetStocktake(pin) {
+  if (String(pin).trim() !== MANAGER_PIN) return { ok: false, message: "Invalid Security Master Pin" };
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(STOCK_SHEET);
+  if (!sheet) return { ok: false, message: "Sheet missing" };
+  
+  const lastRow = sheet.getLastRow();
+  if (lastRow > HEADER_ROW) {
+    sheet.getRange(HEADER_ROW + 1, COL_QTY_CAPTURED, lastRow - HEADER_ROW, 1).clearContent();
+  }
+  SpreadsheetApp.flush();
+  return { ok: true, message: "Stocktake progress logs purged successfully" };
+}
+
+function json(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}
