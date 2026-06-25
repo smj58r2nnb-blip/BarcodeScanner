@@ -23,14 +23,6 @@
   --border:#d8eadf;
 }
 
-body.dark{
-  --bg:#0f172a;
-  --card:#1e293b;
-  --text:#f8fafc;
-  --muted:#94a3b8;
-  --border:#334155;
-}
-
 body{
   margin:0;
   background:var(--bg);
@@ -81,7 +73,7 @@ body{
     margin-bottom: 10px;
   }
   /* Span these sections across both columns */
-  #managerCard, #dashboardCard, .footer {
+  .footer {
     grid-column: 1 / -1;
   }
 }
@@ -116,13 +108,6 @@ input,textarea,select{
   background:white;
 }
 
-body.dark input,
-body.dark textarea,
-body.dark select{
-  background:#1e293b;
-  color:white;
-}
-
 button{
   border:0;
   color:white;
@@ -151,8 +136,6 @@ button{
   color:#064e3b;
 }
 
-body.dark .product{color:white}
-
 .grid{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -164,11 +147,6 @@ body.dark .product{color:white}
   border-radius:16px;
   padding:12px;
   border:1px solid #dcfce7;
-}
-
-body.dark .box{
-  background:#1e293b;
-  border:1px solid #334155;
 }
 
 .label{
@@ -220,11 +198,6 @@ video{
   font-weight:900;
 }
 
-body.dark .banner{
-  background:#14532d;
-  color:white;
-}
-
 #msg{
   text-align:center;
   font-size:16px;
@@ -263,25 +236,6 @@ body.dark .banner{
   color:#dc2626;
 }
 
-.progressWrap{
-  background:#e2e8f0;
-  border-radius:999px;
-  overflow:hidden;
-  height:16px;
-  margin-top:8px;
-}
-
-.progressBar{
-  height:16px;
-  background:#16a34a;
-  width:0%;
-}
-
-.listItem{
-  border-top:1px solid var(--border);
-  padding:10px 0;
-}
-
 .footer{
   text-align:center;
   color:var(--muted);
@@ -312,13 +266,6 @@ body.dark .banner{
   color:#92400e;
 }
 
-
-.managerCard{
-  border:2px solid #16a34a;
-}
-.managerLocked{
-  display:none;
-}
 .toggleRow{
   display:flex;
   align-items:center;
@@ -331,61 +278,10 @@ body.dark .banner{
   border:1px solid #bbf7d0;
   font-weight:900;
 }
-body.dark .toggleRow{
-  background:#0f172a;
-  border:1px solid #334155;
-}
 .toggleRow input{
   width:auto;
   transform:scale(1.4);
   margin:0;
-}
-.managerTitle{
-  font-size:22px;
-  font-weight:900;
-  color:#064e3b;
-  margin-bottom:6px;
-}
-body.dark .managerTitle{color:white}
-.managerSub{
-  color:var(--muted);
-  font-size:13px;
-  font-weight:800;
-}
-.smallNote{
-  margin-top:8px;
-  font-size:12px;
-  color:var(--muted);
-  font-weight:800;
-  text-align:center;
-}
-
-
-.managerGrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-}
-.managerDivider{
-  margin-top:18px;
-  padding-top:14px;
-  border-top:1px solid var(--border);
-}
-.searchResults{
-  margin-top:10px;
-  max-height:300px;
-  overflow:auto;
-}
-.searchResult{
-  border-top:1px solid var(--border);
-  padding:10px 0;
-  font-size:14px;
-  font-weight:700;
-}
-.searchResult small{
-  color:var(--muted);
-  display:block;
-  margin-top:4px;
 }
 
 </style>
@@ -470,8 +366,6 @@ body.dark .managerTitle{color:white}
       <button class="clear" onclick="clearForm()">CLEAR</button>
       <button class="in" onclick="bookIn()">📥 IN</button>
       <button class="out" onclick="bookOut()">📤 OUT</button>
-      <button class="mode" onclick="openDashboard()">📊 DASH</button>
-      <button class="mode" onclick="toggleDarkMode()">🌙 DARK</button>
     </div>
 
     <div id="banner" class="banner"></div>
@@ -484,86 +378,11 @@ body.dark .managerTitle{color:white}
       ⬇️ DOWNLOAD STOCK FOR OFFLINE
     </button>
 
-    <button class="mode" onclick="toggleManagerMode()">👑 MANAGER</button>
-
     <div class="toggleRow">
       <span>📷 Continuous Scan Mode</span>
       <input id="continuousScan" type="checkbox" onchange="saveContinuousMode()">
     </div>
 
-  </div>
-
-  <div id="managerCard" class="card managerCard" style="display:none;">
-    <div class="managerTitle">👑 Manager Mode</div>
-    <div class="managerSub">Add or remove items from Stores</div>
-
-    <input id="managerPin" type="password" placeholder="Manager PIN">
-    <button class="mode" onclick="unlockManager()">🔓 UNLOCK MANAGER</button>
-
-    <div id="managerPanel" class="managerLocked">
-      <div class="managerDivider">
-        <div class="label">➕ Add New Item</div>
-        <input id="newDescription" placeholder="Description">
-        <input id="newBarcode" placeholder="Barcode / Bin No">
-        <input id="newArticle" placeholder="Article No">
-        <input id="newMake" placeholder="Make">
-        <input id="newQty" type="number" placeholder="Starting Quantity">
-        <input id="newBin" placeholder="Bin No">
-        <input id="newZone" placeholder="Zone">
-        <input id="newLocation" placeholder="Location">
-        <button class="save" onclick="addNewItem()">➕ ADD ITEM</button>
-      </div>
-
-      <div class="managerDivider">
-        <div class="label">✏️ Edit Current Item</div>
-        <input id="editDescription" placeholder="New description">
-        <input id="editArticle" placeholder="New article no">
-        <input id="editMake" placeholder="New make">
-        <input id="editQty" type="number" placeholder="New quantity">
-        <input id="editBin" placeholder="New bin">
-        <input id="editZone" placeholder="New zone">
-        <input id="editLocation" placeholder="New location">
-        <button class="in" onclick="editItem()">✏️ EDIT SCANNED ITEM</button>
-      </div>
-
-      <div class="managerDivider">
-        <div class="label">🔎 Search Stores</div>
-        <input id="managerSearch" placeholder="Search description, article, barcode or bin">
-        <button class="mode" onclick="managerSearchItems()">🔎 SEARCH</button>
-        <div id="managerSearchResults" class="searchResults"></div>
-      </div>
-
-      <div class="managerDivider">
-        <div class="label">🔄 Reset Stock Take</div>
-        <button class="out" onclick="resetStocktakeManager()">🔄 RESET STOCK TAKE</button>
-      </div>
-
-      <div class="managerDivider">
-        <div class="label">🗑 Remove Item</div>
-        <input id="removeBarcode" placeholder="Scan / enter barcode or bin to remove">
-        <textarea id="removeReason" placeholder="Reason for removal (optional)"></textarea>
-        <button class="out" onclick="removeItem()">🗑 MOVE TO DELETED ITEMS</button>
-      </div>
-
-      <div class="managerDivider">
-        <div class="label">♻ Restore Deleted Item</div>
-        <input id="restoreBarcode" placeholder="Barcode or bin to restore">
-        <button class="save" onclick="restoreItem()">♻ RESTORE ITEM</button>
-      </div>
-
-      <div class="managerDivider">
-        <div class="label">📤 Export</div>
-        <button class="mode" onclick="exportStockCsv()">📤 EXPORT STOCK CSV</button>
-      </div>
-
-      <div class="smallNote">Removed items are copied to a Deleted Items sheet first and can be restored.</div>
-    </div>
-  </div>
-
-
-  <div id="dashboardCard" class="card" style="display:none">
-    <div class="product">📊 Dashboard</div>
-    <div id="dashboardContent"></div>
   </div>
 
   <div class="footer">
@@ -875,11 +694,6 @@ function downloadStockData() {
     });
 }
 
-
-if (localStorage.getItem("darkMode") === "yes") {
-  document.body.classList.add("dark");
-}
-
 function setMsg(text, cls="") {
   const el = document.getElementById("msg");
   el.innerText = text;
@@ -900,15 +714,6 @@ function showBanner(text) {
   setTimeout(() => {
     banner.style.display = "none";
   }, 3000);
-}
-
-function toggleDarkMode() {
-  document.body.classList.toggle("dark");
-
-  localStorage.setItem(
-    "darkMode",
-    document.body.classList.contains("dark") ? "yes" : "no"
-  );
 }
 
 function manualEnter(e) {
@@ -1247,141 +1052,6 @@ function bookIn() {
     .catch(() => setMsg("Connection error", "error"));
 }
 
-let dashboardOpen = false;
-
-function openDashboard() {
-  const card =
-    document.getElementById("dashboardCard");
-
-  if (dashboardOpen) {
-    card.style.display = "none";
-    dashboardOpen = false;
-    return;
-  }
-
-  dashboardOpen = true;
-
-  fetch(API + "?action=dashboard")
-    .then(r => r.json())
-    .then(data => {
-      if (!data.ok) {
-        dashboardOpen = false;
-        setMsg("Dashboard failed", "error");
-        return;
-      }
-
-      const stocktake = data.stocktake || {
-        total: 0,
-        counted: 0,
-        remaining: 0,
-        percent: 0
-      };
-
-      const last = data.lastMovement;
-
-      let html = `
-        <div class="grid">
-
-          <div class="box">
-            <div class="label">📤 Out Today</div>
-            <div class="value">${data.bookedOutToday}</div>
-          </div>
-
-          <div class="box">
-            <div class="label">📥 In Today</div>
-            <div class="value">${data.bookedInToday}</div>
-          </div>
-
-          <div class="box">
-            <div class="label">📤 Out This Month</div>
-            <div class="value">${data.bookedOutMonth}</div>
-          </div>
-
-          <div class="box">
-            <div class="label">📥 In This Month</div>
-            <div class="value">${data.bookedInMonth}</div>
-          </div>
-
-        </div>
-
-        <div class="box" style="margin-top:10px;">
-          <div class="label">📦 Stocktake Progress</div>
-          <div class="value">${stocktake.percent}%</div>
-
-          <div class="progressWrap">
-            <div
-              class="progressBar"
-              style="width:${stocktake.percent}%">
-            </div>
-          </div>
-
-          <div style="margin-top:8px;font-size:13px;">
-            Counted: ${stocktake.counted}
-            • Remaining: ${stocktake.remaining}
-            • Total: ${stocktake.total}
-          </div>
-        </div>
-      `;
-
-      if (last) {
-        html += `
-          <div class="box" style="margin-top:10px;">
-            <div class="label">🕘 Last Movement</div>
-            <div class="value">${last.action} • Qty ${last.qty}</div>
-
-            <div style="font-size:13px;margin-top:6px;">
-              ${last.description}<br>
-              ${last.user} • ${last.date}
-            </div>
-          </div>
-        `;
-      }
-
-      html += `
-        <div class="box" style="margin-top:10px;">
-          <div class="label">🔥 Most Used Parts</div>
-      `;
-
-      (data.topParts || []).forEach((p, i) => {
-        html += `
-          <div class="listItem">
-            ${i + 1}. ${p.description}<br>
-            <strong>Qty used: ${p.qty}</strong>
-          </div>
-        `;
-      });
-
-      html += `</div>`;
-
-      html += `
-        <div class="box" style="margin-top:10px;">
-          <div class="label">👤 Usage Statistics</div>
-      `;
-
-      (data.topUsers || []).forEach((u, i) => {
-        html += `
-          <div class="listItem">
-            ${i + 1}. ${u.name}<br>
-            <strong>Qty booked out: ${u.qty}</strong>
-          </div>
-        `;
-      });
-
-      html += `</div>`;
-
-      document.getElementById("dashboardContent").innerHTML = html;
-      document.getElementById("dashboardCard").style.display = "block";
-
-      document.getElementById("dashboardCard").scrollIntoView({
-        behavior: "smooth"
-      });
-    })
-    .catch(() => {
-      dashboardOpen = false;
-      setMsg("Dashboard connection error", "error");
-    });
-}
-
 function clearForm() {
   document.getElementById("barcode").value = "";
   document.getElementById("qty").value = "";
@@ -1417,8 +1087,6 @@ function clearProductOnly() {
   status.className = "statusBig";
 }
 
-let managerUnlocked = false;
-
 if (localStorage.getItem("continuousScan") === "yes") {
   const continuousBox = document.getElementById("continuousScan");
   if (continuousBox) continuousBox.checked = true;
@@ -1448,339 +1116,6 @@ function maybeRestartScanner() {
   if (shouldContinuousScan()) {
     setTimeout(startScanner, 500);
   }
-}
-
-function toggleManagerMode() {
-  const card =
-    document.getElementById("managerCard");
-
-  if (card.style.display === "block") {
-    card.style.display = "none";
-    setMsg("Manager mode closed");
-    return;
-  }
-
-  card.style.display = "block";
-  card.scrollIntoView({ behavior: "smooth" });
-}
-
-function unlockManager() {
-  const panel =
-    document.getElementById("managerPanel");
-
-  if (managerUnlocked) {
-    panel.style.display = "none";
-    managerUnlocked = false;
-    setMsg("Manager tools hidden");
-    return;
-  }
-
-  const pin =
-    document.getElementById("managerPin").value.trim();
-
-  if (pin !== "2408") {
-    setMsg("Wrong manager PIN", "error");
-    setStatus("❌ MANAGER LOCKED", "statusNotFound");
-    return;
-  }
-
-  managerUnlocked = true;
-  panel.style.display = "block";
-  setMsg("Manager mode unlocked", "good");
-  setStatus("👑 MANAGER UNLOCKED", "statusFound");
-}
-
-function resetStocktakeManager() {
-  if (!managerUnlocked) {
-    unlockManager();
-    if (!managerUnlocked) return;
-  }
-
-  if (!confirm("Reset the whole stocktake? This clears all captured quantities.")) {
-    return;
-  }
-
-  setMsg("Resetting stocktake...", "good");
-  setStatus("🔄 RESETTING...", "statusSearching");
-
-  fetch(managerUrl("resetstocktake"))
-    .then(r => r.json())
-    .then(data => {
-      if (data.ok) {
-        showBanner("🔄 STOCK TAKE RESET");
-        setMsg("Stocktake reset complete", "good");
-        setStatus("✅ RESET COMPLETE", "statusFound");
-        downloadStockData();
-      } else {
-        setMsg(data.message || "Reset failed", "error");
-        setStatus("❌ RESET FAILED", "statusNotFound");
-      }
-    })
-    .catch(() => {
-      setMsg("Reset connection error", "error");
-      setStatus("❌ CONNECTION ERROR", "statusNotFound");
-    });
-}
-
-function managerUrl(action) {
-  const pin =
-    document.getElementById("managerPin").value.trim();
-
-  return API +
-    "?action=" + action +
-    "&pin=" + encodeURIComponent(pin);
-}
-
-function addNewItem() {
-  if (!managerUnlocked) {
-    unlockManager();
-    if (!managerUnlocked) return;
-  }
-
-  const description = document.getElementById("newDescription").value.trim();
-  const barcode = document.getElementById("newBarcode").value.trim();
-  const article = document.getElementById("newArticle").value.trim();
-  const make = document.getElementById("newMake").value.trim();
-  const qty = document.getElementById("newQty").value;
-  const bin = document.getElementById("newBin").value.trim();
-  const zone = document.getElementById("newZone").value.trim();
-  const location = document.getElementById("newLocation").value.trim();
-
-  if (!description || !barcode || !bin) {
-    setMsg("Description, barcode and bin are required", "error");
-    return;
-  }
-
-  setMsg("Adding item...", "good");
-  setStatus("➕ ADDING ITEM...", "statusSearching");
-
-  const url =
-    managerUrl("additem") +
-    "&description=" + encodeURIComponent(description) +
-    "&barcode=" + encodeURIComponent(barcode) +
-    "&article=" + encodeURIComponent(article) +
-    "&make=" + encodeURIComponent(make) +
-    "&qty=" + encodeURIComponent(qty || 0) +
-    "&bin=" + encodeURIComponent(bin) +
-    "&zone=" + encodeURIComponent(zone) +
-    "&location=" + encodeURIComponent(location);
-
-  fetch(url)
-    .then(r => r.json())
-    .then(data => {
-      if (data.ok) {
-        showBanner("✅ ITEM ADDED");
-        setMsg("Item added to Stores", "good");
-        setStatus("✅ ITEM ADDED", "statusFound");
-
-        ["newDescription","newBarcode","newArticle","newMake","newQty","newBin","newZone","newLocation"]
-          .forEach(id => document.getElementById(id).value = "");
-
-        downloadStockData();
-      } else {
-        setMsg(data.message || "Add item failed", "error");
-        setStatus("❌ ADD FAILED", "statusNotFound");
-      }
-    })
-    .catch(() => {
-      setMsg("Connection error adding item", "error");
-      setStatus("❌ CONNECTION ERROR", "statusNotFound");
-    });
-}
-
-function removeItem() {
-  if (!managerUnlocked) {
-    unlockManager();
-    if (!managerUnlocked) return;
-  }
-
-  const barcode =
-    document.getElementById("removeBarcode").value.trim() ||
-    document.getElementById("barcode").value.trim();
-
-  const reason =
-    document.getElementById("removeReason")
-      ? document.getElementById("removeReason").value.trim()
-      : "";
-
-  if (!barcode) {
-    setMsg("Enter or scan an item to remove", "error");
-    return;
-  }
-
-  if (!confirm("Move this item to Deleted Items?\n\n" + barcode)) {
-    return;
-  }
-
-  setMsg("Removing item...", "good");
-  setStatus("🗑 REMOVING...", "statusSearching");
-
-  fetch(
-    managerUrl("removeitem") +
-    "&barcode=" + encodeURIComponent(barcode) +
-    "&reason=" + encodeURIComponent(reason)
-  )
-    .then(r => r.json())
-    .then(data => {
-      if (data.ok) {
-        showBanner("🗑 ITEM MOVED TO DELETED ITEMS");
-        setMsg("Item moved to Deleted Items", "good");
-        setStatus("✅ REMOVED", "statusFound");
-        clearCachedItem();
-        downloadStockData();
-        clearForm();
-        document.getElementById("removeBarcode").value = "";
-        if (document.getElementById("removeReason")) {
-          document.getElementById("removeReason").value = "";
-        }
-      } else {
-        setMsg(data.message || "Remove failed", "error");
-        setStatus("❌ REMOVE FAILED", "statusNotFound");
-      }
-    })
-    .catch(() => {
-      setMsg("Connection error removing item", "error");
-      setStatus("❌ CONNECTION ERROR", "statusNotFound");
-    });
-}
-
-function editItem() {
-  if (!managerUnlocked) {
-    unlockManager();
-    if (!managerUnlocked) return;
-  }
-
-  const barcode =
-    document.getElementById("barcode").value.trim();
-
-  if (!barcode) {
-    setMsg("Scan an item first before editing", "error");
-    return;
-  }
-
-  const url =
-    managerUrl("edititem") +
-    "&barcode=" + encodeURIComponent(barcode) +
-    "&description=" + encodeURIComponent(document.getElementById("editDescription").value.trim()) +
-    "&article=" + encodeURIComponent(document.getElementById("editArticle").value.trim()) +
-    "&make=" + encodeURIComponent(document.getElementById("editMake").value.trim()) +
-    "&qty=" + encodeURIComponent(document.getElementById("editQty").value) +
-    "&bin=" + encodeURIComponent(document.getElementById("editBin").value.trim()) +
-    "&zone=" + encodeURIComponent(document.getElementById("editZone").value.trim()) +
-    "&location=" + encodeURIComponent(document.getElementById("editLocation").value.trim());
-
-  fetch(url)
-    .then(r => r.json())
-    .then(data => {
-      if (data.ok) {
-        showBanner("✏️ ITEM UPDATED");
-        setMsg("Item updated", "good");
-        setStatus("✅ UPDATED", "statusFound");
-        clearCachedItem();
-        downloadStockData();
-        lookup(barcode);
-      } else {
-        setMsg(data.message || "Edit failed", "error");
-        setStatus("❌ EDIT FAILED", "statusNotFound");
-      }
-    })
-    .catch(() => {
-      setMsg("Connection error editing item", "error");
-      setStatus("❌ CONNECTION ERROR", "statusNotFound");
-    });
-}
-
-function restoreItem() {
-  if (!managerUnlocked) {
-    unlockManager();
-    if (!managerUnlocked) return;
-  }
-
-  const barcode =
-    document.getElementById("restoreBarcode").value.trim();
-
-  if (!barcode) {
-    setMsg("Enter barcode or bin to restore", "error");
-    return;
-  }
-
-  fetch(
-    managerUrl("restoreitem") +
-    "&barcode=" + encodeURIComponent(barcode)
-  )
-    .then(r => r.json())
-    .then(data => {
-      if (data.ok) {
-        showBanner("♻ ITEM RESTORED");
-        setMsg("Item restored to STStores", "good");
-        setStatus("✅ RESTORED", "statusFound");
-        document.getElementById("restoreBarcode").value = "";
-        downloadStockData();
-      } else {
-        setMsg(data.message || "Restore failed", "error");
-        setStatus("❌ RESTORE FAILED", "statusNotFound");
-      }
-    })
-    .catch(() => {
-      setMsg("Connection error restoring item", "error");
-      setStatus("❌ CONNECTION ERROR", "statusNotFound");
-    });
-}
-
-function managerSearchItems() {
-  if (!managerUnlocked) {
-    unlockManager();
-    if (!managerUnlocked) return;
-  }
-
-  const q =
-    document.getElementById("managerSearch").value.trim();
-
-  fetch(
-    managerUrl("searchitems") +
-    "&q=" + encodeURIComponent(q)
-  )
-    .then(r => r.json())
-    .then(data => {
-      const box =
-        document.getElementById("managerSearchResults");
-
-      if (!data.ok) {
-        box.innerHTML = "<div class='searchResult'>Search failed</div>";
-        return;
-      }
-
-      if (!data.items.length) {
-        box.innerHTML = "<div class='searchResult'>No results</div>";
-        return;
-      }
-
-      box.innerHTML =
-        data.items.map(item => `
-          <div class="searchResult">
-            ${item.description || "-"}
-            <small>
-              Barcode: ${item.barcode || "-"} •
-              Article: ${item.articleNo || "-"} •
-              Bin: ${item.bin || "-"} •
-              Qty: ${item.recordedQty || "0"}
-            </small>
-          </div>
-        `).join("");
-    })
-    .catch(() => setMsg("Search connection error", "error"));
-}
-
-function exportStockCsv() {
-  if (!managerUnlocked) {
-    unlockManager();
-    if (!managerUnlocked) return;
-  }
-
-  window.open(
-    managerUrl("exportstock"),
-    "_blank"
-  );
 }
 
 updateOfflineBar();
