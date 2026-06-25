@@ -61,24 +61,23 @@ body{
   .wrap {
     max-width: 1200px;
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Split into 2 columns on PC */
+    grid-template-columns: 1fr 1fr; 
     gap: 20px;
     align-items: start;
   }
   .card {
     margin-bottom: 0;
-    height: 100%; /* Make side-by-side cards equal height */
+    height: 100%; 
   }
   .header {
     margin-bottom: 10px;
   }
-  /* Span these sections across both columns */
-  .footer {
+  .full-width {
     grid-column: 1 / -1;
+    height: auto;
   }
 }
 
-/* Make scan button less prominent on PC since USB scanners are preferred */
 body.pc-view #scanBtn {
   background: linear-gradient(135deg, #475569, #64748b);
 }
@@ -118,6 +117,7 @@ button{
   border-radius:14px;
   min-height:52px;
   box-shadow:0 4px 10px rgba(0,0,0,.12);
+  cursor:pointer;
 }
 
 .scan{background:linear-gradient(135deg,#065f46,#16a34a)}
@@ -170,7 +170,6 @@ button{
   background:#dcfce7 !important;
   border:2px solid #16a34a !important;
 }
-
 .doneValue{color:#16a34a}
 
 .actions{
@@ -217,24 +216,9 @@ video{
   font-size:22px;
   font-weight:900;
 }
-
-.statusSearching{
-  display:block;
-  background:#dbeafe;
-  color:#1d4ed8;
-}
-
-.statusFound{
-  display:block;
-  background:#dcfce7;
-  color:#15803d;
-}
-
-.statusNotFound{
-  display:block;
-  background:#fee2e2;
-  color:#dc2626;
-}
+.statusSearching{ display:block; background:#dbeafe; color:#1d4ed8; }
+.statusFound{ display:block; background:#dcfce7; color:#15803d; }
+.statusNotFound{ display:block; background:#fee2e2; color:#dc2626; }
 
 .footer{
   text-align:center;
@@ -257,14 +241,8 @@ video{
   background:#dcfce7;
   color:#15803d;
 }
-.offlineBar.offline{
-  background:#fee2e2;
-  color:#dc2626;
-}
-.offlineBar.queue{
-  background:#fef3c7;
-  color:#92400e;
-}
+.offlineBar.offline{ background:#fee2e2; color:#dc2626; }
+.offlineBar.queue{ background:#fef3c7; color:#92400e; }
 
 .toggleRow{
   display:flex;
@@ -283,6 +261,27 @@ video{
   transform:scale(1.4);
   margin:0;
 }
+
+/* --- ANALYTICS SPECIFIC STYLES --- */
+.progressWrap{
+  background:#e2e8f0;
+  border-radius:999px;
+  overflow:hidden;
+  height:16px;
+  margin-top:8px;
+}
+.progressBar{
+  height:16px;
+  background:#16a34a;
+  width:0%;
+  transition: width 0.4s ease;
+}
+.ledger-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+.ledger-table th { background: #f1f5f9; padding: 10px; color: var(--muted); font-weight: 800; text-transform: uppercase; font-size: 11px; }
+.ledger-table td { padding: 12px 10px; border-bottom: 1px solid var(--border); font-weight: 700; }
+.action-out { color: #dc2626; font-weight: 900;}
+.action-in { color: #2563eb; font-weight: 900;}
+.bin-pill { background:var(--bg); padding:4px 8px; border-radius:6px; border:1px solid var(--border); font-size:12px; white-space:nowrap; }
 
 </style>
 </head>
@@ -382,10 +381,64 @@ video{
       <span>📷 Continuous Scan Mode</span>
       <input id="continuousScan" type="checkbox" onchange="saveContinuousMode()">
     </div>
-
   </div>
 
-  <div class="footer">
+  <div class="card full-width" style="margin-top: 10px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleAnalytics()">
+      <div class="product" style="margin:0; font-size:20px;">📊 Analytics Summary</div>
+      <div id="analyticsToggleIcon" style="font-size:24px; font-weight:bold; color:var(--green);">+</div>
+    </div>
+    
+    <div id="analyticsContainer" style="display:none; margin-top:20px;">
+      <div class="grid" style="grid-template-columns: 1fr 1fr;">
+         <div class="box">
+           <div class="label">OUTBOUND (TODAY)</div>
+           <div class="value" id="statOut">0 units</div>
+         </div>
+         <div class="box">
+           <div class="label">INBOUND (TODAY)</div>
+           <div class="value" id="statIn">0 units</div>
+         </div>
+      </div>
+
+      <div class="box" style="margin-top:15px; text-align: left;">
+         <div class="label">COMPLIANCE PROGRESS CHECK</div>
+         <div class="value" id="statProg" style="font-size: 22px; margin-bottom:4px;">0% Complete</div>
+         <div style="font-size: 12px; color: var(--muted); font-weight: 700;" id="statDetails">
+           Verified: 0 lines • Pending Field Count: 0 lines • Master Directory Size: 0 profiles
+         </div>
+         <div class="progressWrap" style="margin-top:10px;">
+            <div id="progBar" class="progressBar" style="width:0%"></div>
+         </div>
+      </div>
+
+      <div style="margin-top:20px;">
+         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+           <div class="label">▼ RECENT ACTIVITY LEDGER</div>
+           <button class="mode" style="width:auto; min-height:30px; font-size:11px; padding:6px 12px; margin:0;" onclick="refreshAnalytics()">🔄 SYNC HISTORY</button>
+         </div>
+         <div style="overflow-x:auto;">
+           <table class="ledger-table">
+             <thead>
+               <tr>
+                 <th>Date & Time</th>
+                 <th>User</th>
+                 <th>Barcode / Item</th>
+                 <th>Bin No</th>
+                 <th>Action</th>
+                 <th>Qty</th>
+               </tr>
+             </thead>
+             <tbody id="ledgerBody">
+               <tr><td colspan="6" style="text-align:center;">Loading live feed...</td></tr>
+             </tbody>
+           </table>
+         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer full-width">
     Stores Scanner System<br>
     Supreme Compact Edition
   </div>
@@ -399,13 +452,13 @@ const API =
 let scanner = null;
 let currentItem = null;
 let scanLocked = false;
+let analyticsOpen = false;
 
 // --- DEVICE DETECTION LOGIC ---
 function isMobileDevice() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 850;
 }
 
-// Apply visual mode on load and handle PC auto-focus
 window.addEventListener("DOMContentLoaded", () => {
   if (isMobileDevice()) {
     document.body.classList.add('mobile-view');
@@ -419,87 +472,112 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 // ------------------------------
 
-let pendingStocktake =
-  JSON.parse(
-    localStorage.getItem("pendingStocktake") || "[]"
-  );
+// --- ANALYTICS DASHBOARD LOGIC ---
+function toggleAnalytics() {
+  const container = document.getElementById("analyticsContainer");
+  const icon = document.getElementById("analyticsToggleIcon");
+  
+  analyticsOpen = !analyticsOpen;
+  
+  if (analyticsOpen) {
+    container.style.display = "block";
+    icon.innerText = "-";
+    refreshAnalytics();
+    
+    // Auto-scroll so it's fully in view
+    setTimeout(() => {
+        container.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  } else {
+    container.style.display = "none";
+    icon.innerText = "+";
+  }
+}
+
+function refreshAnalytics() {
+  document.getElementById("statOut").innerText = "Loading...";
+  document.getElementById("statIn").innerText = "Loading...";
+  document.getElementById("ledgerBody").innerHTML = "<tr><td colspan='6' style='text-align:center;'>Fetching live feed...</td></tr>";
+
+  fetch(API + "?action=dashboard")
+    .then(r => r.json())
+    .then(data => {
+      if (!data.ok) {
+        setMsg("Analytics failed to load", "error");
+        return;
+      }
+
+      document.getElementById("statOut").innerText = data.bookedOutToday + " units";
+      document.getElementById("statIn").innerText = data.bookedInToday + " units";
+      
+      const st = data.stocktake;
+      document.getElementById("statProg").innerText = st.percent + "% Complete";
+      document.getElementById("progBar").style.width = st.percent + "%";
+      document.getElementById("statDetails").innerText = 
+        "Verified: " + st.counted + " lines • Pending Field Count: " + st.remaining + " lines • Master Directory Size: " + st.total + " profiles";
+
+      const ledger = document.getElementById("ledgerBody");
+      if (!data.recentActivity || data.recentActivity.length === 0) {
+        ledger.innerHTML = "<tr><td colspan='6' style='text-align:center;'>No recent activity found.</td></tr>";
+        return;
+      }
+
+      ledger.innerHTML = data.recentActivity.map(act => `
+        <tr>
+          <td style="color:var(--muted); font-weight:600;">${act.dateStr}</td>
+          <td>${act.user}</td>
+          <td>
+            <div style="font-weight:900;">${act.barcode}</div>
+            <div style="font-size:11px; color:var(--muted);">${act.item}</div>
+          </td>
+          <td><span class="bin-pill">${act.bin || "-"}</span></td>
+          <td><span class="${act.action === 'OUT' ? 'action-out' : 'action-in'}">${act.action}</span></td>
+          <td>${act.qty}</td>
+        </tr>
+      `).join("");
+
+    })
+    .catch(() => {
+      document.getElementById("ledgerBody").innerHTML = "<tr><td colspan='6' style='text-align:center; color:red;'>Connection error.</td></tr>";
+    });
+}
+// ------------------------------
+
+let pendingStocktake = JSON.parse(localStorage.getItem("pendingStocktake") || "[]");
 
 function savePendingStocktakeQueue() {
-  localStorage.setItem(
-    "pendingStocktake",
-    JSON.stringify(pendingStocktake)
-  );
+  localStorage.setItem("pendingStocktake", JSON.stringify(pendingStocktake));
 }
 
 function updateOfflineBar() {
-  const bar =
-    document.getElementById("offlineBar");
-
+  const bar = document.getElementById("offlineBar");
   if (!bar) return;
 
-  const offlineDate =
-    localStorage.getItem("offlineStockDate");
-
-  const offlineItems =
-    getOfflineStockData().length;
+  const offlineDate = localStorage.getItem("offlineStockDate");
+  const offlineItems = getOfflineStockData().length;
 
   if (!navigator.onLine) {
-    bar.className =
-      "offlineBar offline";
-
-    bar.innerHTML =
-      "🔴 OFFLINE" +
-      (
-        offlineItems
-          ? " - OFFLINE STOCK READY (" + offlineItems + " ITEMS)"
-          : " - NO STOCK DOWNLOADED"
-      ) +
-      (
-        pendingStocktake.length
-          ? "<br>" + pendingStocktake.length + " STOCKTAKES QUEUED"
-          : ""
-      );
-
+    bar.className = "offlineBar offline";
+    bar.innerHTML = "🔴 OFFLINE" + (offlineItems ? " - OFFLINE STOCK READY (" + offlineItems + " ITEMS)" : " - NO STOCK DOWNLOADED") +
+      (pendingStocktake.length ? "<br>" + pendingStocktake.length + " STOCKTAKES QUEUED" : "");
     return;
   }
 
   if (pendingStocktake.length) {
-    bar.className =
-      "offlineBar queue";
-
-    bar.innerHTML =
-      "🟡 ONLINE - " +
-      pendingStocktake.length +
-      " STOCKTAKES WAITING TO SYNC";
-
+    bar.className = "offlineBar queue";
+    bar.innerHTML = "🟡 ONLINE - " + pendingStocktake.length + " STOCKTAKES WAITING TO SYNC";
     return;
   }
 
-  bar.className =
-    "offlineBar";
-
-  bar.innerHTML =
-    "🟢 ONLINE" +
-    (
-      offlineItems
-        ? "<br>Offline stock: " + offlineItems + " items" +
-          (offlineDate ? " • " + offlineDate : "")
-        : ""
-    );
+  bar.className = "offlineBar";
+  bar.innerHTML = "🟢 ONLINE" + (offlineItems ? "<br>Offline stock: " + offlineItems + " items" + (offlineDate ? " • " + offlineDate : "") : "");
 }
 
 function queueStockTakeOffline() {
-  const barcode =
-    document.getElementById("barcode").value.trim();
-
-  const qty =
-    document.getElementById("qty").value;
-
-  const who =
-    document.getElementById("user").value;
-
-  const comments =
-    document.getElementById("comments").value;
+  const barcode = document.getElementById("barcode").value.trim();
+  const qty = document.getElementById("qty").value;
+  const who = document.getElementById("user").value;
+  const comments = document.getElementById("comments").value;
 
   if (!barcode) {
     setMsg("Scan or enter a barcode first", "error");
@@ -513,26 +591,12 @@ function queueStockTakeOffline() {
     return;
   }
 
-  pendingStocktake.push({
-    action: "save",
-    barcode: barcode,
-    qty: qty,
-    who: who,
-    comments: comments,
-    queuedAt: new Date().toISOString()
-  });
-
+  pendingStocktake.push({ action: "save", barcode: barcode, qty: qty, who: who, comments: comments, queuedAt: new Date().toISOString() });
   updateOfflineItemQty(barcode, qty);
-
   savePendingStocktakeQueue();
   updateOfflineBar();
 
-  showBanner(
-    "📴 OFFLINE STOCKTAKE SAVED<br>" +
-    pendingStocktake.length +
-    " waiting to sync"
-  );
-
+  showBanner("📴 OFFLINE STOCKTAKE SAVED<br>" + pendingStocktake.length + " waiting to sync");
   setMsg("Stocktake queued offline", "good");
   setStatus("🟡 QUEUED OFFLINE", "statusSearching");
 
@@ -540,32 +604,18 @@ function queueStockTakeOffline() {
   clearForm();
   maybeRestartScanner();
 
-  if (navigator.vibrate) {
-    navigator.vibrate([80, 40, 80]);
-  }
+  if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
 }
 
 function syncPendingStocktakes() {
-  if (!navigator.onLine) {
+  if (!navigator.onLine || !pendingStocktake.length) {
     updateOfflineBar();
     return;
   }
 
-  if (!pendingStocktake.length) {
-    updateOfflineBar();
-    return;
-  }
-
-  const item =
-    pendingStocktake[0];
-
-  const url =
-    API +
-    "?action=save" +
-    "&barcode=" + encodeURIComponent(item.barcode) +
-    "&qty=" + encodeURIComponent(item.qty) +
-    "&who=" + encodeURIComponent(item.who) +
-    "&comments=" + encodeURIComponent(item.comments || "");
+  const item = pendingStocktake[0];
+  const url = API + "?action=save&barcode=" + encodeURIComponent(item.barcode) + "&qty=" + encodeURIComponent(item.qty) +
+    "&who=" + encodeURIComponent(item.who) + "&comments=" + encodeURIComponent(item.comments || "");
 
   fetch(url)
     .then(r => r.json())
@@ -597,57 +647,31 @@ window.addEventListener("online", function() {
   syncPendingStocktakes();
 });
 
-window.addEventListener("offline", function() {
-  updateOfflineBar();
-});
-
+window.addEventListener("offline", updateOfflineBar);
 
 function getOfflineStockData() {
-  return JSON.parse(
-    localStorage.getItem("offlineStockData") || "[]"
-  );
+  return JSON.parse(localStorage.getItem("offlineStockData") || "[]");
 }
 
 function saveOfflineStockData(items) {
-  localStorage.setItem(
-    "offlineStockData",
-    JSON.stringify(items)
-  );
-
-  localStorage.setItem(
-    "offlineStockDate",
-    new Date().toLocaleString()
-  );
+  localStorage.setItem("offlineStockData", JSON.stringify(items));
+  localStorage.setItem("offlineStockDate", new Date().toLocaleString());
 }
 
 function findOfflineProduct(barcode) {
-  const search =
-    String(barcode || "").trim();
-
-  const items =
-    getOfflineStockData();
+  const search = String(barcode || "").trim();
+  const items = getOfflineStockData();
 
   for (let i = 0; i < items.length; i++) {
-    if (
-      String(items[i].barcode || "").trim() === search ||
-      String(items[i].bin || "").trim() === search
-    ) {
+    if (String(items[i].barcode || "").trim() === search || String(items[i].bin || "").trim() === search) {
       return {
-        found: true,
-        description: items[i].description || "",
-        barcode: items[i].barcode || "",
-        articleNo: items[i].articleNo || "",
-        make: items[i].make || "",
-        recordedQty: items[i].recordedQty || "",
-        capturedQty: items[i].capturedQty || "",
-        bin: items[i].bin || "",
-        zone: items[i].zone || "",
-        location: items[i].location || "",
-        lastMovement: items[i].lastMovement || null
+        found: true, description: items[i].description || "", barcode: items[i].barcode || "",
+        articleNo: items[i].articleNo || "", make: items[i].make || "", recordedQty: items[i].recordedQty || "",
+        capturedQty: items[i].capturedQty || "", bin: items[i].bin || "", zone: items[i].zone || "",
+        location: items[i].location || "", lastMovement: items[i].lastMovement || null
       };
     }
   }
-
   return null;
 }
 
@@ -669,22 +693,9 @@ function downloadStockData() {
         setStatus("❌ DOWNLOAD FAILED", "statusNotFound");
         return;
       }
-
       saveOfflineStockData(data.items);
-
-      showBanner(
-        "✅ OFFLINE STOCK SAVED<br>" +
-        data.items.length +
-        " items downloaded"
-      );
-
-      setMsg(
-        "Offline stock updated: " +
-        data.items.length +
-        " items",
-        "good"
-      );
-
+      showBanner("✅ OFFLINE STOCK SAVED<br>" + data.items.length + " items downloaded");
+      setMsg("Offline stock updated: " + data.items.length + " items", "good");
       setStatus("✅ OFFLINE READY", "statusFound");
       updateOfflineBar();
     })
@@ -710,67 +721,40 @@ function showBanner(text) {
   const banner = document.getElementById("banner");
   banner.innerHTML = text;
   banner.style.display = "block";
-
-  setTimeout(() => {
-    banner.style.display = "none";
-  }, 3000);
+  setTimeout(() => { banner.style.display = "none"; }, 3000);
 }
 
 function manualEnter(e) {
-  if (e.key === "Enter") {
-    lookup(document.getElementById("barcode").value);
-  }
+  if (e.key === "Enter") lookup(document.getElementById("barcode").value);
 }
 
 function startScanner() {
   scanLocked = false;
-
   document.getElementById("preview").style.display = "block";
   document.getElementById("scanBtn").style.display = "none";
   document.getElementById("stopBtn").style.display = "block";
 
   const hints = new Map();
-
-  hints.set(
-    ZXing.DecodeHintType.POSSIBLE_FORMATS,
-    [
-      ZXing.BarcodeFormat.QR_CODE,
-      ZXing.BarcodeFormat.CODE_128,
-      ZXing.BarcodeFormat.CODE_39,
-      ZXing.BarcodeFormat.EAN_13,
-      ZXing.BarcodeFormat.DATA_MATRIX,
-      ZXing.BarcodeFormat.PDF_417
-    ]
-  );
+  hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+    ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39,
+    ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.DATA_MATRIX, ZXing.BarcodeFormat.PDF_417
+  ]);
 
   scanner = new ZXing.BrowserMultiFormatReader(hints);
-
-  scanner.decodeFromConstraints(
-    { video: { facingMode: "environment" } },
-    "preview",
-    function(result) {
-      if (result && !scanLocked) {
-        scanLocked = true;
-
-        const code = result.text.trim();
-
-        document.getElementById("barcode").value = code;
-
-        if (navigator.vibrate) navigator.vibrate(150);
-
-        stopScanner();
-        lookup(code);
-      }
+  scanner.decodeFromConstraints({ video: { facingMode: "environment" } }, "preview", function(result) {
+    if (result && !scanLocked) {
+      scanLocked = true;
+      const code = result.text.trim();
+      document.getElementById("barcode").value = code;
+      if (navigator.vibrate) navigator.vibrate(150);
+      stopScanner();
+      lookup(code);
     }
-  );
+  });
 }
 
 function stopScanner() {
-  if (scanner) {
-    scanner.reset();
-    scanner = null;
-  }
-
+  if (scanner) { scanner.reset(); scanner = null; }
   document.getElementById("preview").style.display = "none";
   document.getElementById("scanBtn").style.display = "block";
   document.getElementById("stopBtn").style.display = "none";
@@ -778,32 +762,21 @@ function stopScanner() {
 
 function lookup(barcode) {
   barcode = String(barcode || "").trim();
-
   if (!barcode) {
     setMsg("Enter or scan a barcode", "error");
     setStatus("❌ NO CODE", "statusNotFound");
-
-    if (navigator.vibrate) {
-      navigator.vibrate([100, 50, 100]);
-    }
-
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
     return;
   }
 
   setMsg("Searching...", "good");
   setStatus("🔎 SEARCHING...", "statusSearching");
 
-  const cached =
-    localStorage.getItem("item_" + barcode);
-
-  if (cached) {
-    showProduct(JSON.parse(cached));
-  }
+  const cached = localStorage.getItem("item_" + barcode);
+  if (cached) showProduct(JSON.parse(cached));
 
   if (!navigator.onLine) {
-    const offlineItem =
-      findOfflineProduct(barcode);
-
+    const offlineItem = findOfflineProduct(barcode);
     if (offlineItem) {
       showProduct(offlineItem);
       setMsg("Offline product found", "good");
@@ -813,7 +786,6 @@ function lookup(barcode) {
       setMsg("Not found in offline stock", "error");
       setStatus("❌ NOT IN OFFLINE STOCK", "statusNotFound");
     }
-
     updateOfflineBar();
     return;
   }
@@ -821,20 +793,12 @@ function lookup(barcode) {
   fetch(API + "?action=find&barcode=" + encodeURIComponent(barcode))
     .then(r => r.json())
     .then(data => {
-      if (data.found) {
-        localStorage.setItem(
-          "item_" + barcode,
-          JSON.stringify(data)
-        );
-      }
-
+      if (data.found) localStorage.setItem("item_" + barcode, JSON.stringify(data));
       showProduct(data);
       updateOfflineBar();
     })
     .catch(() => {
-      const offlineItem =
-        findOfflineProduct(barcode);
-
+      const offlineItem = findOfflineProduct(barcode);
       if (offlineItem) {
         showProduct(offlineItem);
         setMsg("Offline product found", "good");
@@ -843,11 +807,7 @@ function lookup(barcode) {
         setMsg("Connection error", "error");
         setStatus("❌ CONNECTION ERROR", "statusNotFound");
       }
-
-      if (navigator.vibrate) {
-        navigator.vibrate([100, 50, 100, 50, 100]);
-      }
-
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
       updateOfflineBar();
     });
 }
@@ -857,16 +817,11 @@ function showProduct(data) {
     clearProductOnly();
     setMsg("Barcode not found", "error");
     setStatus("❌ NOT FOUND", "statusNotFound");
-
-    if (navigator.vibrate) {
-      navigator.vibrate([100, 50, 100]);
-    }
-
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
     return;
   }
 
   currentItem = data;
-
   document.getElementById("product").innerText = data.description || "-";
   document.getElementById("articleNo").innerText = data.articleNo || "-";
   document.getElementById("recordedQty").innerText = data.recordedQty || "-";
@@ -881,10 +836,7 @@ function showProduct(data) {
 
   setMsg("Product found", "good");
   setStatus("✅ FOUND", "statusFound");
-
-  if (navigator.vibrate) {
-    navigator.vibrate(80);
-  }
+  if (navigator.vibrate) navigator.vibrate(80);
 }
 
 function setCapturedStatus(capturedQty) {
@@ -914,27 +866,17 @@ function showLastMovement(movement) {
   }
 
   box.style.display = "block";
-  el.innerHTML =
-    movement.action +
-    " • Qty " + movement.qty +
-    " • " + movement.user +
-    "<br>" +
-    movement.date;
+  el.innerHTML = movement.action + " • Qty " + movement.qty + " • " + movement.user + "<br>" + movement.date;
 }
 
 function colourStock(qty) {
   const el = document.getElementById("recordedQty");
   const n = Number(qty);
-
   el.className = "value";
 
-  if (n > 10) {
-    el.classList.add("greenStock");
-  } else if (n >= 5) {
-    el.classList.add("amberStock");
-  } else {
-    el.classList.add("redStock");
-  }
+  if (n > 10) el.classList.add("greenStock");
+  else if (n >= 5) el.classList.add("amberStock");
+  else el.classList.add("redStock");
 }
 
 function buildUrl(action) {
@@ -943,14 +885,8 @@ function buildUrl(action) {
   const comments = document.getElementById("comments").value;
   const who = document.getElementById("user").value;
 
-  return (
-    API +
-    "?action=" + action +
-    "&barcode=" + encodeURIComponent(barcode) +
-    "&qty=" + encodeURIComponent(qty) +
-    "&who=" + encodeURIComponent(who) +
-    "&comments=" + encodeURIComponent(comments)
-  );
+  return API + "?action=" + action + "&barcode=" + encodeURIComponent(barcode) + "&qty=" + encodeURIComponent(qty) +
+    "&who=" + encodeURIComponent(who) + "&comments=" + encodeURIComponent(comments);
 }
 
 function clearCachedItem() {
@@ -958,19 +894,12 @@ function clearCachedItem() {
   localStorage.removeItem("item_" + barcode);
 }
 
-
 function updateOfflineItemQty(barcode, qty) {
-  const items =
-    getOfflineStockData();
-
-  const search =
-    String(barcode || "").trim();
+  const items = getOfflineStockData();
+  const search = String(barcode || "").trim();
 
   for (let i = 0; i < items.length; i++) {
-    if (
-      String(items[i].barcode || "").trim() === search ||
-      String(items[i].bin || "").trim() === search
-    ) {
+    if (String(items[i].barcode || "").trim() === search || String(items[i].bin || "").trim() === search) {
       items[i].recordedQty = qty;
       items[i].capturedQty = qty;
       saveOfflineStockData(items);
@@ -989,11 +918,8 @@ function saveStockTake() {
     .then(r => r.json())
     .then(data => {
       if (data.ok) {
-        const savedBarcode =
-          document.getElementById("barcode").value;
-
-        const savedQty =
-          document.getElementById("qty").value;
+        const savedBarcode = document.getElementById("barcode").value;
+        const savedQty = document.getElementById("qty").value;
 
         clearCachedItem();
         updateOfflineItemQty(savedBarcode, savedQty);
@@ -1001,13 +927,14 @@ function saveStockTake() {
         lookup(savedBarcode);
         syncPendingStocktakes();
         maybeRestartScanner();
+        
+        // Auto-refresh analytics if it's open
+        if (analyticsOpen) refreshAnalytics();
       } else {
         setMsg(data.message || "Save failed", "error");
       }
     })
-    .catch(() => {
-      queueStockTakeOffline();
-    });
+    .catch(() => { queueStockTakeOffline(); });
 }
 
 function bookOut() {
@@ -1016,14 +943,10 @@ function bookOut() {
     .then(data => {
       if (data.ok) {
         clearCachedItem();
-
-        showBanner(
-          "📤 BOOKED OUT<br>Stock Remaining: " +
-          data.stockRemaining
-        );
-
+        showBanner("📤 BOOKED OUT<br>Stock Remaining: " + data.stockRemaining);
         clearForm();
         maybeRestartScanner();
+        if (analyticsOpen) refreshAnalytics();
       } else {
         setMsg(data.message || "Book out failed", "error");
       }
@@ -1037,14 +960,10 @@ function bookIn() {
     .then(data => {
       if (data.ok) {
         clearCachedItem();
-
-        showBanner(
-          "📥 BOOKED IN<br>Stock Remaining: " +
-          data.stockRemaining
-        );
-
+        showBanner("📥 BOOKED IN<br>Stock Remaining: " + data.stockRemaining);
         clearForm();
         maybeRestartScanner();
+        if (analyticsOpen) refreshAnalytics();
       } else {
         setMsg(data.message || "Book in failed", "error");
       }
@@ -1058,10 +977,8 @@ function clearForm() {
   document.getElementById("comments").value = "";
 
   currentItem = null;
-
   clearProductOnly();
 
-  // If on PC, keep the user locked to the barcode field for hand scanners
   if(!isMobileDevice()) {
     const bc = document.getElementById("barcode");
     if(bc) bc.focus();
@@ -1093,19 +1010,9 @@ if (localStorage.getItem("continuousScan") === "yes") {
 }
 
 function saveContinuousMode() {
-  const on =
-    document.getElementById("continuousScan").checked;
-
-  localStorage.setItem(
-    "continuousScan",
-    on ? "yes" : "no"
-  );
-
-  showBanner(
-    on
-      ? "📷 CONTINUOUS SCAN ON"
-      : "📷 CONTINUOUS SCAN OFF"
-  );
+  const on = document.getElementById("continuousScan").checked;
+  localStorage.setItem("continuousScan", on ? "yes" : "no");
+  showBanner(on ? "📷 CONTINUOUS SCAN ON" : "📷 CONTINUOUS SCAN OFF");
 }
 
 function shouldContinuousScan() {
@@ -1113,9 +1020,7 @@ function shouldContinuousScan() {
 }
 
 function maybeRestartScanner() {
-  if (shouldContinuousScan()) {
-    setTimeout(startScanner, 500);
-  }
+  if (shouldContinuousScan()) setTimeout(startScanner, 500);
 }
 
 updateOfflineBar();
