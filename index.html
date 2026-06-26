@@ -742,7 +742,7 @@ function showProduct(data) {
   document.getElementById("recordedQty").innerText = data.recordedQty || "-"; document.getElementById("capturedQty").innerText = data.capturedQty || "-";
 
   setCapturedStatus(data.capturedQty); colourStock(data.recordedQty);
-  setMsg("Product match confirmed", "good"); setStatus("✅ MATCH CONFIRMED", "statusFound"); if (navigator.vibrate) navigator.vibrate(80);
+  setMsg("Product match confirmed", "good"); setStatus("✅ BARCODE CONFIRMED", "statusFound"); if (navigator.vibrate) navigator.vibrate(80);
 }
 
 function setCapturedStatus(capturedQty) {
