@@ -120,10 +120,9 @@ body.pc-view #scanBtn { background: var(--muted); }
 .badge-warn { background: var(--warn-bg); color: var(--warn-text); }
 .badge-bin { background: var(--input-bg); color: var(--text); border: 1px solid var(--border); font-family: monospace; font-size: 12px; }
 
-/* Interactive completed/ordered styling */
-.row-counted td, .row-ordered td { background: var(--success-bg) !important; border-bottom: 1px solid var(--green-light) !important; color: var(--green-dark) !important; }
-.row-counted .badge-bin, .row-ordered .badge-bin { background: var(--green) !important; color: white !important; border-color: var(--green) !important; }
-.row-counted .desc-text, .row-ordered .desc-text { color: var(--green-dark) !important; font-weight: 600; }
+.row-counted td { background: var(--success-bg) !important; border-bottom: 1px solid var(--green-light) !important; color: var(--green-dark) !important; }
+.row-counted .badge-bin { background: var(--green) !important; color: white !important; border-color: var(--green) !important; }
+.row-counted .desc-text { color: var(--green-dark) !important; font-weight: 600; }
 
 .footer { text-align: center; color: var(--muted); font-size: 13px; font-weight: 500; padding: 20px 0 40px; }
 </style>
@@ -204,7 +203,6 @@ body.pc-view #scanBtn { background: var(--muted); }
       <input id="qty" type="number" placeholder="Enter amount...">
     </div>
 
-    <!-- MOVED OFFLINE BAR HERE, COMMENTS BOX REMOVED -->
     <div id="offlineBar" class="offlineBar">
       Checking System Status...
     </div>
@@ -252,8 +250,7 @@ body.pc-view #scanBtn { background: var(--muted); }
          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
            <div class="label" style="font-size:13px; color:var(--text);">Recent Activity Ledger</div>
            <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="refreshAnalytics()">
-             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-             Sync Feed
+             🔄 Sync Feed
            </button>
          </div>
          
@@ -300,8 +297,7 @@ body.pc-view #scanBtn { background: var(--muted); }
          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
            <div class="label" style="font-size:13px; color:var(--text);">Pending & Completed Items</div>
            <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="renderPendingStocktake()">
-             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-             Refresh List
+             🔄 Refresh List
            </button>
          </div>
          
@@ -323,7 +319,6 @@ body.pc-view #scanBtn { background: var(--muted); }
     </div>
   </div>
 
-  <!-- REPORTS CARD DROPDOWN -->
   <div class="card full-width" style="margin-top: 0px;">
     <div class="dropdown-header" onclick="toggleReports()">
       <div class="product">⚠️ Reorders & 🔥 Top Items</div>
@@ -332,9 +327,8 @@ body.pc-view #scanBtn { background: var(--muted); }
     
     <div id="reportsContainer" style="display:none; margin-top:20px;">
       
-      <!-- Reorder Section -->
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <div class="label" style="font-size:13px; color:var(--error-text);">Stock Reorder Alerts (Click to Mark Ordered)</div>
+        <div class="label" style="font-size:13px; color:var(--error-text);">Stock Reorder Alerts</div>
         <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="loadReportsData()">
           🔄 Refresh Alerts
         </button>
@@ -349,7 +343,6 @@ body.pc-view #scanBtn { background: var(--muted); }
         </table>
       </div>
 
-      <!-- Top Parts Section -->
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:28px; margin-bottom:12px;">
         <div class="label" style="font-size:13px; color:var(--text);">Top Used Items</div>
       </div>
@@ -372,7 +365,22 @@ body.pc-view #scanBtn { background: var(--muted); }
 </div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbyy_7S004Ms7l5R4Xf4R1l2PbV14kGYku9AQxrUxJlwYlNXfza2OxjmQajrbPEY1zmU/exec";
+// Replace this with your Google Script web app URL
+const API = "https://script.google.com/macros/s/AKfycbxWl7CNDGd1OKbL7cl1hiNZ5pt46DmxG4LGcJcTmKXNWe8wLECAi0k3UMiDIzsKUwTS/exec";
+
+function fetchAPI(action, params = {}) {
+  return new Promise((resolve, reject) => {
+    let url = API + "?action=" + encodeURIComponent(action);
+    for (const key in params) {
+      url += "&" + encodeURIComponent(key) + "=" + encodeURIComponent(params[key] || "");
+    }
+    
+    fetch(url)
+      .then(response => response.json())
+      .then(data => resolve(data))
+      .catch(error => reject(error));
+  });
+}
 
 let scanner = null;
 let currentItem = null;
@@ -415,66 +423,54 @@ function loadReportsData() {
   document.getElementById("reorderBody").innerHTML = "<tr><td colspan='4' style='text-align:center; padding:30px; color:var(--muted);'>Fetching live stock levels...</td></tr>";
   document.getElementById("topUsedBody").innerHTML = "<tr><td colspan='2' style='text-align:center; padding:30px; color:var(--muted);'>Calculating top items...</td></tr>";
 
-  fetch(API + "?action=reports")
-    .then(r => r.json())
-    .then(data => {
-      if (!data.ok) { setMsg("Reports failed to load", "error"); return; }
-      
-      const rBody = document.getElementById("reorderBody");
-      if (!data.reorderItems || data.reorderItems.length === 0) {
-        rBody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:30px; color:var(--green); font-size:16px; font-weight:800;'>All stock is above safe reorder levels! 🎉</td></tr>";
-      } else {
-        rBody.innerHTML = data.reorderItems.map(item => {
-          const qtyBadge = item.qty <= 0 ? "badge-out" : "badge-warn";
-          return `
-          <tr onclick="this.classList.toggle('row-ordered')" style="cursor:pointer;">
-            <td><span class="badge badge-bin">${item.bin || "-"}</span></td>
-            <td class="desc-text">
-              <div style="font-weight:800;">${item.article}</div>
-              <div style="font-size:12px; color:var(--muted);">${item.description}</div>
-            </td>
-            <td><span class="badge ${qtyBadge}" style="font-size:14px; padding:6px 12px;">${item.qty}</span></td>
-            <td style="font-weight:800; color:var(--muted);">Trigger at: ${item.reorderQty}</td>
-          </tr>
-        `}).join("");
-      }
+  fetchAPI("reports").then(data => {
+    if (!data.ok) { setMsg("Reports failed to load", "error"); return; }
+    
+    const rBody = document.getElementById("reorderBody");
+    if (!data.reorderItems || data.reorderItems.length === 0) {
+      rBody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:30px; color:var(--green); font-size:16px; font-weight:800;'>All stock is above safe reorder levels! 🎉</td></tr>";
+    } else {
+      rBody.innerHTML = data.reorderItems.map(item => {
+        const qtyBadge = item.qty <= 0 ? "badge-out" : "badge-warn";
+        return `
+        <tr>
+          <td><span class="badge badge-bin">${item.bin || "-"}</span></td>
+          <td class="desc-text">
+            <div style="font-weight:800;">${item.article}</div>
+            <div style="font-size:12px; color:var(--muted);">${item.description}</div>
+          </td>
+          <td><span class="badge ${qtyBadge}" style="font-size:14px; padding:6px 12px;">${item.qty}</span></td>
+          <td style="font-weight:800; color:var(--muted);">Trigger at: ${item.reorderQty}</td>
+        </tr>
+      `}).join("");
+    }
 
-      const tBody = document.getElementById("topUsedBody");
-      if (!data.topParts || data.topParts.length === 0) {
-        tBody.innerHTML = "<tr><td colspan='2' style='text-align:center; padding:30px; color:var(--muted);'>No outbound data available yet.</td></tr>";
-      } else {
-        tBody.innerHTML = data.topParts.map((item, i) => `
-          <tr>
-            <td style="font-weight:700; color:var(--text);"><span style="color:var(--green); margin-right:10px;">#${i+1}</span>${item.description}</td>
-            <td style="font-weight:900; font-size:16px; color:var(--text);">${item.qty} units</td>
-          </tr>
-        `).join("");
-      }
-    })
-    .catch(() => {
-      document.getElementById("reorderBody").innerHTML = "<tr><td colspan='4' style='text-align:center; padding:30px; color:var(--error-text);'>Connection error. Please try again.</td></tr>";
-    });
+    const tBody = document.getElementById("topUsedBody");
+    if (!data.topParts || data.topParts.length === 0) {
+      tBody.innerHTML = "<tr><td colspan='2' style='text-align:center; padding:30px; color:var(--muted);'>No outbound data available yet.</td></tr>";
+    } else {
+      tBody.innerHTML = data.topParts.map((item, i) => `
+        <tr>
+          <td style="font-weight:700; color:var(--text);"><span style="color:var(--green); margin-right:10px;">#${i+1}</span>${item.description}</td>
+          <td style="font-weight:900; font-size:16px; color:var(--text);">${item.qty} units</td>
+        </tr>
+      `).join("");
+    }
+  }).catch(() => {
+    document.getElementById("reorderBody").innerHTML = "<tr><td colspan='4' style='text-align:center; padding:30px; color:var(--error-text);'>Connection error. Please try again.</td></tr>";
+  });
 }
-
 
 // --- ANALYTICS DASHBOARD LOGIC ---
 function toggleAnalytics() {
   const container = document.getElementById("analyticsContainer");
   const icon = document.getElementById("analyticsToggleIcon");
-  
   analyticsOpen = !analyticsOpen;
-  
   if (analyticsOpen) {
-    container.style.display = "block";
-    icon.innerText = "−";
-    refreshAnalytics();
-    
-    setTimeout(() => {
-        container.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
+    container.style.display = "block"; icon.innerText = "−"; refreshAnalytics();
+    setTimeout(() => { container.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
   } else {
-    container.style.display = "none";
-    icon.innerText = "+";
+    container.style.display = "none"; icon.innerText = "+";
   }
 }
 
@@ -483,14 +479,8 @@ function refreshAnalytics() {
   document.getElementById("statIn").innerText = "...";
   document.getElementById("ledgerBody").innerHTML = "<tr><td colspan='6' style='text-align:center; padding:30px; color:var(--muted);'>Connecting to remote database...</td></tr>";
 
-  fetch(API + "?action=dashboard")
-    .then(r => r.json())
-    .then(data => {
-      if (!data.ok) {
-        setMsg("Analytics failed to load", "error");
-        return;
-      }
-
+  fetchAPI("dashboard").then(data => {
+      if (!data.ok) { setMsg("Analytics failed to load", "error"); return; }
       document.getElementById("statOut").innerText = data.bookedOutToday + " units";
       document.getElementById("statIn").innerText = data.bookedInToday + " units";
 
@@ -515,9 +505,7 @@ function refreshAnalytics() {
           <td style="font-weight:800; font-size:15px;">${act.qty}</td>
         </tr>
       `}).join("");
-
-    })
-    .catch(() => {
+    }).catch(() => {
       document.getElementById("ledgerBody").innerHTML = "<tr><td colspan='6' style='text-align:center; padding:30px; color:var(--error-text);'>Connection error. Please check your network.</td></tr>";
     });
 }
@@ -526,36 +514,23 @@ function refreshAnalytics() {
 function toggleStocktake() {
   const container = document.getElementById("stocktakeContainer");
   const icon = document.getElementById("stocktakeToggleIcon");
-  
   stocktakeOpen = !stocktakeOpen;
-  
   if (stocktakeOpen) {
-    container.style.display = "block";
-    icon.innerText = "−";
-    renderPendingStocktake();
-    
-    setTimeout(() => {
-        container.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
+    container.style.display = "block"; icon.innerText = "−"; renderPendingStocktake();
+    setTimeout(() => { container.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
   } else {
-    container.style.display = "none";
-    icon.innerText = "+";
+    container.style.display = "none"; icon.innerText = "+";
   }
 }
 
 function renderPendingStocktake() {
   const items = getOfflineStockData();
   let total = items.length;
-  
-  let countedItems = [];
-  let pendingItems = [];
+  let countedItems = []; let pendingItems = [];
   
   items.forEach(item => {
-    if (item.capturedQty !== "" && item.capturedQty !== null) {
-        countedItems.push(item);
-    } else {
-        pendingItems.push(item);
-    }
+    if (item.capturedQty !== "" && item.capturedQty !== null) countedItems.push(item);
+    else pendingItems.push(item);
   });
   
   let counted = countedItems.length;
@@ -566,13 +541,11 @@ function renderPendingStocktake() {
   document.getElementById("stDropDetails").innerText = `Verified: ${counted} lines • Pending Field Count: ${pendingItems.length} lines • Master Directory Size: ${total} profiles`;
   
   const tbody = document.getElementById("pendingBody");
-  
   if (total === 0) {
     tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:30px; color:var(--muted);'>No directory found. Please click 'Cache Data for Offline Use' above.</td></tr>";
     return;
   }
   
-  // OFFLINE-SAFE AUTO RESET TRIGGER
   if (pendingItems.length === 0 && !window.isResetting) {
       if (navigator.onLine && pendingStocktake.length === 0) {
           window.isResetting = true;
@@ -581,13 +554,9 @@ function renderPendingStocktake() {
           document.getElementById("stDropDetails").innerText = "100% Counted! Waiting for network sync to finish before resetting...";
           document.getElementById("stDropDetails").style.color = "var(--green)";
       }
-  } else if (pendingItems.length > 0) {
-      window.isResetting = false;
-  }
+  } else if (pendingItems.length > 0) { window.isResetting = false; }
   
-  // Combine lists: Counted items (green) pushed to the TOP, then pending items below.
   const combinedItems = [...countedItems, ...pendingItems];
-  
   const displayLimit = 150;
   const displayItems = combinedItems.slice(0, displayLimit);
   
@@ -595,7 +564,6 @@ function renderPendingStocktake() {
     const isCounted = item.capturedQty !== "" && item.capturedQty !== null;
     const rowClass = isCounted ? "row-counted" : "";
     const icon = isCounted ? " <span style='font-size:10px;'>✅</span>" : "";
-    
     return `
       <tr class="${rowClass}">
         <td><span class="badge badge-bin">${item.bin || "-"}</span></td>
@@ -605,32 +573,24 @@ function renderPendingStocktake() {
     `;
   }).join("");
   
-  if (combinedItems.length > displayLimit) {
-      html += `<tr><td colspan="3" style="text-align:center; color:var(--muted); font-size:12px; padding:10px;">...and ${combinedItems.length - displayLimit} more items</td></tr>`;
-  }
-  
+  if (combinedItems.length > displayLimit) html += `<tr><td colspan="3" style="text-align:center; color:var(--muted); font-size:12px; padding:10px;">...and ${combinedItems.length - displayLimit} more items</td></tr>`;
   tbody.innerHTML = html;
 }
 
 function autoResetStocktake() {
   showBanner("🔄 ALL ITEMS COUNTED! Auto-resetting stocktake...");
-  fetch(API + "?action=resetstocktake&pin=1601")
-    .then(r => r.json())
-    .then(data => {
+  fetchAPI("resetstocktake", { pin: "1601" }).then(data => {
       if (data.ok) {
          setMsg("Stocktake automatically reset", "good");
-         downloadStockData(); // Automatically clear local quantities
+         downloadStockData(); 
          if (analyticsOpen) refreshAnalytics();
       }
-    })
-    .catch(err => console.error("Reset failed", err));
+    }).catch(err => console.error("Reset failed", err));
 }
 
 let pendingStocktake = JSON.parse(localStorage.getItem("pendingStocktake") || "[]");
 
-function savePendingStocktakeQueue() {
-  localStorage.setItem("pendingStocktake", JSON.stringify(pendingStocktake));
-}
+function savePendingStocktakeQueue() { localStorage.setItem("pendingStocktake", JSON.stringify(pendingStocktake)); }
 
 function updateOfflineBar() {
   const bar = document.getElementById("offlineBar");
@@ -660,25 +620,11 @@ function queueOffline(actionType) {
   const barcode = document.getElementById("barcode").value.trim();
   const qty = document.getElementById("qty").value;
   const who = document.getElementById("user").value;
-  const comments = ""; // Comments box removed
+  const comments = ""; 
 
-  if (!barcode) {
-    setMsg("Scan or enter a barcode first", "error");
-    setStatus("❌ ALIGNMENT FIELD NULL", "statusNotFound");
-    return;
-  }
-
-  if (qty === "" || Number(qty) < 0 || isNaN(Number(qty))) {
-    setMsg("Enter a valid quantity", "error");
-    setStatus("❌ INVALID QTY", "statusNotFound");
-    return;
-  }
-  
-  if ((actionType === "bookin" || actionType === "bookout") && Number(qty) === 0) {
-    setMsg("Quantity must be greater than 0", "error");
-    setStatus("❌ INVALID QTY", "statusNotFound");
-    return;
-  }
+  if (!barcode) { setMsg("Scan or enter a barcode first", "error"); setStatus("❌ ALIGNMENT FIELD NULL", "statusNotFound"); return; }
+  if (qty === "" || Number(qty) < 0 || isNaN(Number(qty))) { setMsg("Enter a valid quantity", "error"); setStatus("❌ INVALID QTY", "statusNotFound"); return; }
+  if ((actionType === "bookin" || actionType === "bookout") && Number(qty) === 0) { setMsg("Quantity must be greater than 0", "error"); setStatus("❌ INVALID QTY", "statusNotFound"); return; }
 
   pendingStocktake.push({ action: actionType, barcode: barcode, qty: qty, who: who, comments: comments, queuedAt: new Date().toISOString() });
   updateOfflineItemQty(barcode, qty, actionType);
@@ -693,71 +639,41 @@ function queueOffline(actionType) {
   setMsg("Transaction queued to local storage", "good");
   setStatus("🟡 QUEUED OFFLINE", "statusSearching");
 
-  clearCachedItem();
-  clearForm();
-  maybeRestartScanner();
-
+  clearCachedItem(); clearForm(); maybeRestartScanner();
   if (stocktakeOpen) renderPendingStocktake();
   if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
 }
 
 function syncPendingStocktakes() {
-  if (!navigator.onLine || !pendingStocktake.length) {
-    updateOfflineBar();
-    return;
-  }
+  if (!navigator.onLine || !pendingStocktake.length) { updateOfflineBar(); return; }
 
   const item = pendingStocktake[0];
-  const url = API + "?action=" + encodeURIComponent(item.action) + "&barcode=" + encodeURIComponent(item.barcode) + "&qty=" + encodeURIComponent(item.qty) +
-    "&who=" + encodeURIComponent(item.who) + "&comments=" + encodeURIComponent(item.comments || "");
-
-  fetch(url)
-    .then(r => r.json())
+  fetchAPI(item.action, { barcode: item.barcode, qty: item.qty, who: item.who, comments: item.comments || "" })
     .then(data => {
       if (data.ok) {
-        pendingStocktake.shift();
-        savePendingStocktakeQueue();
-        updateOfflineBar();
-
+        pendingStocktake.shift(); savePendingStocktakeQueue(); updateOfflineBar();
         if (pendingStocktake.length) {
           syncPendingStocktakes();
         } else {
           showBanner("🟢 CACHE SYNC COMPLETE");
           setMsg("All offline entries synchronized to server", "good");
-          
           if (stocktakeOpen) renderPendingStocktake();
         }
       } else {
-        updateOfflineBar();
-        setMsg(data.message || "Cache sync failed", "error");
+        updateOfflineBar(); setMsg(data.message || "Cache sync failed", "error");
       }
-    })
-    .catch(() => {
-      updateOfflineBar();
-      setMsg("Connection unstable — entries remain queued", "error");
-    });
+    }).catch(() => { updateOfflineBar(); setMsg("Connection unstable — entries remain queued", "error"); });
 }
 
-window.addEventListener("online", function() {
-  updateOfflineBar();
-  syncPendingStocktakes();
-});
-
+window.addEventListener("online", function() { updateOfflineBar(); syncPendingStocktakes(); });
 window.addEventListener("offline", updateOfflineBar);
 
-function getOfflineStockData() {
-  return JSON.parse(localStorage.getItem("offlineStockData") || "[]");
-}
-
-function saveOfflineStockData(items) {
-  localStorage.setItem("offlineStockData", JSON.stringify(items));
-  localStorage.setItem("offlineStockDate", new Date().toLocaleString());
-}
+function getOfflineStockData() { return JSON.parse(localStorage.getItem("offlineStockData") || "[]"); }
+function saveOfflineStockData(items) { localStorage.setItem("offlineStockData", JSON.stringify(items)); localStorage.setItem("offlineStockDate", new Date().toLocaleString()); }
 
 function findOfflineProduct(barcode) {
   const search = String(barcode || "").trim();
   const items = getOfflineStockData();
-
   for (let i = 0; i < items.length; i++) {
     if (String(items[i].barcode || "").trim() === search || String(items[i].bin || "").trim() === search) {
       return {
@@ -772,58 +688,25 @@ function findOfflineProduct(barcode) {
 }
 
 function downloadStockData() {
-  if (!navigator.onLine) {
-    setMsg("Cannot refresh cache while offline", "error");
-    setStatus("🔴 SYSTEM OFFLINE", "statusNotFound");
-    return;
-  }
-
+  if (!navigator.onLine) { setMsg("Cannot refresh cache while offline", "error"); setStatus("🔴 SYSTEM OFFLINE", "statusNotFound"); return; }
   setMsg("Downloading directory for offline staging...", "good");
   setStatus("⬇️ DOWNLOADING...", "statusSearching");
 
-  fetch(API + "?action=stockdata")
-    .then(r => r.json())
-    .then(data => {
-      if (!data.ok || !data.items) {
-        setMsg(data.message || "Directory download failed", "error");
-        setStatus("❌ DOWNLOAD FAILED", "statusNotFound");
-        return;
-      }
+  fetchAPI("stockdata").then(data => {
+      if (!data.ok || !data.items) { setMsg(data.message || "Directory download failed", "error"); setStatus("❌ DOWNLOAD FAILED", "statusNotFound"); return; }
       saveOfflineStockData(data.items);
       showBanner("✅ OFFLINE CACHE SECURED<br>" + data.items.length + " profiles updated");
       setMsg("Cache refreshed: " + data.items.length + " profiles", "good");
       setStatus("✅ CACHE READY", "statusFound");
       updateOfflineBar();
       if (stocktakeOpen) renderPendingStocktake();
-    })
-    .catch(() => {
-      setMsg("Directory download failed due to network error", "error");
-      setStatus("❌ CONNECTION ERROR", "statusNotFound");
-    });
+    }).catch(() => { setMsg("Directory download failed due to network error", "error"); setStatus("❌ CONNECTION ERROR", "statusNotFound"); });
 }
 
-function setMsg(text, cls="") {
-  const el = document.getElementById("msg");
-  el.innerText = text;
-  el.className = cls;
-}
-
-function setStatus(text, type) {
-  const el = document.getElementById("statusBig");
-  el.innerText = text;
-  el.className = "statusBig " + type;
-}
-
-function showBanner(text) {
-  const banner = document.getElementById("banner");
-  banner.innerHTML = text;
-  banner.style.display = "block";
-  setTimeout(() => { banner.style.display = "none"; }, 3000);
-}
-
-function manualEnter(e) {
-  if (e.key === "Enter") lookup(document.getElementById("barcode").value);
-}
+function setMsg(text, cls="") { const el = document.getElementById("msg"); el.innerText = text; el.className = cls; }
+function setStatus(text, type) { const el = document.getElementById("statusBig"); el.innerText = text; el.className = "statusBig " + type; }
+function showBanner(text) { const banner = document.getElementById("banner"); banner.innerHTML = text; banner.style.display = "block"; setTimeout(() => { banner.style.display = "none"; }, 3000); }
+function manualEnter(e) { if (e.key === "Enter") lookup(document.getElementById("barcode").value); }
 
 function startScanner() {
   scanLocked = false;
@@ -832,318 +715,139 @@ function startScanner() {
   document.getElementById("stopBtn").style.display = "inline-flex";
 
   const hints = new Map();
-  hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-    ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39,
-    ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.DATA_MATRIX, ZXing.BarcodeFormat.PDF_417
-  ]);
-
+  hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39, ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.DATA_MATRIX, ZXing.BarcodeFormat.PDF_417 ]);
   scanner = new ZXing.BrowserMultiFormatReader(hints);
   scanner.decodeFromConstraints({ video: { facingMode: "environment" } }, "preview", function(result) {
     if (result && !scanLocked) {
-      scanLocked = true;
-      const code = result.text.trim();
-      document.getElementById("barcode").value = code;
-      if (navigator.vibrate) navigator.vibrate(150);
-      stopScanner();
-      lookup(code);
+      scanLocked = true; const code = result.text.trim(); document.getElementById("barcode").value = code;
+      if (navigator.vibrate) navigator.vibrate(150); stopScanner(); lookup(code);
     }
   });
 }
 
-function stopScanner() {
-  if (scanner) { scanner.reset(); scanner = null; }
-  document.getElementById("scannerWrapper").style.display = "none";
-  document.getElementById("scanBtn").style.display = "inline-flex";
-  document.getElementById("stopBtn").style.display = "none";
-}
+function stopScanner() { if (scanner) { scanner.reset(); scanner = null; } document.getElementById("scannerWrapper").style.display = "none"; document.getElementById("scanBtn").style.display = "inline-flex"; document.getElementById("stopBtn").style.display = "none"; }
 
 function lookup(barcode) {
   barcode = String(barcode || "").trim();
-  if (!barcode) {
-    setMsg("Enter or scan a product code", "error");
-    setStatus("❌ ALIGNMENT FIELD NULL", "statusNotFound");
-    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-    return;
-  }
-
-  setMsg("Querying database...", "good");
-  setStatus("🔎 SEARCHING DIRECTORY...", "statusSearching");
+  if (!barcode) { setMsg("Enter or scan a product code", "error"); setStatus("❌ ALIGNMENT FIELD NULL", "statusNotFound"); if (navigator.vibrate) navigator.vibrate([100, 50, 100]); return; }
+  setMsg("Querying database...", "good"); setStatus("🔎 SEARCHING DIRECTORY...", "statusSearching");
 
   const cached = localStorage.getItem("item_" + barcode);
   if (cached) showProduct(JSON.parse(cached));
 
   if (!navigator.onLine) {
     const offlineItem = findOfflineProduct(barcode);
-    if (offlineItem) {
-      showProduct(offlineItem);
-      setMsg("Product sourced from local cache", "good");
-      setStatus("✅ CACHE MATCH", "statusFound");
-    } else {
-      clearProductOnly();
-      setMsg("Index key missed in offline cache", "error");
-      setStatus("❌ NOT IN CACHE", "statusNotFound");
-    }
-    updateOfflineBar();
-    return;
+    if (offlineItem) { showProduct(offlineItem); setMsg("Product sourced from local cache", "good"); setStatus("✅ CACHE MATCH", "statusFound"); } 
+    else { clearProductOnly(); setMsg("Index key missed in offline cache", "error"); setStatus("❌ NOT IN CACHE", "statusNotFound"); }
+    updateOfflineBar(); return;
   }
 
-  fetch(API + "?action=find&barcode=" + encodeURIComponent(barcode))
-    .then(r => r.json())
-    .then(data => {
+  fetchAPI("find", { barcode: barcode }).then(data => {
       if (data.found) localStorage.setItem("item_" + barcode, JSON.stringify(data));
-      showProduct(data);
-      updateOfflineBar();
-    })
-    .catch(() => {
+      showProduct(data); updateOfflineBar();
+    }).catch(() => {
       const offlineItem = findOfflineProduct(barcode);
-      if (offlineItem) {
-        showProduct(offlineItem);
-        setMsg("Product sourced from local cache", "good");
-        setStatus("✅ CACHE MATCH", "statusFound");
-      } else {
-        setMsg("Database connection error", "error");
-        setStatus("❌ CONNECTION ERROR", "statusNotFound");
-      }
-      if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
-      updateOfflineBar();
+      if (offlineItem) { showProduct(offlineItem); setMsg("Product sourced from local cache", "good"); setStatus("✅ CACHE MATCH", "statusFound"); } 
+      else { setMsg("Database connection error", "error"); setStatus("❌ CONNECTION ERROR", "statusNotFound"); }
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]); updateOfflineBar();
     });
 }
 
 function showProduct(data) {
-  if (!data.found) {
-    clearProductOnly();
-    setMsg("Record unallocated", "error");
-    setStatus("❌ RECORD NOT FOUND", "statusNotFound");
-    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-    return;
-  }
-
+  if (!data.found) { clearProductOnly(); setMsg("Record unallocated", "error"); setStatus("❌ RECORD NOT FOUND", "statusNotFound"); if (navigator.vibrate) navigator.vibrate([100, 50, 100]); return; }
   currentItem = data;
   document.getElementById("product").innerText = data.description || "-";
   
-  const styleVal = (id, val) => {
-      const el = document.getElementById(id);
-      el.innerText = val || "-";
-      el.style.color = val ? "var(--text)" : "var(--muted)";
-  };
+  const styleVal = (id, val) => { const el = document.getElementById(id); el.innerText = val || "-"; el.style.color = val ? "var(--text)" : "var(--muted)"; };
+  styleVal("articleNo", data.articleNo); styleVal("bin", data.bin); styleVal("zone", data.zone); styleVal("location", data.location);
+  document.getElementById("recordedQty").innerText = data.recordedQty || "-"; document.getElementById("capturedQty").innerText = data.capturedQty || "-";
 
-  styleVal("articleNo", data.articleNo);
-  styleVal("bin", data.bin);
-  styleVal("zone", data.zone);
-  styleVal("location", data.location);
-
-  document.getElementById("recordedQty").innerText = data.recordedQty || "-";
-  document.getElementById("capturedQty").innerText = data.capturedQty || "-";
-
-  setCapturedStatus(data.capturedQty);
-  colourStock(data.recordedQty);
-
-  setMsg("Product match confirmed", "good");
-  setStatus("✅ MATCH CONFIRMED", "statusFound");
-  if (navigator.vibrate) navigator.vibrate(80);
+  setCapturedStatus(data.capturedQty); colourStock(data.recordedQty);
+  setMsg("Product match confirmed", "good"); setStatus("✅ MATCH CONFIRMED", "statusFound"); if (navigator.vibrate) navigator.vibrate(80);
 }
 
 function setCapturedStatus(capturedQty) {
-  const label = document.getElementById("capturedLabel");
-  const qtyEl = document.getElementById("capturedQty");
-  const box = qtyEl.parentElement;
-
-  if (capturedQty) {
-    label.innerText = "Count Verified";
-    qtyEl.classList.add("doneValue");
-    box.classList.add("doneBox");
-  } else {
-    label.innerText = "Awaiting Audit";
-    qtyEl.classList.remove("doneValue");
-    box.classList.remove("doneBox");
-    qtyEl.style.color = "var(--muted)";
-  }
+  const label = document.getElementById("capturedLabel"); const qtyEl = document.getElementById("capturedQty"); const box = qtyEl.parentElement;
+  if (capturedQty) { label.innerText = "Count Verified"; qtyEl.classList.add("doneValue"); box.classList.add("doneBox"); } 
+  else { label.innerText = "Awaiting Audit"; qtyEl.classList.remove("doneValue"); box.classList.remove("doneBox"); qtyEl.style.color = "var(--muted)"; }
 }
 
 function colourStock(qty) {
-  const el = document.getElementById("recordedQty");
-  const n = Number(qty);
-  el.className = "value";
-
-  if (n > 10) el.classList.add("greenStock");
-  else if (n >= 5) el.classList.add("amberStock");
-  else el.classList.add("redStock");
+  const el = document.getElementById("recordedQty"); const n = Number(qty); el.className = "value";
+  if (n > 10) el.classList.add("greenStock"); else if (n >= 5) el.classList.add("amberStock"); else el.classList.add("redStock");
 }
 
-function clearCachedItem() {
-  const barcode = document.getElementById("barcode").value;
-  localStorage.removeItem("item_" + barcode);
-}
+function clearCachedItem() { const barcode = document.getElementById("barcode").value; localStorage.removeItem("item_" + barcode); }
 
 function updateOfflineItemQty(barcode, qty, actionType) {
-  const items = getOfflineStockData();
-  const search = String(barcode || "").trim();
-  const nQty = Number(qty) || 0;
-
+  const items = getOfflineStockData(); const search = String(barcode || "").trim(); const nQty = Number(qty) || 0;
   for (let i = 0; i < items.length; i++) {
     if (String(items[i].barcode || "").trim() === search || String(items[i].bin || "").trim() === search) {
       let currentRecorded = Number(items[i].recordedQty) || 0;
-      
-      if (actionType === "save") {
-         items[i].recordedQty = nQty;
-         items[i].capturedQty = nQty;
-      } else if (actionType === "bookin") {
-         items[i].recordedQty = currentRecorded + nQty;
-      } else if (actionType === "bookout") {
-         items[i].recordedQty = Math.max(0, currentRecorded - nQty);
-      }
-      
-      saveOfflineStockData(items);
-      break;
+      if (actionType === "save") { items[i].recordedQty = nQty; items[i].capturedQty = nQty; } 
+      else if (actionType === "bookin") { items[i].recordedQty = currentRecorded + nQty; } 
+      else if (actionType === "bookout") { items[i].recordedQty = Math.max(0, currentRecorded - nQty); }
+      saveOfflineStockData(items); break;
     }
   }
 }
 
 function saveStockTake() {
-  if (!navigator.onLine) {
-    queueOffline("save");
-    return;
-  }
+  if (!navigator.onLine) { queueOffline("save"); return; }
+  const barcode = document.getElementById("barcode").value.trim(); const qty = document.getElementById("qty").value; const who = document.getElementById("user").value;
 
-  const barcode = document.getElementById("barcode").value.trim();
-  const qty = document.getElementById("qty").value;
-  const who = document.getElementById("user").value;
-
-  fetch(API + "?action=save&barcode=" + encodeURIComponent(barcode) + "&qty=" + encodeURIComponent(qty) + "&who=" + encodeURIComponent(who))
-    .then(r => r.json())
-    .then(data => {
+  fetchAPI("save", { barcode: barcode, qty: qty, who: who }).then(data => {
       if (data.ok) {
-        clearCachedItem();
-        updateOfflineItemQty(barcode, qty, "save");
-        showBanner("✅ FIELD AUDIT SAVED");
-        lookup(barcode);
-        syncPendingStocktakes();
-        maybeRestartScanner();
-        
-        if (analyticsOpen) refreshAnalytics();
-        if (stocktakeOpen) renderPendingStocktake();
-      } else {
-        setMsg(data.message || "Database write failed", "error");
-      }
-    })
-    .catch(() => { queueOffline("save"); });
+        clearCachedItem(); updateOfflineItemQty(barcode, qty, "save"); showBanner("✅ FIELD AUDIT SAVED");
+        lookup(barcode); syncPendingStocktakes(); maybeRestartScanner();
+        if (analyticsOpen) refreshAnalytics(); if (stocktakeOpen) renderPendingStocktake();
+      } else { setMsg(data.message || "Database write failed", "error"); }
+    }).catch(() => { queueOffline("save"); });
 }
 
 function bookOut() {
-  if (!navigator.onLine) {
-    queueOffline("bookout");
-    return;
-  }
-  
-  const barcode = document.getElementById("barcode").value.trim();
-  const qty = document.getElementById("qty").value;
-  const who = document.getElementById("user").value;
-  const comments = "";
+  if (!navigator.onLine) { queueOffline("bookout"); return; }
+  const barcode = document.getElementById("barcode").value.trim(); const qty = document.getElementById("qty").value; const who = document.getElementById("user").value; const comments = "";
 
-  fetch(API + "?action=bookout&barcode=" + encodeURIComponent(barcode) + "&qty=" + encodeURIComponent(qty) + "&who=" + encodeURIComponent(who) + "&comments=" + encodeURIComponent(comments))
-    .then(r => r.json())
-    .then(data => {
+  fetchAPI("bookout", { barcode: barcode, qty: qty, who: who, comments: comments }).then(data => {
       if (data.ok) {
-        clearCachedItem();
-        updateOfflineItemQty(barcode, qty, "bookout");
-        showBanner("📤 OUTBOUND LOGGED<br>Current Level: " + data.stockRemaining);
-        clearForm();
-        maybeRestartScanner();
-        
-        if (analyticsOpen) refreshAnalytics();
-      } else {
-        setMsg(data.message || "Transaction rejected", "error");
-      }
-    })
-    .catch(() => { queueOffline("bookout"); });
+        clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookout"); showBanner("📤 OUTBOUND LOGGED<br>Current Level: " + data.stockRemaining);
+        clearForm(); maybeRestartScanner(); if (analyticsOpen) refreshAnalytics();
+      } else { setMsg(data.message || "Transaction rejected", "error"); }
+    }).catch(() => { queueOffline("bookout"); });
 }
 
 function bookIn() {
-  if (!navigator.onLine) {
-    queueOffline("bookin");
-    return;
-  }
-  
-  const barcode = document.getElementById("barcode").value.trim();
-  const qty = document.getElementById("qty").value;
-  const who = document.getElementById("user").value;
-  const comments = "";
+  if (!navigator.onLine) { queueOffline("bookin"); return; }
+  const barcode = document.getElementById("barcode").value.trim(); const qty = document.getElementById("qty").value; const who = document.getElementById("user").value; const comments = "";
 
-  fetch(API + "?action=bookin&barcode=" + encodeURIComponent(barcode) + "&qty=" + encodeURIComponent(qty) + "&who=" + encodeURIComponent(who) + "&comments=" + encodeURIComponent(comments))
-    .then(r => r.json())
-    .then(data => {
+  fetchAPI("bookin", { barcode: barcode, qty: qty, who: who, comments: comments }).then(data => {
       if (data.ok) {
-        clearCachedItem();
-        updateOfflineItemQty(barcode, qty, "bookin");
-        showBanner("📥 INBOUND LOGGED<br>Current Level: " + data.stockRemaining);
-        clearForm();
-        maybeRestartScanner();
-        
-        if (analyticsOpen) refreshAnalytics();
-      } else {
-        setMsg(data.message || "Transaction rejected", "error");
-      }
-    })
-    .catch(() => { queueOffline("bookin"); });
+        clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookin"); showBanner("📥 INBOUND LOGGED<br>Current Level: " + data.stockRemaining);
+        clearForm(); maybeRestartScanner(); if (analyticsOpen) refreshAnalytics();
+      } else { setMsg(data.message || "Transaction rejected", "error"); }
+    }).catch(() => { queueOffline("bookin"); });
 }
 
 function clearForm() {
-  document.getElementById("barcode").value = "";
-  document.getElementById("qty").value = "";
-
-  currentItem = null;
-  clearProductOnly();
-
-  if(!isMobileDevice()) {
-    const bc = document.getElementById("barcode");
-    if(bc) bc.focus();
-  }
+  document.getElementById("barcode").value = ""; document.getElementById("qty").value = "";
+  currentItem = null; clearProductOnly();
+  if(!isMobileDevice()) { const bc = document.getElementById("barcode"); if(bc) bc.focus(); }
 }
 
 function clearProductOnly() {
   document.getElementById("product").innerText = "Ready to scan";
-  
-  const resetVal = (id) => {
-    const el = document.getElementById(id);
-    el.innerText = "-";
-    el.style.color = "var(--muted)";
-  };
-
-  resetVal("articleNo");
-  resetVal("recordedQty");
-  resetVal("capturedQty");
-  resetVal("bin");
-  resetVal("zone");
-  resetVal("location");
-
-  setCapturedStatus("");
-
-  const status = document.getElementById("statusBig");
-  status.innerText = "";
-  status.className = "statusBig";
+  const resetVal = (id) => { const el = document.getElementById(id); el.innerText = "-"; el.style.color = "var(--muted)"; };
+  resetVal("articleNo"); resetVal("recordedQty"); resetVal("capturedQty"); resetVal("bin"); resetVal("zone"); resetVal("location");
+  setCapturedStatus(""); const status = document.getElementById("statusBig"); status.innerText = ""; status.className = "statusBig";
 }
 
-if (localStorage.getItem("continuousScan") === "yes") {
-  const continuousBox = document.getElementById("continuousScan");
-  if (continuousBox) continuousBox.checked = true;
-}
+if (localStorage.getItem("continuousScan") === "yes") { const continuousBox = document.getElementById("continuousScan"); if (continuousBox) continuousBox.checked = true; }
+function saveContinuousMode() { const on = document.getElementById("continuousScan").checked; localStorage.setItem("continuousScan", on ? "yes" : "no"); showBanner(on ? "📷 TRACKING ENABLED" : "📷 TRACKING DISABLED"); }
+function shouldContinuousScan() { return localStorage.getItem("continuousScan") === "yes"; }
+function maybeRestartScanner() { if (shouldContinuousScan()) setTimeout(startScanner, 800); }
 
-function saveContinuousMode() {
-  const on = document.getElementById("continuousScan").checked;
-  localStorage.setItem("continuousScan", on ? "yes" : "no");
-  showBanner(on ? "📷 TRACKING ENABLED" : "📷 TRACKING DISABLED");
-}
-
-function shouldContinuousScan() {
-  return localStorage.getItem("continuousScan") === "yes";
-}
-
-function maybeRestartScanner() {
-  if (shouldContinuousScan()) setTimeout(startScanner, 800);
-}
-
-updateOfflineBar();
-syncPendingStocktakes();
+updateOfflineBar(); syncPendingStocktakes();
 </script>
 </body>
 </html>
