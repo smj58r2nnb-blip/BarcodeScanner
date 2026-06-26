@@ -12,173 +12,57 @@
 <script src="https://unpkg.com/@zxing/library@latest"></script>
 
 <style>
-/* Global Reset & Modern Box Model */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Crisp Modern Green Theme */
-  --green: #10b981;
-  --green-dark: #047857;
-  --green-light: #d1fae5;
-  --bg: #f8fafc;
-  --card: #ffffff;
-  --text: #0f172a;
-  --muted: #64748b;
-  --border: #e2e8f0;
-  --input-bg: #f1f5f9;
-  
-  /* Status Colors */
-  --success-bg: #ecfdf5;
-  --success-text: #065f46;
-  --error-bg: #fef2f2;
-  --error-text: #991b1b;
-  --warn-bg: #fffbeb;
-  --warn-text: #92400e;
-  --info-bg: #eff6ff;
-  --info-text: #1e40af;
+  --green: #10b981; --green-dark: #047857; --green-light: #d1fae5;
+  --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b;
+  --border: #e2e8f0; --input-bg: #f1f5f9;
+  --success-bg: #ecfdf5; --success-text: #065f46;
+  --error-bg: #fef2f2; --error-text: #991b1b;
+  --warn-bg: #fffbeb; --warn-text: #92400e;
+  --info-bg: #eff6ff; --info-text: #1e40af;
 }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  line-height: 1.5;
-  overflow-x: hidden;
-  width: 100%;
-}
+body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; line-height: 1.5; overflow-x: hidden; width: 100%; }
 
-/* App Header */
-.header {
-  background: linear-gradient(135deg, var(--green-dark), var(--green));
-  color: white;
-  padding: 24px 20px;
-  text-align: center;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  width: 100%;
-}
+.header { background: linear-gradient(135deg, var(--green-dark), var(--green)); color: white; padding: 24px 20px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); width: 100%; }
 .header h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
 .header p { margin-top: 4px; font-size: 13px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; }
 
-/* Main Layout Setup */
-.wrap {
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-}
+.wrap { width: 100%; max-width: 800px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 1fr; gap: 20px; }
 
 @media(min-width: 900px) {
-  .wrap {
-    max-width: 1300px;
-    grid-template-columns: 1fr 1fr;
-    align-items: stretch;
-  }
+  .wrap { max-width: 1300px; grid-template-columns: 1fr 1fr; align-items: stretch; }
   .full-width { grid-column: 1 / -1; }
 }
 
-/* Cards */
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-  transition: box-shadow 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  min-width: 0; 
-  height: 100%;
-}
-.card:hover { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.05); display: flex; flex-direction: column; min-width: 0; height: 100%; }
 
-/* Form Elements */
 .form-group { margin-bottom: 16px; }
-.form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; }
 
-input, textarea, select {
-  width: 100%;
-  font-family: inherit;
-  border-radius: 10px;
-  padding: 14px 16px;
-  font-size: 15px;
-  border: 1px solid var(--border);
-  background: var(--input-bg);
-  color: var(--text);
-  outline: none;
-  transition: all 0.2s ease;
-}
-input:focus, textarea:focus, select:focus {
-  background: var(--card);
-  border-color: var(--green);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
-}
+input, textarea, select { width: 100%; border-radius: 10px; padding: 14px 16px; font-size: 15px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); outline: none; }
+input:focus, textarea:focus, select:focus { background: var(--card); border-color: var(--green); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15); }
 
-/* Buttons */
-button {
-  width: 100%;
-  font-family: inherit;
-  border: none;
-  color: white;
-  font-weight: 700;
-  font-size: 14px;
-  border-radius: 10px;
-  min-height: 48px;
-  padding: 0 16px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-}
+button { width: 100%; border: none; color: white; font-weight: 700; font-size: 14px; border-radius: 10px; min-height: 48px; padding: 0 16px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease; }
 button:hover { filter: brightness(1.05); transform: translateY(-1px); }
-button:active { transform: translateY(1px); box-shadow: none; }
-
 .scan { background: var(--green); font-size: 15px; }
 body.pc-view #scanBtn { background: var(--muted); }
 .stop { background: #e11d48; display: none; }
 .save { background: #0284c7; }
 .in { background: #2563eb; }
 .out { background: #e11d48; }
-.clear { background: var(--border); color: var(--text); box-shadow: none; }
-.clear:hover { background: #cbd5e1; }
+.clear { background: var(--border); color: var(--text); }
 .mode { background: #475569; }
 
-/* Grid & Data Presentation */
-.product {
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  color: var(--text);
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 2px solid var(--border);
-}
+.product { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--border); }
 
-.data-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-auto-rows: 1fr;
-  gap: 16px;
-  flex-grow: 1;
-}
+.data-grid { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 16px; flex-grow: 1; }
 @media(max-width: 480px) { .data-grid { grid-template-columns: 1fr; } }
 
-.box {
-  background: var(--card);
-  border-radius: 12px;
-  padding: 20px;
-  border: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-.box .label { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.box { background: var(--card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; }
+.box .label { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; }
 .box .value { margin-top: 8px; font-size: 20px; font-weight: 800; word-break: break-word; }
 
 .greenStock { color: var(--green); }
@@ -188,146 +72,36 @@ body.pc-view #scanBtn { background: var(--muted); }
 .doneBox { background: var(--success-bg); border-color: var(--green); }
 .doneValue { color: var(--green-dark); }
 
-/* --- PRO SCANNER UI --- */
-.scanner-wrapper {
-  position: relative;
-  width: 100%;
-  display: none;
-  margin-top: 16px;
-  margin-bottom: 16px;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #000;
-  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-  aspect-ratio: 4/3; 
-}
-.scanner-wrapper video {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-  margin: 0;
-  border: none;
-}
-.scanner-target {
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  pointer-events: none;
-}
-.scanner-target::before {
-  content: "";
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 65%; height: 60%;
-  border: 4px solid var(--green);
-  border-radius: 16px;
-  box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.45); 
-}
-@keyframes scan-line {
-  0% { top: 20%; opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { top: 80%; opacity: 0; }
-}
-.scanner-target::after {
-  content: "";
-  position: absolute;
-  left: 20%;
-  width: 60%;
-  height: 2px;
-  background: var(--green);
-  box-shadow: 0 0 8px var(--green);
-  animation: scan-line 2s infinite linear;
-}
+.scanner-wrapper { position: relative; width: 100%; display: none; margin: 16px 0; border-radius: 12px; overflow: hidden; background: #000; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); aspect-ratio: 4/3; }
+.scanner-wrapper video { width: 100%; height: 100%; display: block; object-fit: cover; }
+.scanner-target { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
+.scanner-target::before { content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 65%; height: 60%; border: 4px solid var(--green); border-radius: 16px; box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.45); }
+@keyframes scan-line { 0% { top: 20%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 80%; opacity: 0; } }
+.scanner-target::after { content: ""; position: absolute; left: 20%; width: 60%; height: 2px; background: var(--green); box-shadow: 0 0 8px var(--green); animation: scan-line 2s infinite linear; }
 
-/* Actions Grid */
 .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: auto; }
 
-/* Status Notifications */
 #msg { text-align: center; font-size: 14px; font-weight: 700; margin-top: 12px; min-height: 21px; }
 .good { color: var(--green); }
 .error { color: #dc2626; }
 
-.banner {
-  display: none;
-  margin-top: 16px;
-  background: var(--success-bg);
-  color: var(--success-text);
-  border: 1px solid var(--green-light);
-  border-radius: 10px;
-  padding: 16px;
-  text-align: center;
-  font-weight: 700;
-  font-size: 14px;
-}
-
-.statusBig {
-  display: none;
-  margin: 16px 0;
-  padding: 16px;
-  border-radius: 10px;
-  text-align: center;
-  font-size: 15px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
+.banner { display: none; margin-top: 16px; background: var(--success-bg); color: var(--success-text); border: 1px solid var(--green-light); border-radius: 10px; padding: 16px; text-align: center; font-weight: 700; }
+.statusBig { display: none; margin: 16px 0; padding: 16px; border-radius: 10px; text-align: center; font-size: 15px; font-weight: 800; text-transform: uppercase; }
 .statusSearching { display: block; background: var(--info-bg); color: var(--info-text); border: 1px solid #bfdbfe; }
 .statusFound { display: block; background: var(--success-bg); color: var(--success-text); border: 1px solid var(--green-light); }
 .statusNotFound { display: block; background: var(--error-bg); color: var(--error-text); border: 1px solid #fecaca; }
 
-/* Offline Bar */
-.offlineBar {
-  margin-top: 20px;
-  padding: 16px;
-  border-radius: 10px;
-  text-align: center;
-  font-weight: 800;
-  font-size: 13px;
-  background: var(--success-bg);
-  color: var(--success-text);
-  border: 1px solid var(--green-light);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
+.offlineBar { margin-top: 20px; padding: 16px; border-radius: 10px; text-align: center; font-weight: 800; font-size: 13px; background: var(--success-bg); color: var(--success-text); border: 1px solid var(--green-light); text-transform: uppercase; }
 .offlineBar.offline { background: var(--error-bg); color: var(--error-text); border-color: #fecaca; }
 .offlineBar.queue { background: var(--warn-bg); color: var(--warn-text); border-color: #fde68a; }
 
-/* Toggles */
-.toggleRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 16px;
-  padding: 16px;
-  border-radius: 10px;
-  background: var(--input-bg);
-  border: 1px solid var(--border);
-  font-weight: 700;
-  font-size: 14px;
-  color: var(--text);
-}
+.toggleRow { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding: 16px; border-radius: 10px; background: var(--input-bg); border: 1px solid var(--border); font-weight: 700; font-size: 14px; }
 .toggleRow input[type="checkbox"] { width: auto; transform: scale(1.3); margin: 0; cursor: pointer; }
 
-/* --- DROPDOWNS (ANALYTICS & STOCKTAKE) --- */
-.dropdown-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  user-select: none;
-}
+.dropdown-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
 .dropdown-header:hover .product { color: var(--green); }
 .dropdown-header .product { margin: 0; border: none; padding: 0; transition: color 0.2s ease; }
-.toggle-icon {
-  width: 32px; height: 32px;
-  border-radius: 50%;
-  background: var(--input-bg);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px; font-weight: 900; color: var(--muted);
-  transition: all 0.2s ease;
-}
+.toggle-icon { width: 32px; height: 32px; border-radius: 50%; background: var(--input-bg); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; color: var(--muted); transition: all 0.2s ease; }
 .dropdown-header:hover .toggle-icon { background: var(--green-light); color: var(--green-dark); }
 
 .progressWrap { background: var(--border); border-radius: 999px; overflow: hidden; height: 10px; margin-top: 12px; }
@@ -337,30 +111,17 @@ body.pc-view #scanBtn { background: var(--muted); }
 .ledger-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; background: var(--card); }
 .ledger-table th { background: var(--input-bg); padding: 12px 16px; color: var(--muted); font-weight: 800; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); white-space: nowrap; }
 .ledger-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-weight: 500; }
-.ledger-table tr:last-child td { border-bottom: none; }
 .ledger-table tr:hover td { background: var(--bg); }
 
-/* Badges */
-.badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+.badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
 .badge-in { background: #dbeafe; color: #1d4ed8; }
 .badge-out { background: #fee2e2; color: #b91c1c; }
+.badge-warn { background: var(--warn-bg); color: var(--warn-text); }
 .badge-bin { background: var(--input-bg); color: var(--text); border: 1px solid var(--border); font-family: monospace; font-size: 12px; }
 
-/* Counted Row Styling */
-.row-counted td {
-  background: var(--success-bg) !important;
-  border-bottom: 1px solid var(--green-light) !important;
-  color: var(--green-dark) !important;
-}
-.row-counted .badge-bin {
-  background: var(--green) !important;
-  color: white !important;
-  border-color: var(--green) !important;
-}
-.row-counted .desc-text {
-  color: var(--green-dark) !important;
-  font-weight: 600;
-}
+.row-counted td { background: var(--success-bg) !important; border-bottom: 1px solid var(--green-light) !important; color: var(--green-dark) !important; }
+.row-counted .badge-bin { background: var(--green) !important; color: white !important; border-color: var(--green) !important; }
+.row-counted .desc-text { color: var(--green-dark) !important; font-weight: 600; }
 
 .footer { text-align: center; color: var(--muted); font-size: 13px; font-weight: 500; padding: 20px 0 40px; }
 </style>
@@ -372,7 +133,7 @@ body.pc-view #scanBtn { background: var(--muted); }
   <p>Precision Inventory Control</p>
 </div>
 
-<div class="wrap">
+<div class="wrap" id="mainApp">
 
   <div class="card">
     <button id="scanBtn" class="scan" onclick="startScanner()">
@@ -392,34 +153,15 @@ body.pc-view #scanBtn { background: var(--muted); }
     </div>
 
     <div id="statusBig" class="statusBig"></div>
-
     <div id="product" class="product">Ready to scan</div>
 
     <div class="data-grid">
-      <div class="box">
-        <div class="label">Article No</div>
-        <div id="articleNo" class="value" style="color:var(--muted)">-</div>
-      </div>
-      <div class="box">
-        <div class="label">Qty Recorded</div>
-        <div id="recordedQty" class="value greenStock">-</div>
-      </div>
-      <div class="box">
-        <div id="capturedLabel" class="label">Not Counted</div>
-        <div id="capturedQty" class="value" style="color:var(--muted)">-</div>
-      </div>
-      <div class="box">
-        <div class="label">Bin No</div>
-        <div id="bin" class="value" style="color:var(--muted)">-</div>
-      </div>
-      <div class="box">
-        <div class="label">Zone</div>
-        <div id="zone" class="value" style="color:var(--muted)">-</div>
-      </div>
-      <div class="box">
-        <div class="label">Location</div>
-        <div id="location" class="value" style="color:var(--muted)">-</div>
-      </div>
+      <div class="box"><div class="label">Article No</div><div id="articleNo" class="value" style="color:var(--muted)">-</div></div>
+      <div class="box"><div class="label">Qty Recorded</div><div id="recordedQty" class="value greenStock">-</div></div>
+      <div class="box"><div id="capturedLabel" class="label">Not Counted</div><div id="capturedQty" class="value" style="color:var(--muted)">-</div></div>
+      <div class="box"><div class="label">Bin No</div><div id="bin" class="value" style="color:var(--muted)">-</div></div>
+      <div class="box"><div class="label">Zone</div><div id="zone" class="value" style="color:var(--muted)">-</div></div>
+      <div class="box"><div class="label">Location</div><div id="location" class="value" style="color:var(--muted)">-</div></div>
     </div>
   </div>
 
@@ -427,92 +169,52 @@ body.pc-view #scanBtn { background: var(--muted); }
     <div class="form-group">
       <label for="user">Active User</label>
       <select id="user">
-        <option>M Read</option>
-        <option>I Rees</option>
-        <option>C Law</option>
-        <option>M Peters</option>
-        <option>J Meakin</option>
-        <option>M Goodhall</option>
+        <option>M Read</option><option>I Rees</option><option>C Law</option><option>M Peters</option><option>J Meakin</option><option>M Goodhall</option>
       </select>
     </div>
 
-    <div class="form-group">
-      <label for="qty">Quantity</label>
-      <input id="qty" type="number" placeholder="Enter amount...">
-    </div>
-
-    <div class="form-group">
-      <label for="comments">Comments (Optional)</label>
-      <textarea id="comments" rows="2" placeholder="Add notes here..."></textarea>
-    </div>
+    <div class="form-group"><label for="qty">Quantity</label><input id="qty" type="number" placeholder="Enter amount..."></div>
+    <div class="form-group"><label for="comments">Comments (Optional)</label><textarea id="comments" rows="2" placeholder="Add notes here..."></textarea></div>
 
     <div class="actions">
       <button class="save" onclick="saveStockTake()">✓ Save Count</button>
       <button class="clear" onclick="clearForm()">✕ Clear</button>
       <button class="in" onclick="bookIn()">↓ Book In</button>
       <button class="out" onclick="bookOut()">↑ Book Out</button>
+      
+      <button class="mode" onclick="toggleReportsApp()" style="grid-column: 1 / -1; margin-top: 10px;">📋 View Reorders & Top Items</button>
     </div>
 
     <div id="banner" class="banner"></div>
     <div id="msg"></div>
-    
-    <div id="offlineBar" class="offlineBar">
-      Checking System Status...
-    </div>
+    <div id="offlineBar" class="offlineBar">Checking System Status...</div>
 
     <button id="downloadStockBtn" class="mode" style="margin-top: 16px;" onclick="downloadStockData()">
       <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3"/></svg>
       Cache Data for Offline Use
     </button>
-
-    <div class="toggleRow">
-      <span>Continuous Scan Tracking</span>
-      <input id="continuousScan" type="checkbox" onchange="saveContinuousMode()">
-    </div>
+    <div class="toggleRow"><span>Continuous Scan Tracking</span><input id="continuousScan" type="checkbox" onchange="saveContinuousMode()"></div>
   </div>
 
   <div class="card full-width">
     <div class="dropdown-header" onclick="toggleAnalytics()">
-      <div class="product">📊 Live Booking in & out Feed</div>
+      <div class="product">📊 Live Analytics & Feed</div>
       <div id="analyticsToggleIcon" class="toggle-icon">+</div>
     </div>
-    
     <div id="analyticsContainer" style="display:none; margin-top:20px;">
       <div class="data-grid">
-         <div class="box">
-           <div class="label">Outbound Transactions (Today)</div>
-           <div class="value" id="statOut" style="font-size:24px;">0 units</div>
-         </div>
-         <div class="box">
-           <div class="label">Inbound Transactions (Today)</div>
-           <div class="value" id="statIn" style="font-size:24px;">0 units</div>
-         </div>
+         <div class="box"><div class="label">Outbound Transactions (Today)</div><div class="value" id="statOut" style="font-size:24px;">0 units</div></div>
+         <div class="box"><div class="label">Inbound Transactions (Today)</div><div class="value" id="statIn" style="font-size:24px;">0 units</div></div>
       </div>
-
       <div style="margin-top:28px;">
          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
            <div class="label" style="font-size:13px; color:var(--text);">Recent Activity Ledger</div>
-           <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="refreshAnalytics()">
-             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-             Sync Feed
-           </button>
+           <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="refreshAnalytics()">🔄 Sync Feed</button>
          </div>
-         
          <div class="table-wrapper">
            <table class="ledger-table">
-             <thead>
-               <tr>
-                 <th>Timestamp</th>
-                 <th>User</th>
-                 <th>Product Match</th>
-                 <th>Bin Location</th>
-                 <th>Type</th>
-                 <th>Qty</th>
-               </tr>
-             </thead>
-             <tbody id="ledgerBody">
-               <tr><td colspan="6" style="text-align:center; padding: 30px; color: var(--muted);">Loading live feed data...</td></tr>
-             </tbody>
+             <thead><tr><th>Timestamp</th><th>User</th><th>Product Match</th><th>Bin Location</th><th>Type</th><th>Qty</th></tr></thead>
+             <tbody id="ledgerBody"><tr><td colspan="6" style="text-align:center; padding: 30px; color: var(--muted);">Loading live feed data...</td></tr></tbody>
            </table>
          </div>
       </div>
@@ -524,55 +226,88 @@ body.pc-view #scanBtn { background: var(--muted); }
       <div class="product">📝 Active Stocktake</div>
       <div id="stocktakeToggleIcon" class="toggle-icon">+</div>
     </div>
-    
     <div id="stocktakeContainer" style="display:none; margin-top:20px;">
       <div class="box" style="align-items:flex-start;">
          <div class="label">Stocktake Compliance</div>
          <div class="value" id="stDropProg" style="font-size: 24px; color:var(--text);">0% Complete</div>
-         <div style="font-size: 13px; color: var(--muted); font-weight: 600; margin-top: 4px;" id="stDropDetails">
-           Awaiting synchronization...
-         </div>
-         <div class="progressWrap" style="width: 100%;">
-            <div id="stDropBar" class="progressBar"></div>
-         </div>
+         <div style="font-size: 13px; color: var(--muted); font-weight: 600; margin-top: 4px;" id="stDropDetails">Awaiting synchronization...</div>
+         <div class="progressWrap" style="width: 100%;"><div id="stDropBar" class="progressBar"></div></div>
       </div>
-      
       <div style="margin-top:28px;">
          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
            <div class="label" style="font-size:13px; color:var(--text);">Pending & Completed Items</div>
-           <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="renderPendingStocktake()">
-             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-             Refresh List
-           </button>
+           <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="renderPendingStocktake()">🔄 Refresh List</button>
          </div>
-         
          <div class="table-wrapper">
            <table class="ledger-table">
-             <thead>
-               <tr>
-                 <th>Bin No</th>
-                 <th>Article No</th>
-                 <th>Description</th>
-               </tr>
-             </thead>
-             <tbody id="pendingBody">
-               <tr><td colspan="3" style="text-align:center; padding: 30px; color: var(--muted);">Load local cache to view active items...</td></tr>
-             </tbody>
+             <thead><tr><th>Bin No</th><th>Article No</th><th>Description</th></tr></thead>
+             <tbody id="pendingBody"><tr><td colspan="3" style="text-align:center; padding: 30px; color: var(--muted);">Load local cache to view active items...</td></tr></tbody>
            </table>
          </div>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="footer full-width">
-    Corporate Stores System • Supreme Edition
+
+<div class="wrap" id="reportsApp" style="display:none;">
+  <div class="card full-width">
+    
+    <div class="dropdown-header" onclick="toggleReportsApp()" style="margin-bottom: 20px;">
+      <div class="product" style="border:none; margin:0;">⬅ Return to Scanner</div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; margin-bottom:12px;">
+      <h2 style="margin:0; font-size:22px; font-weight:800; color:var(--error-text);">⚠️ Stock Reorder Alerts</h2>
+      <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="loadReportsData()">🔄 Refresh Alerts</button>
+    </div>
+    
+    <div class="table-wrapper">
+      <table class="ledger-table">
+        <thead><tr><th>Bin Location</th><th>Product Match</th><th>Current Stock</th><th>Reorder Level</th></tr></thead>
+        <tbody id="reorderBody">
+          <tr><td colspan="4" style="text-align:center; padding:30px; color:var(--muted);">Fetching live stock levels...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 style="margin-top:40px; margin-bottom:12px; font-size:22px; font-weight:800; color:var(--text);">🔥 Top Used Items</h2>
+    <div class="table-wrapper">
+      <table class="ledger-table">
+        <thead><tr><th>Rank & Description</th><th>Total Outbound (All Time)</th></tr></thead>
+        <tbody id="topUsedBody">
+          <tr><td colspan="2" style="text-align:center; padding:30px; color:var(--muted);">Calculating top items...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
   </div>
+</div>
 
+
+<div class="footer full-width">
+  Corporate Stores System • Supreme Edition
 </div>
 
 <script>
-const API =
-"https://script.google.com/macros/s/AKfycbxWl7CNDGd1OKbL7cl1hiNZ5pt46DmxG4LGcJcTmKXNWe8wLECAi0k3UMiDIzsKUwTS/exec";
+// Replace this with your Google Script web app URL
+const API = "https://script.google.com/macros/s/AKfycbxWl7CNDGd1OKbL7cl1hiNZ5pt46DmxG4LGcJcTmKXNWe8wLECAi0k3UMiDIzsKUwTS/exec";
+
+// --- GITHUB COMPATIBLE FETCH WRAPPER ---
+// This uses GET requests so it works perfectly across Github Pages / external CORS constraints.
+function fetchAPI(action, params = {}) {
+  return new Promise((resolve, reject) => {
+    let url = API + "?action=" + encodeURIComponent(action);
+    for (const key in params) {
+      url += "&" + encodeURIComponent(key) + "=" + encodeURIComponent(params[key] || "");
+    }
+    
+    fetch(url)
+      .then(response => response.json())
+      .then(data => resolve(data))
+      .catch(error => reject(error));
+  });
+}
 
 let scanner = null;
 let currentItem = null;
@@ -581,7 +316,6 @@ let analyticsOpen = false;
 let stocktakeOpen = false;
 window.isResetting = false;
 
-// --- DEVICE DETECTION LOGIC ---
 function isMobileDevice() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 850;
 }
@@ -591,31 +325,84 @@ window.addEventListener("DOMContentLoaded", () => {
     document.body.classList.add('mobile-view');
   } else {
     document.body.classList.add('pc-view');
-    setTimeout(() => {
-      const bc = document.getElementById("barcode");
-      if(bc) bc.focus();
-    }, 300);
+    setTimeout(() => { const bc = document.getElementById("barcode"); if(bc) bc.focus(); }, 300);
   }
 });
+
+// --- REPORTS / REORDERS PAGE LOGIC ---
+function toggleReportsApp() {
+  const main = document.getElementById("mainApp");
+  const reports = document.getElementById("reportsApp");
+  
+  if (reports.style.display === "none") {
+    main.style.display = "none";
+    reports.style.display = "grid"; // Because .wrap is display: grid
+    loadReportsData();
+    window.scrollTo(0,0);
+  } else {
+    reports.style.display = "none";
+    main.style.display = "grid";
+    window.scrollTo(0,0);
+  }
+}
+
+function loadReportsData() {
+  document.getElementById("reorderBody").innerHTML = "<tr><td colspan='4' style='text-align:center; padding:30px; color:var(--muted);'>Fetching live stock levels...</td></tr>";
+  document.getElementById("topUsedBody").innerHTML = "<tr><td colspan='2' style='text-align:center; padding:30px; color:var(--muted);'>Calculating top items...</td></tr>";
+
+  fetchAPI("reports").then(data => {
+    if (!data.ok) { setMsg("Reports failed to load", "error"); return; }
+    
+    // 1. Render Reorder Table
+    const rBody = document.getElementById("reorderBody");
+    if (!data.reorderItems || data.reorderItems.length === 0) {
+      rBody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:30px; color:var(--green); font-size:16px; font-weight:800;'>All stock is above safe reorder levels! 🎉</td></tr>";
+    } else {
+      rBody.innerHTML = data.reorderItems.map(item => {
+        const qtyBadge = item.qty <= 0 ? "badge-out" : "badge-warn";
+        return `
+        <tr>
+          <td><span class="badge badge-bin">${item.bin || "-"}</span></td>
+          <td>
+            <div style="font-weight:800; color:var(--text);">${item.article}</div>
+            <div style="font-size:12px; color:var(--muted); margin-top:2px;">${item.description}</div>
+          </td>
+          <td><span class="badge ${qtyBadge}" style="font-size:14px; padding:6px 12px;">${item.qty}</span></td>
+          <td style="font-weight:800; color:var(--muted);">Trigger at: ${item.reorderQty}</td>
+        </tr>
+      `}).join("");
+    }
+
+    // 2. Render Top Used Table
+    const tBody = document.getElementById("topUsedBody");
+    if (!data.topParts || data.topParts.length === 0) {
+      tBody.innerHTML = "<tr><td colspan='2' style='text-align:center; padding:30px; color:var(--muted);'>No outbound data available yet.</td></tr>";
+    } else {
+      tBody.innerHTML = data.topParts.map((item, i) => `
+        <tr>
+          <td style="font-weight:700; color:var(--text);">
+            <span style="color:var(--green); margin-right:10px;">#${i+1}</span>
+            ${item.description}
+          </td>
+          <td style="font-weight:900; font-size:16px; color:var(--text);">${item.qty} units</td>
+        </tr>
+      `).join("");
+    }
+  }).catch(() => {
+    document.getElementById("reorderBody").innerHTML = "<tr><td colspan='4' style='text-align:center; padding:30px; color:var(--error-text);'>Connection error. Please try again.</td></tr>";
+  });
+}
 
 // --- ANALYTICS DASHBOARD LOGIC ---
 function toggleAnalytics() {
   const container = document.getElementById("analyticsContainer");
   const icon = document.getElementById("analyticsToggleIcon");
-  
   analyticsOpen = !analyticsOpen;
-  
   if (analyticsOpen) {
-    container.style.display = "block";
-    icon.innerText = "−";
-    refreshAnalytics();
-    
-    setTimeout(() => {
-        container.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
+    container.style.display = "block"; icon.innerText = "−"; refreshAnalytics();
+    setTimeout(() => { container.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
   } else {
-    container.style.display = "none";
-    icon.innerText = "+";
+    container.style.display = "none"; icon.innerText = "+";
   }
 }
 
@@ -624,41 +411,33 @@ function refreshAnalytics() {
   document.getElementById("statIn").innerText = "...";
   document.getElementById("ledgerBody").innerHTML = "<tr><td colspan='6' style='text-align:center; padding:30px; color:var(--muted);'>Connecting to remote database...</td></tr>";
 
-  fetch(API + "?action=dashboard")
-    .then(r => r.json())
-    .then(data => {
-      if (!data.ok) {
-        setMsg("Analytics failed to load", "error");
-        return;
-      }
-
+  fetchAPI("dashboard").then(data => {
+      if (!data.ok) { setMsg("Analytics failed to load", "error"); return; }
       document.getElementById("statOut").innerText = data.bookedOutToday + " units";
       document.getElementById("statIn").innerText = data.bookedInToday + " units";
 
       const ledger = document.getElementById("ledgerBody");
-      if (!data.recentActivity || data.recentActivity.length === 0) {
+      if (!data.serverHistory || data.serverHistory.length === 0) {
         ledger.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:30px; color:var(--muted);'>No recent activity found.</td></tr>";
         return;
       }
 
-      ledger.innerHTML = data.recentActivity.map(act => {
-        const badgeCls = act.action === 'OUT' ? 'badge-out' : 'badge-in';
+      ledger.innerHTML = data.serverHistory.map(act => {
+        const badgeCls = act.action === 'Book Out' ? 'badge-out' : 'badge-in';
         return `
         <tr>
-          <td style="color:var(--muted); font-weight:600; font-size:12px;">${act.dateStr}</td>
-          <td style="font-weight:700;">${act.user}</td>
+          <td style="color:var(--muted); font-weight:600; font-size:12px;">${act.formattedDate}</td>
+          <td style="font-weight:700;">${act.who}</td>
           <td>
             <div style="font-weight:800; color:var(--text);">${act.barcode}</div>
-            <div style="font-size:12px; color:var(--muted); margin-top:2px;">${act.item}</div>
+            <div style="font-size:12px; color:var(--muted); margin-top:2px;">${act.description}</div>
           </td>
           <td><span class="badge badge-bin">${act.bin || "-"}</span></td>
           <td><span class="badge ${badgeCls}">${act.action}</span></td>
           <td style="font-weight:800; font-size:15px;">${act.qty}</td>
         </tr>
       `}).join("");
-
-    })
-    .catch(() => {
+    }).catch(() => {
       document.getElementById("ledgerBody").innerHTML = "<tr><td colspan='6' style='text-align:center; padding:30px; color:var(--error-text);'>Connection error. Please check your network.</td></tr>";
     });
 }
@@ -667,36 +446,23 @@ function refreshAnalytics() {
 function toggleStocktake() {
   const container = document.getElementById("stocktakeContainer");
   const icon = document.getElementById("stocktakeToggleIcon");
-  
   stocktakeOpen = !stocktakeOpen;
-  
   if (stocktakeOpen) {
-    container.style.display = "block";
-    icon.innerText = "−";
-    renderPendingStocktake();
-    
-    setTimeout(() => {
-        container.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
+    container.style.display = "block"; icon.innerText = "−"; renderPendingStocktake();
+    setTimeout(() => { container.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
   } else {
-    container.style.display = "none";
-    icon.innerText = "+";
+    container.style.display = "none"; icon.innerText = "+";
   }
 }
 
 function renderPendingStocktake() {
   const items = getOfflineStockData();
   let total = items.length;
-  
-  let countedItems = [];
-  let pendingItems = [];
+  let countedItems = []; let pendingItems = [];
   
   items.forEach(item => {
-    if (item.capturedQty !== "" && item.capturedQty !== null) {
-        countedItems.push(item);
-    } else {
-        pendingItems.push(item);
-    }
+    if (item.capturedQty !== "" && item.capturedQty !== null) countedItems.push(item);
+    else pendingItems.push(item);
   });
   
   let counted = countedItems.length;
@@ -707,13 +473,11 @@ function renderPendingStocktake() {
   document.getElementById("stDropDetails").innerText = `Verified: ${counted} lines • Pending Field Count: ${pendingItems.length} lines • Master Directory Size: ${total} profiles`;
   
   const tbody = document.getElementById("pendingBody");
-  
   if (total === 0) {
     tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:30px; color:var(--muted);'>No directory found. Please click 'Cache Data for Offline Use' above.</td></tr>";
     return;
   }
   
-  // OFFLINE-SAFE AUTO RESET TRIGGER
   if (pendingItems.length === 0 && !window.isResetting) {
       if (navigator.onLine && pendingStocktake.length === 0) {
           window.isResetting = true;
@@ -722,13 +486,9 @@ function renderPendingStocktake() {
           document.getElementById("stDropDetails").innerText = "100% Counted! Waiting for network sync to finish before resetting...";
           document.getElementById("stDropDetails").style.color = "var(--green)";
       }
-  } else if (pendingItems.length > 0) {
-      window.isResetting = false;
-  }
+  } else if (pendingItems.length > 0) { window.isResetting = false; }
   
-  // Combine lists: Counted items (green) pushed to the TOP, then pending items below.
   const combinedItems = [...countedItems, ...pendingItems];
-  
   const displayLimit = 150;
   const displayItems = combinedItems.slice(0, displayLimit);
   
@@ -736,7 +496,6 @@ function renderPendingStocktake() {
     const isCounted = item.capturedQty !== "" && item.capturedQty !== null;
     const rowClass = isCounted ? "row-counted" : "";
     const icon = isCounted ? " <span style='font-size:10px;'>✅</span>" : "";
-    
     return `
       <tr class="${rowClass}">
         <td><span class="badge badge-bin">${item.bin || "-"}</span></td>
@@ -746,32 +505,24 @@ function renderPendingStocktake() {
     `;
   }).join("");
   
-  if (combinedItems.length > displayLimit) {
-      html += `<tr><td colspan="3" style="text-align:center; color:var(--muted); font-size:12px; padding:10px;">...and ${combinedItems.length - displayLimit} more items</td></tr>`;
-  }
-  
+  if (combinedItems.length > displayLimit) html += `<tr><td colspan="3" style="text-align:center; color:var(--muted); font-size:12px; padding:10px;">...and ${combinedItems.length - displayLimit} more items</td></tr>`;
   tbody.innerHTML = html;
 }
 
 function autoResetStocktake() {
   showBanner("🔄 ALL ITEMS COUNTED! Auto-resetting stocktake...");
-  fetch(API + "?action=resetstocktake")
-    .then(r => r.json())
-    .then(data => {
+  fetchAPI("resetstocktake", { pin: "1601" }).then(data => {
       if (data.ok) {
          setMsg("Stocktake automatically reset", "good");
-         downloadStockData(); // Automatically clear local quantities
+         downloadStockData(); 
          if (analyticsOpen) refreshAnalytics();
       }
-    })
-    .catch(err => console.error("Reset failed", err));
+    }).catch(err => console.error("Reset failed", err));
 }
 
 let pendingStocktake = JSON.parse(localStorage.getItem("pendingStocktake") || "[]");
 
-function savePendingStocktakeQueue() {
-  localStorage.setItem("pendingStocktake", JSON.stringify(pendingStocktake));
-}
+function savePendingStocktakeQueue() { localStorage.setItem("pendingStocktake", JSON.stringify(pendingStocktake)); }
 
 function updateOfflineBar() {
   const bar = document.getElementById("offlineBar");
@@ -803,23 +554,9 @@ function queueOffline(actionType) {
   const who = document.getElementById("user").value;
   const comments = document.getElementById("comments").value;
 
-  if (!barcode) {
-    setMsg("Scan or enter a barcode first", "error");
-    setStatus("❌ ALIGNMENT FIELD NULL", "statusNotFound");
-    return;
-  }
-
-  if (qty === "" || Number(qty) < 0 || isNaN(Number(qty))) {
-    setMsg("Enter a valid quantity", "error");
-    setStatus("❌ INVALID QTY", "statusNotFound");
-    return;
-  }
-  
-  if ((actionType === "bookin" || actionType === "bookout") && Number(qty) === 0) {
-    setMsg("Quantity must be greater than 0", "error");
-    setStatus("❌ INVALID QTY", "statusNotFound");
-    return;
-  }
+  if (!barcode) { setMsg("Scan or enter a barcode first", "error"); setStatus("❌ ALIGNMENT FIELD NULL", "statusNotFound"); return; }
+  if (qty === "" || Number(qty) < 0 || isNaN(Number(qty))) { setMsg("Enter a valid quantity", "error"); setStatus("❌ INVALID QTY", "statusNotFound"); return; }
+  if ((actionType === "bookin" || actionType === "bookout") && Number(qty) === 0) { setMsg("Quantity must be greater than 0", "error"); setStatus("❌ INVALID QTY", "statusNotFound"); return; }
 
   pendingStocktake.push({ action: actionType, barcode: barcode, qty: qty, who: who, comments: comments, queuedAt: new Date().toISOString() });
   updateOfflineItemQty(barcode, qty, actionType);
@@ -834,71 +571,41 @@ function queueOffline(actionType) {
   setMsg("Transaction queued to local storage", "good");
   setStatus("🟡 QUEUED OFFLINE", "statusSearching");
 
-  clearCachedItem();
-  clearForm();
-  maybeRestartScanner();
-
+  clearCachedItem(); clearForm(); maybeRestartScanner();
   if (stocktakeOpen) renderPendingStocktake();
   if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
 }
 
 function syncPendingStocktakes() {
-  if (!navigator.onLine || !pendingStocktake.length) {
-    updateOfflineBar();
-    return;
-  }
+  if (!navigator.onLine || !pendingStocktake.length) { updateOfflineBar(); return; }
 
   const item = pendingStocktake[0];
-  const url = API + "?action=" + encodeURIComponent(item.action) + "&barcode=" + encodeURIComponent(item.barcode) + "&qty=" + encodeURIComponent(item.qty) +
-    "&who=" + encodeURIComponent(item.who) + "&comments=" + encodeURIComponent(item.comments || "");
-
-  fetch(url)
-    .then(r => r.json())
+  fetchAPI(item.action, { barcode: item.barcode, qty: item.qty, who: item.who, comments: item.comments || "" })
     .then(data => {
       if (data.ok) {
-        pendingStocktake.shift();
-        savePendingStocktakeQueue();
-        updateOfflineBar();
-
+        pendingStocktake.shift(); savePendingStocktakeQueue(); updateOfflineBar();
         if (pendingStocktake.length) {
           syncPendingStocktakes();
         } else {
           showBanner("🟢 CACHE SYNC COMPLETE");
           setMsg("All offline entries synchronized to server", "good");
-          
           if (stocktakeOpen) renderPendingStocktake();
         }
       } else {
-        updateOfflineBar();
-        setMsg(data.message || "Cache sync failed", "error");
+        updateOfflineBar(); setMsg(data.message || "Cache sync failed", "error");
       }
-    })
-    .catch(() => {
-      updateOfflineBar();
-      setMsg("Connection unstable — entries remain queued", "error");
-    });
+    }).catch(() => { updateOfflineBar(); setMsg("Connection unstable — entries remain queued", "error"); });
 }
 
-window.addEventListener("online", function() {
-  updateOfflineBar();
-  syncPendingStocktakes();
-});
-
+window.addEventListener("online", function() { updateOfflineBar(); syncPendingStocktakes(); });
 window.addEventListener("offline", updateOfflineBar);
 
-function getOfflineStockData() {
-  return JSON.parse(localStorage.getItem("offlineStockData") || "[]");
-}
-
-function saveOfflineStockData(items) {
-  localStorage.setItem("offlineStockData", JSON.stringify(items));
-  localStorage.setItem("offlineStockDate", new Date().toLocaleString());
-}
+function getOfflineStockData() { return JSON.parse(localStorage.getItem("offlineStockData") || "[]"); }
+function saveOfflineStockData(items) { localStorage.setItem("offlineStockData", JSON.stringify(items)); localStorage.setItem("offlineStockDate", new Date().toLocaleString()); }
 
 function findOfflineProduct(barcode) {
   const search = String(barcode || "").trim();
   const items = getOfflineStockData();
-
   for (let i = 0; i < items.length; i++) {
     if (String(items[i].barcode || "").trim() === search || String(items[i].bin || "").trim() === search) {
       return {
@@ -913,58 +620,25 @@ function findOfflineProduct(barcode) {
 }
 
 function downloadStockData() {
-  if (!navigator.onLine) {
-    setMsg("Cannot refresh cache while offline", "error");
-    setStatus("🔴 SYSTEM OFFLINE", "statusNotFound");
-    return;
-  }
-
+  if (!navigator.onLine) { setMsg("Cannot refresh cache while offline", "error"); setStatus("🔴 SYSTEM OFFLINE", "statusNotFound"); return; }
   setMsg("Downloading directory for offline staging...", "good");
   setStatus("⬇️ DOWNLOADING...", "statusSearching");
 
-  fetch(API + "?action=stockdata")
-    .then(r => r.json())
-    .then(data => {
-      if (!data.ok || !data.items) {
-        setMsg(data.message || "Directory download failed", "error");
-        setStatus("❌ DOWNLOAD FAILED", "statusNotFound");
-        return;
-      }
+  fetchAPI("stockdata").then(data => {
+      if (!data.ok || !data.items) { setMsg(data.message || "Directory download failed", "error"); setStatus("❌ DOWNLOAD FAILED", "statusNotFound"); return; }
       saveOfflineStockData(data.items);
       showBanner("✅ OFFLINE CACHE SECURED<br>" + data.items.length + " profiles updated");
       setMsg("Cache refreshed: " + data.items.length + " profiles", "good");
       setStatus("✅ CACHE READY", "statusFound");
       updateOfflineBar();
       if (stocktakeOpen) renderPendingStocktake();
-    })
-    .catch(() => {
-      setMsg("Directory download failed due to network error", "error");
-      setStatus("❌ CONNECTION ERROR", "statusNotFound");
-    });
+    }).catch(() => { setMsg("Directory download failed due to network error", "error"); setStatus("❌ CONNECTION ERROR", "statusNotFound"); });
 }
 
-function setMsg(text, cls="") {
-  const el = document.getElementById("msg");
-  el.innerText = text;
-  el.className = cls;
-}
-
-function setStatus(text, type) {
-  const el = document.getElementById("statusBig");
-  el.innerText = text;
-  el.className = "statusBig " + type;
-}
-
-function showBanner(text) {
-  const banner = document.getElementById("banner");
-  banner.innerHTML = text;
-  banner.style.display = "block";
-  setTimeout(() => { banner.style.display = "none"; }, 3000);
-}
-
-function manualEnter(e) {
-  if (e.key === "Enter") lookup(document.getElementById("barcode").value);
-}
+function setMsg(text, cls="") { const el = document.getElementById("msg"); el.innerText = text; el.className = cls; }
+function setStatus(text, type) { const el = document.getElementById("statusBig"); el.innerText = text; el.className = "statusBig " + type; }
+function showBanner(text) { const banner = document.getElementById("banner"); banner.innerHTML = text; banner.style.display = "block"; setTimeout(() => { banner.style.display = "none"; }, 3000); }
+function manualEnter(e) { if (e.key === "Enter") lookup(document.getElementById("barcode").value); }
 
 function startScanner() {
   scanLocked = false;
@@ -973,324 +647,139 @@ function startScanner() {
   document.getElementById("stopBtn").style.display = "inline-flex";
 
   const hints = new Map();
-  hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-    ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39,
-    ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.DATA_MATRIX, ZXing.BarcodeFormat.PDF_417
-  ]);
-
+  hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39, ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.DATA_MATRIX, ZXing.BarcodeFormat.PDF_417 ]);
   scanner = new ZXing.BrowserMultiFormatReader(hints);
   scanner.decodeFromConstraints({ video: { facingMode: "environment" } }, "preview", function(result) {
     if (result && !scanLocked) {
-      scanLocked = true;
-      const code = result.text.trim();
-      document.getElementById("barcode").value = code;
-      if (navigator.vibrate) navigator.vibrate(150);
-      stopScanner();
-      lookup(code);
+      scanLocked = true; const code = result.text.trim(); document.getElementById("barcode").value = code;
+      if (navigator.vibrate) navigator.vibrate(150); stopScanner(); lookup(code);
     }
   });
 }
 
-function stopScanner() {
-  if (scanner) { scanner.reset(); scanner = null; }
-  document.getElementById("scannerWrapper").style.display = "none";
-  document.getElementById("scanBtn").style.display = "inline-flex";
-  document.getElementById("stopBtn").style.display = "none";
-}
+function stopScanner() { if (scanner) { scanner.reset(); scanner = null; } document.getElementById("scannerWrapper").style.display = "none"; document.getElementById("scanBtn").style.display = "inline-flex"; document.getElementById("stopBtn").style.display = "none"; }
 
 function lookup(barcode) {
   barcode = String(barcode || "").trim();
-  if (!barcode) {
-    setMsg("Enter or scan a product code", "error");
-    setStatus("❌ ALIGNMENT FIELD NULL", "statusNotFound");
-    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-    return;
-  }
-
-  setMsg("Querying database...", "good");
-  setStatus("🔎 SEARCHING DIRECTORY...", "statusSearching");
+  if (!barcode) { setMsg("Enter or scan a product code", "error"); setStatus("❌ ALIGNMENT FIELD NULL", "statusNotFound"); if (navigator.vibrate) navigator.vibrate([100, 50, 100]); return; }
+  setMsg("Querying database...", "good"); setStatus("🔎 SEARCHING DIRECTORY...", "statusSearching");
 
   const cached = localStorage.getItem("item_" + barcode);
   if (cached) showProduct(JSON.parse(cached));
 
   if (!navigator.onLine) {
     const offlineItem = findOfflineProduct(barcode);
-    if (offlineItem) {
-      showProduct(offlineItem);
-      setMsg("Product sourced from local cache", "good");
-      setStatus("✅ CACHE MATCH", "statusFound");
-    } else {
-      clearProductOnly();
-      setMsg("Index key missed in offline cache", "error");
-      setStatus("❌ NOT IN CACHE", "statusNotFound");
-    }
-    updateOfflineBar();
-    return;
+    if (offlineItem) { showProduct(offlineItem); setMsg("Product sourced from local cache", "good"); setStatus("✅ CACHE MATCH", "statusFound"); } 
+    else { clearProductOnly(); setMsg("Index key missed in offline cache", "error"); setStatus("❌ NOT IN CACHE", "statusNotFound"); }
+    updateOfflineBar(); return;
   }
 
-  fetch(API + "?action=find&barcode=" + encodeURIComponent(barcode))
-    .then(r => r.json())
-    .then(data => {
+  fetchAPI("find", { barcode: barcode }).then(data => {
       if (data.found) localStorage.setItem("item_" + barcode, JSON.stringify(data));
-      showProduct(data);
-      updateOfflineBar();
-    })
-    .catch(() => {
+      showProduct(data); updateOfflineBar();
+    }).catch(() => {
       const offlineItem = findOfflineProduct(barcode);
-      if (offlineItem) {
-        showProduct(offlineItem);
-        setMsg("Product sourced from local cache", "good");
-        setStatus("✅ CACHE MATCH", "statusFound");
-      } else {
-        setMsg("Database connection error", "error");
-        setStatus("❌ CONNECTION ERROR", "statusNotFound");
-      }
-      if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
-      updateOfflineBar();
+      if (offlineItem) { showProduct(offlineItem); setMsg("Product sourced from local cache", "good"); setStatus("✅ CACHE MATCH", "statusFound"); } 
+      else { setMsg("Database connection error", "error"); setStatus("❌ CONNECTION ERROR", "statusNotFound"); }
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]); updateOfflineBar();
     });
 }
 
 function showProduct(data) {
-  if (!data.found) {
-    clearProductOnly();
-    setMsg("Record unallocated", "error");
-    setStatus("❌ RECORD NOT FOUND", "statusNotFound");
-    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-    return;
-  }
-
+  if (!data.found) { clearProductOnly(); setMsg("Record unallocated", "error"); setStatus("❌ RECORD NOT FOUND", "statusNotFound"); if (navigator.vibrate) navigator.vibrate([100, 50, 100]); return; }
   currentItem = data;
   document.getElementById("product").innerText = data.description || "-";
   
-  const styleVal = (id, val) => {
-      const el = document.getElementById(id);
-      el.innerText = val || "-";
-      el.style.color = val ? "var(--text)" : "var(--muted)";
-  };
+  const styleVal = (id, val) => { const el = document.getElementById(id); el.innerText = val || "-"; el.style.color = val ? "var(--text)" : "var(--muted)"; };
+  styleVal("articleNo", data.articleNo); styleVal("bin", data.bin); styleVal("zone", data.zone); styleVal("location", data.location);
+  document.getElementById("recordedQty").innerText = data.recordedQty || "-"; document.getElementById("capturedQty").innerText = data.capturedQty || "-";
 
-  styleVal("articleNo", data.articleNo);
-  styleVal("bin", data.bin);
-  styleVal("zone", data.zone);
-  styleVal("location", data.location);
-
-  document.getElementById("recordedQty").innerText = data.recordedQty || "-";
-  document.getElementById("capturedQty").innerText = data.capturedQty || "-";
-
-  setCapturedStatus(data.capturedQty);
-  colourStock(data.recordedQty);
-
-  setMsg("Product match confirmed", "good");
-  setStatus("✅ MATCH CONFIRMED", "statusFound");
-  if (navigator.vibrate) navigator.vibrate(80);
+  setCapturedStatus(data.capturedQty); colourStock(data.recordedQty);
+  setMsg("Product match confirmed", "good"); setStatus("✅ MATCH CONFIRMED", "statusFound"); if (navigator.vibrate) navigator.vibrate(80);
 }
 
 function setCapturedStatus(capturedQty) {
-  const label = document.getElementById("capturedLabel");
-  const qtyEl = document.getElementById("capturedQty");
-  const box = qtyEl.parentElement;
-
-  if (capturedQty) {
-    label.innerText = "Count Verified";
-    qtyEl.classList.add("doneValue");
-    box.classList.add("doneBox");
-  } else {
-    label.innerText = "Awaiting Audit";
-    qtyEl.classList.remove("doneValue");
-    box.classList.remove("doneBox");
-    qtyEl.style.color = "var(--muted)";
-  }
+  const label = document.getElementById("capturedLabel"); const qtyEl = document.getElementById("capturedQty"); const box = qtyEl.parentElement;
+  if (capturedQty) { label.innerText = "Count Verified"; qtyEl.classList.add("doneValue"); box.classList.add("doneBox"); } 
+  else { label.innerText = "Awaiting Audit"; qtyEl.classList.remove("doneValue"); box.classList.remove("doneBox"); qtyEl.style.color = "var(--muted)"; }
 }
 
 function colourStock(qty) {
-  const el = document.getElementById("recordedQty");
-  const n = Number(qty);
-  el.className = "value";
-
-  if (n > 10) el.classList.add("greenStock");
-  else if (n >= 5) el.classList.add("amberStock");
-  else el.classList.add("redStock");
+  const el = document.getElementById("recordedQty"); const n = Number(qty); el.className = "value";
+  if (n > 10) el.classList.add("greenStock"); else if (n >= 5) el.classList.add("amberStock"); else el.classList.add("redStock");
 }
 
-function buildUrl(action) {
-  const barcode = document.getElementById("barcode").value;
-  const qty = document.getElementById("qty").value;
-  const comments = document.getElementById("comments").value;
-  const who = document.getElementById("user").value;
-
-  return API + "?action=" + action + "&barcode=" + encodeURIComponent(barcode) + "&qty=" + encodeURIComponent(qty) +
-    "&who=" + encodeURIComponent(who) + "&comments=" + encodeURIComponent(comments);
-}
-
-function clearCachedItem() {
-  const barcode = document.getElementById("barcode").value;
-  localStorage.removeItem("item_" + barcode);
-}
+function clearCachedItem() { const barcode = document.getElementById("barcode").value; localStorage.removeItem("item_" + barcode); }
 
 function updateOfflineItemQty(barcode, qty, actionType) {
-  const items = getOfflineStockData();
-  const search = String(barcode || "").trim();
-  const nQty = Number(qty) || 0;
-
+  const items = getOfflineStockData(); const search = String(barcode || "").trim(); const nQty = Number(qty) || 0;
   for (let i = 0; i < items.length; i++) {
     if (String(items[i].barcode || "").trim() === search || String(items[i].bin || "").trim() === search) {
       let currentRecorded = Number(items[i].recordedQty) || 0;
-      
-      if (actionType === "save") {
-         items[i].recordedQty = nQty;
-         items[i].capturedQty = nQty;
-      } else if (actionType === "bookin") {
-         items[i].recordedQty = currentRecorded + nQty;
-      } else if (actionType === "bookout") {
-         items[i].recordedQty = Math.max(0, currentRecorded - nQty);
-      }
-      
-      saveOfflineStockData(items);
-      break;
+      if (actionType === "save") { items[i].recordedQty = nQty; items[i].capturedQty = nQty; } 
+      else if (actionType === "bookin") { items[i].recordedQty = currentRecorded + nQty; } 
+      else if (actionType === "bookout") { items[i].recordedQty = Math.max(0, currentRecorded - nQty); }
+      saveOfflineStockData(items); break;
     }
   }
 }
 
 function saveStockTake() {
-  if (!navigator.onLine) {
-    queueOffline("save");
-    return;
-  }
+  if (!navigator.onLine) { queueOffline("save"); return; }
+  const barcode = document.getElementById("barcode").value.trim(); const qty = document.getElementById("qty").value; const who = document.getElementById("user").value;
 
-  fetch(buildUrl("save"))
-    .then(r => r.json())
-    .then(data => {
+  fetchAPI("save", { barcode: barcode, qty: qty, who: who }).then(data => {
       if (data.ok) {
-        const savedBarcode = document.getElementById("barcode").value;
-        const savedQty = document.getElementById("qty").value;
-
-        clearCachedItem();
-        updateOfflineItemQty(savedBarcode, savedQty, "save");
-        showBanner("✅ FIELD AUDIT SAVED");
-        lookup(savedBarcode);
-        syncPendingStocktakes();
-        maybeRestartScanner();
-        
-        if (analyticsOpen) refreshAnalytics();
-        if (stocktakeOpen) renderPendingStocktake();
-      } else {
-        setMsg(data.message || "Database write failed", "error");
-      }
-    })
-    .catch(() => { queueOffline("save"); });
+        clearCachedItem(); updateOfflineItemQty(barcode, qty, "save"); showBanner("✅ FIELD AUDIT SAVED");
+        lookup(barcode); syncPendingStocktakes(); maybeRestartScanner();
+        if (analyticsOpen) refreshAnalytics(); if (stocktakeOpen) renderPendingStocktake();
+      } else { setMsg(data.message || "Database write failed", "error"); }
+    }).catch(() => { queueOffline("save"); });
 }
 
 function bookOut() {
-  if (!navigator.onLine) {
-    queueOffline("bookout");
-    return;
-  }
-  
-  fetch(buildUrl("bookout"))
-    .then(r => r.json())
-    .then(data => {
+  if (!navigator.onLine) { queueOffline("bookout"); return; }
+  const barcode = document.getElementById("barcode").value.trim(); const qty = document.getElementById("qty").value; const who = document.getElementById("user").value; const comments = document.getElementById("comments").value;
+
+  fetchAPI("bookout", { barcode: barcode, qty: qty, who: who, comments: comments }).then(data => {
       if (data.ok) {
-        const savedBarcode = document.getElementById("barcode").value;
-        const savedQty = document.getElementById("qty").value;
-        
-        clearCachedItem();
-        updateOfflineItemQty(savedBarcode, savedQty, "bookout");
-        showBanner("📤 OUTBOUND LOGGED<br>Current Level: " + data.stockRemaining);
-        clearForm();
-        maybeRestartScanner();
-        
-        if (analyticsOpen) refreshAnalytics();
-      } else {
-        setMsg(data.message || "Transaction rejected", "error");
-      }
-    })
-    .catch(() => { queueOffline("bookout"); });
+        clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookout"); showBanner("📤 OUTBOUND LOGGED<br>Current Level: " + data.stockRemaining);
+        clearForm(); maybeRestartScanner(); if (analyticsOpen) refreshAnalytics();
+      } else { setMsg(data.message || "Transaction rejected", "error"); }
+    }).catch(() => { queueOffline("bookout"); });
 }
 
 function bookIn() {
-  if (!navigator.onLine) {
-    queueOffline("bookin");
-    return;
-  }
-  
-  fetch(buildUrl("bookin"))
-    .then(r => r.json())
-    .then(data => {
+  if (!navigator.onLine) { queueOffline("bookin"); return; }
+  const barcode = document.getElementById("barcode").value.trim(); const qty = document.getElementById("qty").value; const who = document.getElementById("user").value; const comments = document.getElementById("comments").value;
+
+  fetchAPI("bookin", { barcode: barcode, qty: qty, who: who, comments: comments }).then(data => {
       if (data.ok) {
-        const savedBarcode = document.getElementById("barcode").value;
-        const savedQty = document.getElementById("qty").value;
-        
-        clearCachedItem();
-        updateOfflineItemQty(savedBarcode, savedQty, "bookin");
-        showBanner("📥 INBOUND LOGGED<br>Current Level: " + data.stockRemaining);
-        clearForm();
-        maybeRestartScanner();
-        
-        if (analyticsOpen) refreshAnalytics();
-      } else {
-        setMsg(data.message || "Transaction rejected", "error");
-      }
-    })
-    .catch(() => { queueOffline("bookin"); });
+        clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookin"); showBanner("📥 INBOUND LOGGED<br>Current Level: " + data.stockRemaining);
+        clearForm(); maybeRestartScanner(); if (analyticsOpen) refreshAnalytics();
+      } else { setMsg(data.message || "Transaction rejected", "error"); }
+    }).catch(() => { queueOffline("bookin"); });
 }
 
 function clearForm() {
-  document.getElementById("barcode").value = "";
-  document.getElementById("qty").value = "";
-  document.getElementById("comments").value = "";
-
-  currentItem = null;
-  clearProductOnly();
-
-  if(!isMobileDevice()) {
-    const bc = document.getElementById("barcode");
-    if(bc) bc.focus();
-  }
+  document.getElementById("barcode").value = ""; document.getElementById("qty").value = ""; document.getElementById("comments").value = "";
+  currentItem = null; clearProductOnly();
+  if(!isMobileDevice()) { const bc = document.getElementById("barcode"); if(bc) bc.focus(); }
 }
 
 function clearProductOnly() {
   document.getElementById("product").innerText = "Ready to scan";
-  
-  const resetVal = (id) => {
-    const el = document.getElementById(id);
-    el.innerText = "-";
-    el.style.color = "var(--muted)";
-  };
-
-  resetVal("articleNo");
-  resetVal("recordedQty");
-  resetVal("capturedQty");
-  resetVal("bin");
-  resetVal("zone");
-  resetVal("location");
-
-  setCapturedStatus("");
-
-  const status = document.getElementById("statusBig");
-  status.innerText = "";
-  status.className = "statusBig";
+  const resetVal = (id) => { const el = document.getElementById(id); el.innerText = "-"; el.style.color = "var(--muted)"; };
+  resetVal("articleNo"); resetVal("recordedQty"); resetVal("capturedQty"); resetVal("bin"); resetVal("zone"); resetVal("location");
+  setCapturedStatus(""); const status = document.getElementById("statusBig"); status.innerText = ""; status.className = "statusBig";
 }
 
-if (localStorage.getItem("continuousScan") === "yes") {
-  const continuousBox = document.getElementById("continuousScan");
-  if (continuousBox) continuousBox.checked = true;
-}
+if (localStorage.getItem("continuousScan") === "yes") { const continuousBox = document.getElementById("continuousScan"); if (continuousBox) continuousBox.checked = true; }
+function saveContinuousMode() { const on = document.getElementById("continuousScan").checked; localStorage.setItem("continuousScan", on ? "yes" : "no"); showBanner(on ? "📷 TRACKING ENABLED" : "📷 TRACKING DISABLED"); }
+function shouldContinuousScan() { return localStorage.getItem("continuousScan") === "yes"; }
+function maybeRestartScanner() { if (shouldContinuousScan()) setTimeout(startScanner, 800); }
 
-function saveContinuousMode() {
-  const on = document.getElementById("continuousScan").checked;
-  localStorage.setItem("continuousScan", on ? "yes" : "no");
-  showBanner(on ? "📷 TRACKING ENABLED" : "📷 TRACKING DISABLED");
-}
-
-function shouldContinuousScan() {
-  return localStorage.getItem("continuousScan") === "yes";
-}
-
-function maybeRestartScanner() {
-  if (shouldContinuousScan()) setTimeout(startScanner, 800);
-}
-
-updateOfflineBar();
-syncPendingStocktakes();
+updateOfflineBar(); syncPendingStocktakes();
 </script>
 </body>
 </html>
