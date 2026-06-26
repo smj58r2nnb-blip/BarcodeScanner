@@ -719,7 +719,6 @@ function renderPendingStocktake() {
           window.isResetting = true;
           setTimeout(() => { autoResetStocktake(); }, 2000); 
       } else {
-          // If offline or still syncing, tell the user we are waiting
           document.getElementById("stDropDetails").innerText = "100% Counted! Waiting for network sync to finish before resetting...";
           document.getElementById("stDropDetails").style.color = "var(--green)";
       }
@@ -798,7 +797,7 @@ function updateOfflineBar() {
   bar.innerHTML = "🟢 System Online" + (offlineItems ? "<br><span style='font-size:11px; opacity:0.9;'>Local Cache: " + offlineItems + " profiles</span>" : "");
 }
 
-function queueStockTakeOffline() {
+function queueOffline(actionType) {
   const barcode = document.getElementById("barcode").value.trim();
   const qty = document.getElementById("qty").value;
   const who = document.getElementById("user").value;
@@ -815,13 +814,23 @@ function queueStockTakeOffline() {
     setStatus("❌ INVALID QTY", "statusNotFound");
     return;
   }
+  
+  if ((actionType === "bookin" || actionType === "bookout") && Number(qty) === 0) {
+    setMsg("Quantity must be greater than 0", "error");
+    setStatus("❌ INVALID QTY", "statusNotFound");
+    return;
+  }
 
-  pendingStocktake.push({ action: "save", barcode: barcode, qty: qty, who: who, comments: comments, queuedAt: new Date().toISOString() });
-  updateOfflineItemQty(barcode, qty);
+  pendingStocktake.push({ action: actionType, barcode: barcode, qty: qty, who: who, comments: comments, queuedAt: new Date().toISOString() });
+  updateOfflineItemQty(barcode, qty, actionType);
   savePendingStocktakeQueue();
   updateOfflineBar();
 
-  showBanner("📴 OFFLINE LOG SAVED<br>" + pendingStocktake.length + " waiting to sync");
+  let actionText = "FIELD AUDIT";
+  if(actionType === "bookin") actionText = "INBOUND LOG";
+  if(actionType === "bookout") actionText = "OUTBOUND LOG";
+
+  showBanner("📴 OFFLINE " + actionText + " SAVED<br>" + pendingStocktake.length + " waiting to sync");
   setMsg("Transaction queued to local storage", "good");
   setStatus("🟡 QUEUED OFFLINE", "statusSearching");
 
@@ -840,7 +849,7 @@ function syncPendingStocktakes() {
   }
 
   const item = pendingStocktake[0];
-  const url = API + "?action=save&barcode=" + encodeURIComponent(item.barcode) + "&qty=" + encodeURIComponent(item.qty) +
+  const url = API + "?action=" + encodeURIComponent(item.action) + "&barcode=" + encodeURIComponent(item.barcode) + "&qty=" + encodeURIComponent(item.qty) +
     "&who=" + encodeURIComponent(item.who) + "&comments=" + encodeURIComponent(item.comments || "");
 
   fetch(url)
@@ -857,7 +866,6 @@ function syncPendingStocktakes() {
           showBanner("🟢 CACHE SYNC COMPLETE");
           setMsg("All offline entries synchronized to server", "good");
           
-          // TRIGGER CHECK: If they finished the stocktake while offline, this will trigger the reset!
           if (stocktakeOpen) renderPendingStocktake();
         }
       } else {
@@ -1118,14 +1126,24 @@ function clearCachedItem() {
   localStorage.removeItem("item_" + barcode);
 }
 
-function updateOfflineItemQty(barcode, qty) {
+function updateOfflineItemQty(barcode, qty, actionType) {
   const items = getOfflineStockData();
   const search = String(barcode || "").trim();
+  const nQty = Number(qty) || 0;
 
   for (let i = 0; i < items.length; i++) {
     if (String(items[i].barcode || "").trim() === search || String(items[i].bin || "").trim() === search) {
-      items[i].recordedQty = qty;
-      items[i].capturedQty = qty;
+      let currentRecorded = Number(items[i].recordedQty) || 0;
+      
+      if (actionType === "save") {
+         items[i].recordedQty = nQty;
+         items[i].capturedQty = nQty;
+      } else if (actionType === "bookin") {
+         items[i].recordedQty = currentRecorded + nQty;
+      } else if (actionType === "bookout") {
+         items[i].recordedQty = Math.max(0, currentRecorded - nQty);
+      }
+      
       saveOfflineStockData(items);
       break;
     }
@@ -1134,7 +1152,7 @@ function updateOfflineItemQty(barcode, qty) {
 
 function saveStockTake() {
   if (!navigator.onLine) {
-    queueStockTakeOffline();
+    queueOffline("save");
     return;
   }
 
@@ -1146,7 +1164,7 @@ function saveStockTake() {
         const savedQty = document.getElementById("qty").value;
 
         clearCachedItem();
-        updateOfflineItemQty(savedBarcode, savedQty);
+        updateOfflineItemQty(savedBarcode, savedQty, "save");
         showBanner("✅ FIELD AUDIT SAVED");
         lookup(savedBarcode);
         syncPendingStocktakes();
@@ -1158,41 +1176,61 @@ function saveStockTake() {
         setMsg(data.message || "Database write failed", "error");
       }
     })
-    .catch(() => { queueStockTakeOffline(); });
+    .catch(() => { queueOffline("save"); });
 }
 
 function bookOut() {
+  if (!navigator.onLine) {
+    queueOffline("bookout");
+    return;
+  }
+  
   fetch(buildUrl("bookout"))
     .then(r => r.json())
     .then(data => {
       if (data.ok) {
+        const savedBarcode = document.getElementById("barcode").value;
+        const savedQty = document.getElementById("qty").value;
+        
         clearCachedItem();
+        updateOfflineItemQty(savedBarcode, savedQty, "bookout");
         showBanner("📤 OUTBOUND LOGGED<br>Current Level: " + data.stockRemaining);
         clearForm();
         maybeRestartScanner();
+        
         if (analyticsOpen) refreshAnalytics();
       } else {
         setMsg(data.message || "Transaction rejected", "error");
       }
     })
-    .catch(() => setMsg("Network threshold error", "error"));
+    .catch(() => { queueOffline("bookout"); });
 }
 
 function bookIn() {
+  if (!navigator.onLine) {
+    queueOffline("bookin");
+    return;
+  }
+  
   fetch(buildUrl("bookin"))
     .then(r => r.json())
     .then(data => {
       if (data.ok) {
+        const savedBarcode = document.getElementById("barcode").value;
+        const savedQty = document.getElementById("qty").value;
+        
         clearCachedItem();
+        updateOfflineItemQty(savedBarcode, savedQty, "bookin");
         showBanner("📥 INBOUND LOGGED<br>Current Level: " + data.stockRemaining);
         clearForm();
         maybeRestartScanner();
+        
         if (analyticsOpen) refreshAnalytics();
       } else {
         setMsg(data.message || "Transaction rejected", "error");
       }
     })
-    .catch(() => setMsg("Network threshold error", "error"));
+    .catch(() => { queueOffline("bookin"); });
 }
 
 function clearForm() {
