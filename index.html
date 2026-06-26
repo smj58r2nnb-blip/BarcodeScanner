@@ -185,7 +185,7 @@ body.pc-view #scanBtn { background: var(--muted); }
     <h2>Menu</h2>
   </div>
   <div id="nav-scanner" class="menu-item active-menu" onclick="switchView('viewScanner', 'nav-scanner')">
-    📷 Scanner & Booking
+     Scanner & Booking
   </div>
   <div id="nav-analytics" class="menu-item" onclick="switchView('viewAnalytics', 'nav-analytics')">
      Live Book In & Out
@@ -310,7 +310,7 @@ body.pc-view #scanBtn { background: var(--muted); }
        <div class="table-wrapper">
          <table class="ledger-table">
            <thead><tr><th>Bin No</th><th>Article No</th><th>Description</th></tr></thead>
-           <tbody id="pendingBody"><tr><td colspan="3" style="text-align:center; padding: 30px; color: var(--muted);">Load local cache to view active items...</td></tr></tbody>
+           <tbody id="pendingBody"><tr><td colspan="3" style="text-align:center; padding: 30px; color: var(--muted);">Load local inventory to view active items...</td></tr></tbody>
          </table>
        </div>
     </div>
@@ -521,7 +521,7 @@ function renderPendingStocktake() {
   
   const tbody = document.getElementById("pendingBody");
   if (total === 0) {
-    tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:30px; color:var(--muted);'>No tracked directory found. Please click 'Cache Data for Offline Use' on the scanner page.</td></tr>";
+    tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:30px; color:var(--muted);'>No tracked directory found. Please click 'Inventory Data for Offline Use' on the scanner page.</td></tr>";
     return;
   }
   
@@ -634,12 +634,12 @@ function syncPendingStocktakes() {
         if (pendingStocktake.length) {
           syncPendingStocktakes();
         } else {
-          showBanner("🟢 CACHE SYNC COMPLETE");
+          showBanner("🟢 INVENTORY SYNC COMPLETE");
           setMsg("All offline entries synchronized to server", "good");
           if (document.getElementById('viewStocktake').classList.contains('active-view')) renderPendingStocktake();
         }
       } else {
-        updateOfflineBar(); setMsg(data.message || "Cache sync failed", "error");
+        updateOfflineBar(); setMsg(data.message || "Inventory sync failed", "error");
       }
     }).catch(() => { updateOfflineBar(); setMsg("Connection unstable — entries remain queued", "error"); });
 }
@@ -667,7 +667,7 @@ function findOfflineProduct(barcode) {
 }
 
 function downloadStockData() {
-  if (!navigator.onLine) { setMsg("Cannot refresh cache while offline", "error"); setStatus("🔴 SYSTEM OFFLINE", "statusNotFound"); return; }
+  if (!navigator.onLine) { setMsg("Cannot refresh Inventory while offline", "error"); setStatus("🔴 SYSTEM OFFLINE", "statusNotFound"); return; }
   setMsg("Downloading Inventory for offline staging...", "good");
   setStatus("⬇️ DOWNLOADING...", "statusSearching");
 
@@ -675,7 +675,7 @@ function downloadStockData() {
       if (!data.ok || !data.items) { setMsg(data.message || "Directory download failed", "error"); setStatus("❌ DOWNLOAD FAILED", "statusNotFound"); return; }
       saveOfflineStockData(data.items);
       showBanner("✅ OFFLINE INVENTORY SECURED<br>" + data.items.length + " profiles updated");
-      setMsg("Cache refreshed: " + data.items.length + " profiles", "good");
+      setMsg("Inventory refreshed: " + data.items.length + " profiles", "good");
       setStatus("✅ INVENTORY READY", "statusFound");
       updateOfflineBar();
       if (document.getElementById('viewStocktake').classList.contains('active-view')) renderPendingStocktake();
@@ -716,8 +716,8 @@ function lookup(barcode) {
 
   if (!navigator.onLine) {
     const offlineItem = findOfflineProduct(barcode);
-    if (offlineItem) { showProduct(offlineItem); setMsg("Product sourced from local cache", "good"); setStatus("✅ CACHE MATCH", "statusFound"); } 
-    else { clearProductOnly(); setMsg("Index key missed in offline cache", "error"); setStatus("❌ NOT IN CACHE", "statusNotFound"); }
+    if (offlineItem) { showProduct(offlineItem); setMsg("Product sourced from local Inventory", "good"); setStatus("✅ INVENTORY MATCH", "statusFound"); } 
+    else { clearProductOnly(); setMsg("Index key missed in offline Inventory", "error"); setStatus("❌ NOT IN INVENTORY", "statusNotFound"); }
     updateOfflineBar(); return;
   }
 
@@ -726,7 +726,7 @@ function lookup(barcode) {
       showProduct(data); updateOfflineBar();
     }).catch(() => {
       const offlineItem = findOfflineProduct(barcode);
-      if (offlineItem) { showProduct(offlineItem); setMsg("Product sourced from local cache", "good"); setStatus("✅ CACHE MATCH", "statusFound"); } 
+      if (offlineItem) { showProduct(offlineItem); setMsg("Product sourced from local inventory", "good"); setStatus("✅ INVENTORY MATCH", "statusFound"); } 
       else { setMsg("Database connection error", "error"); setStatus("❌ CONNECTION ERROR", "statusNotFound"); }
       if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]); updateOfflineBar();
     });
@@ -777,7 +777,7 @@ function saveStockTake() {
 
   fetchAPI("save", { barcode: barcode, qty: qty, who: who }).then(data => {
       if (data.ok) {
-        clearCachedItem(); updateOfflineItemQty(barcode, qty, "save"); showBanner("✅ FIELD AUDIT SAVED");
+        clearCachedItem(); updateOfflineItemQty(barcode, qty, "save"); showBanner("✅ SAVED");
         lookup(barcode); syncPendingStocktakes(); maybeRestartScanner();
         if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics(); 
         if (document.getElementById('viewStocktake').classList.contains('active-view')) renderPendingStocktake();
