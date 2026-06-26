@@ -188,13 +188,13 @@ body.pc-view #scanBtn { background: var(--muted); }
     📷 Scanner & Booking
   </div>
   <div id="nav-analytics" class="menu-item" onclick="switchView('viewAnalytics', 'nav-analytics')">
-    📊 Live Analytics
+     Live Book In & Out
   </div>
   <div id="nav-stocktake" class="menu-item" onclick="switchView('viewStocktake', 'nav-stocktake')">
-    📝 Active Stocktake
+     Active Stocktake
   </div>
   <div id="nav-reports" class="menu-item" onclick="switchView('viewReports', 'nav-reports')">
-    ⚠️ Reorders & Alerts
+     Reorders & Alerts
   </div>
 </div>
 
@@ -591,7 +591,7 @@ function updateOfflineBar() {
   }
 
   bar.className = "offlineBar";
-  bar.innerHTML = "🟢 System Online" + (offlineItems ? "<br><span style='font-size:11px; opacity:0.9;'>Local Inventory: " + offlineItems + " ityems</span>" : "");
+  bar.innerHTML = "🟢 System Online" + (offlineItems ? "<br><span style='font-size:11px; opacity:0.9;'>Local Inventory: " + offlineItems + " Items</span>" : "");
 }
 
 function queueOffline(actionType) {
@@ -818,7 +818,7 @@ function clearForm() {
 }
 
 function clearProductOnly() {
-  document.getElementById("product").innerText = "Ready to scan";
+  document.getElementById("product").innerText = "";
   const resetVal = (id) => { const el = document.getElementById(id); el.innerText = "-"; el.style.color = "var(--muted)"; };
   resetVal("articleNo"); resetVal("recordedQty"); resetVal("capturedQty"); resetVal("bin"); resetVal("zone"); resetVal("location");
   setCapturedStatus(""); const status = document.getElementById("statusBig"); status.innerText = ""; status.className = "statusBig";
