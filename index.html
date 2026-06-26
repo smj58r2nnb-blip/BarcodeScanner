@@ -517,7 +517,7 @@ function renderPendingStocktake() {
   
   document.getElementById("stDropProg").innerText = percent + "% Complete";
   document.getElementById("stDropBar").style.width = percent + "%";
-  document.getElementById("stDropDetails").innerText = `Verified: ${counted} lines • Pending Field Count: ${pendingItems.length} lines • Master Directory Size: ${total} tracked profiles`;
+  document.getElementById("stDropDetails").innerText = `Verified: ${counted} lines • Pending Field Count: ${pendingItems.length} lines • Master Directory Size: ${total} tracked Items`;
   
   const tbody = document.getElementById("pendingBody");
   if (total === 0) {
@@ -591,7 +591,7 @@ function updateOfflineBar() {
   }
 
   bar.className = "offlineBar";
-  bar.innerHTML = "🟢 System Online" + (offlineItems ? "<br><span style='font-size:11px; opacity:0.9;'>Local Inventory: " + offlineItems + " profiles</span>" : "");
+  bar.innerHTML = "🟢 System Online" + (offlineItems ? "<br><span style='font-size:11px; opacity:0.9;'>Local Inventory: " + offlineItems + " Items</span>" : "");
 }
 
 function queueOffline(actionType) {
@@ -668,13 +668,13 @@ function findOfflineProduct(barcode) {
 
 function downloadStockData() {
   if (!navigator.onLine) { setMsg("Cannot refresh Inventory while offline", "error"); setStatus("🔴 SYSTEM OFFLINE", "statusNotFound"); return; }
-  setMsg("Downloading directory for offline staging...", "good");
+  setMsg("Downloading inventory for offline...", "good");
   setStatus("⬇️ DOWNLOADING...", "statusSearching");
 
   fetchAPI("stockdata").then(data => {
       if (!data.ok || !data.items) { setMsg(data.message || "Directory download failed", "error"); setStatus("❌ DOWNLOAD FAILED", "statusNotFound"); return; }
       saveOfflineStockData(data.items);
-      showBanner("✅ OFFLINE INVENTORY SECURED<br>" + data.items.length + " profiles updated");
+      showBanner("✅ OFFLINE INVENTORY SECURED<br>" + data.items.length + " Items updated");
       setMsg("Inventory refreshed: " + data.items.length + " Items", "good");
       setStatus("✅ INVENTORY READY", "statusFound");
       updateOfflineBar();
