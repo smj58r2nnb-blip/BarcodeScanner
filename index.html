@@ -2,17 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <title>Stores Management</title>
 
 <link rel="apple-touch-icon" href="EBF97A0E-DFD1-418E-9294-54F476B5B47F.png">
 <link rel="icon" type="image/png" href="EBF97A0E-DFD1-418E-9294-54F476B5B47F.png">
 <meta name="apple-mobile-web-app-title" content="Stores">
+<meta name="theme-color" content="#047857">
 
 <script src="https://unpkg.com/@zxing/library@latest"></script>
 
 <style>
-/* Global Reset & Modern Box Model */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -25,26 +25,75 @@
   --info-bg: #eff6ff; --info-text: #1e40af;
 }
 
-body { background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; line-height: 1.5; overflow-x: hidden; width: 100%; }
-
-.header { background: linear-gradient(135deg, var(--green-dark), var(--green)); color: white; padding: 24px 20px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); width: 100%; }
-.header h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
-.header p { margin-top: 4px; font-size: 13px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; }
-
-.wrap { width: 100%; max-width: 800px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 1fr; gap: 20px; }
-
-@media(min-width: 900px) {
-  .wrap { max-width: 1300px; grid-template-columns: 1fr 1fr; align-items: stretch; }
-  .full-width { grid-column: 1 / -1; }
+body { 
+  background: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; 
+  line-height: 1.5; overflow-x: hidden; width: 100vw; height: 100vh; display: flex; flex-direction: column;
 }
 
-.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.05); display: flex; flex-direction: column; min-width: 0; height: 100%; }
+/* APP HEADER (Sticky Top) */
+.header { 
+  background: linear-gradient(135deg, var(--green-dark), var(--green)); 
+  color: white; padding: 16px 20px; 
+  display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
+  position: sticky; top: 0; z-index: 50; width: 100%;
+}
+.header-titles { text-align: center; flex-grow: 1; }
+.header h1 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+.header p { margin-top: 2px; font-size: 11px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.menu-btn { font-size: 28px; cursor: pointer; width: 40px; text-align: left; }
+.header-spacer { width: 40px; } /* Balances the flex layout */
+
+/* SLIDE OUT SIDEBAR */
+.sidebar-overlay {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.6); z-index: 99;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+}
+.sidebar-overlay.active { opacity: 1; pointer-events: auto; }
+
+.sidebar {
+  position: fixed; top: 0; left: -300px; width: 280px; height: 100vh;
+  background: var(--card); z-index: 100;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.15);
+  transition: left 0.3s ease; display: flex; flex-direction: column;
+}
+.sidebar.active { left: 0; }
+.sidebar-header {
+  background: var(--green-light); padding: 24px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-header h2 { color: var(--green-dark); font-size: 18px; font-weight: 800; }
+.menu-item {
+  padding: 18px 20px; font-size: 16px; font-weight: 700; color: var(--text);
+  border-bottom: 1px solid var(--border); cursor: pointer;
+  display: flex; align-items: center; gap: 12px; transition: background 0.2s;
+}
+.menu-item:hover, .menu-item.active-menu { background: var(--input-bg); color: var(--green-dark); }
+
+/* MAIN CONTENT VIEWS */
+.app-view { 
+  display: none; width: 100%; max-width: 1000px; margin: 0 auto; 
+  padding: 20px; gap: 20px; animation: fadeIn 0.3s ease;
+}
+.app-view.active-view { display: grid; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+@media(min-width: 900px) {
+  .grid-2 { grid-template-columns: 1fr 1fr; align-items: stretch; }
+  .app-view { padding: 40px 20px; }
+}
+
+/* CARDS & UI ELEMENTS */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.05); display: flex; flex-direction: column; height: 100%; }
+.full-width { grid-column: 1 / -1; }
 
 .form-group { margin-bottom: 16px; }
 .form-group label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; }
 
-input, textarea, select { width: 100%; border-radius: 10px; padding: 14px 16px; font-size: 15px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); outline: none; }
-input:focus, textarea:focus, select:focus { background: var(--card); border-color: var(--green); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15); }
+input, select { width: 100%; border-radius: 10px; padding: 14px 16px; font-size: 15px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); outline: none; }
+input:focus, select:focus { background: var(--card); border-color: var(--green); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15); }
 
 button { width: 100%; border: none; color: white; font-weight: 700; font-size: 14px; border-radius: 10px; min-height: 48px; padding: 0 16px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease; }
 button:hover { filter: brightness(1.05); transform: translateY(-1px); }
@@ -58,21 +107,21 @@ body.pc-view #scanBtn { background: var(--muted); }
 .mode { background: #475569; }
 
 .product { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--border); }
+.card-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 16px; border-bottom: 2px solid var(--green-light); padding-bottom: 10px; }
 
-.data-grid { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 16px; flex-grow: 1; }
+.data-grid { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 12px; flex-grow: 1; }
 @media(max-width: 480px) { .data-grid { grid-template-columns: 1fr; } }
-
-.box { background: var(--card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; }
+.box { background: var(--card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; }
 .box .label { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; }
-.box .value { margin-top: 8px; font-size: 20px; font-weight: 800; word-break: break-word; }
+.box .value { margin-top: 6px; font-size: 18px; font-weight: 800; word-break: break-word; }
 
 .greenStock { color: var(--green); }
 .amberStock { color: #d97706; }
 .redStock { color: #dc2626; }
-
 .doneBox { background: var(--success-bg); border-color: var(--green); }
 .doneValue { color: var(--green-dark); }
 
+/* PRO SCANNER */
 .scanner-wrapper { position: relative; width: 100%; display: none; margin: 16px 0; border-radius: 12px; overflow: hidden; background: #000; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); aspect-ratio: 4/3; }
 .scanner-wrapper video { width: 100%; height: 100%; display: block; object-fit: cover; }
 .scanner-target { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; }
@@ -81,7 +130,6 @@ body.pc-view #scanBtn { background: var(--muted); }
 .scanner-target::after { content: ""; position: absolute; left: 20%; width: 60%; height: 2px; background: var(--green); box-shadow: 0 0 8px var(--green); animation: scan-line 2s infinite linear; }
 
 .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: auto; }
-
 #msg { text-align: center; font-size: 14px; font-weight: 700; margin-top: 12px; min-height: 21px; }
 .good { color: var(--green); }
 .error { color: #dc2626; }
@@ -99,15 +147,9 @@ body.pc-view #scanBtn { background: var(--muted); }
 .toggleRow { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding: 16px; border-radius: 10px; background: var(--input-bg); border: 1px solid var(--border); font-weight: 700; font-size: 14px; }
 .toggleRow input[type="checkbox"] { width: auto; transform: scale(1.3); margin: 0; cursor: pointer; }
 
-.dropdown-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
-.dropdown-header:hover .product { color: var(--green); }
-.dropdown-header .product { margin: 0; border: none; padding: 0; transition: color 0.2s ease; }
-.toggle-icon { width: 32px; height: 32px; border-radius: 50%; background: var(--input-bg); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; color: var(--muted); transition: all 0.2s ease; }
-.dropdown-header:hover .toggle-icon { background: var(--green-light); color: var(--green-dark); }
-
+/* TABLES & DATA */
 .progressWrap { background: var(--border); border-radius: 999px; overflow: hidden; height: 10px; margin-top: 12px; }
 .progressBar { height: 100%; background: var(--green); width: 0%; transition: width 0.5s ease-out; }
-
 .table-wrapper { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; margin-top: 16px; width: 100%; }
 .ledger-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; background: var(--card); }
 .ledger-table th { background: var(--input-bg); padding: 12px 16px; color: var(--muted); font-weight: 800; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); white-space: nowrap; }
@@ -120,22 +162,44 @@ body.pc-view #scanBtn { background: var(--muted); }
 .badge-warn { background: var(--warn-bg); color: var(--warn-text); }
 .badge-bin { background: var(--input-bg); color: var(--text); border: 1px solid var(--border); font-family: monospace; font-size: 12px; }
 
-.row-counted td { background: var(--success-bg) !important; border-bottom: 1px solid var(--green-light) !important; color: var(--green-dark) !important; }
-.row-counted .badge-bin { background: var(--green) !important; color: white !important; border-color: var(--green) !important; }
-.row-counted .desc-text { color: var(--green-dark) !important; font-weight: 600; }
-
-.footer { text-align: center; color: var(--muted); font-size: 13px; font-weight: 500; padding: 20px 0 40px; }
+.row-counted td, .row-ordered td { background: var(--success-bg) !important; border-bottom: 1px solid var(--green-light) !important; color: var(--green-dark) !important; }
+.row-counted .badge-bin, .row-ordered .badge-bin { background: var(--green) !important; color: white !important; border-color: var(--green) !important; }
+.row-counted .desc-text, .row-ordered .desc-text { color: var(--green-dark) !important; font-weight: 600; }
 </style>
 </head>
 
 <body>
+
 <div class="header">
-  <h1>Stores Management</h1>
-  <p>Precision Inventory Control</p>
+  <div class="menu-btn" onclick="toggleSidebar()">☰</div>
+  <div class="header-titles">
+    <h1>Stores Management</h1>
+    <p>Precision Inventory Control</p>
+  </div>
+  <div class="header-spacer"></div>
 </div>
 
-<div class="wrap">
+<div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div id="appSidebar" class="sidebar">
+  <div class="sidebar-header">
+    <h2>Menu</h2>
+  </div>
+  <div id="nav-scanner" class="menu-item active-menu" onclick="switchView('viewScanner', 'nav-scanner')">
+    📷 Scanner & Booking
+  </div>
+  <div id="nav-analytics" class="menu-item" onclick="switchView('viewAnalytics', 'nav-analytics')">
+    📊 Live Analytics
+  </div>
+  <div id="nav-stocktake" class="menu-item" onclick="switchView('viewStocktake', 'nav-stocktake')">
+    📝 Active Stocktake
+  </div>
+  <div id="nav-reports" class="menu-item" onclick="switchView('viewReports', 'nav-reports')">
+    ⚠️ Reorders & Alerts
+  </div>
+</div>
 
+<div id="viewScanner" class="app-view grid-2 active-view">
+  
   <div class="card">
     <button id="scanBtn" class="scan" onclick="startScanner()">
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 7V4h3m10 0h3v3M4 17v3h3m10 0h3v-3M12 8v8M8 12h8"/></svg>
@@ -154,34 +218,15 @@ body.pc-view #scanBtn { background: var(--muted); }
     </div>
 
     <div id="statusBig" class="statusBig"></div>
-
     <div id="product" class="product">Ready to scan</div>
 
     <div class="data-grid">
-      <div class="box">
-        <div class="label">Article No</div>
-        <div id="articleNo" class="value" style="color:var(--muted)">-</div>
-      </div>
-      <div class="box">
-        <div class="label">Qty Recorded</div>
-        <div id="recordedQty" class="value greenStock">-</div>
-      </div>
-      <div class="box">
-        <div id="capturedLabel" class="label">Not Counted</div>
-        <div id="capturedQty" class="value" style="color:var(--muted)">-</div>
-      </div>
-      <div class="box">
-        <div class="label">Bin No</div>
-        <div id="bin" class="value" style="color:var(--muted)">-</div>
-      </div>
-      <div class="box">
-        <div class="label">Zone</div>
-        <div id="zone" class="value" style="color:var(--muted)">-</div>
-      </div>
-      <div class="box">
-        <div class="label">Location</div>
-        <div id="location" class="value" style="color:var(--muted)">-</div>
-      </div>
+      <div class="box"><div class="label">Article No</div><div id="articleNo" class="value" style="color:var(--muted)">-</div></div>
+      <div class="box"><div class="label">Qty Recorded</div><div id="recordedQty" class="value greenStock">-</div></div>
+      <div class="box"><div id="capturedLabel" class="label">Not Counted</div><div id="capturedQty" class="value" style="color:var(--muted)">-</div></div>
+      <div class="box"><div class="label">Bin No</div><div id="bin" class="value" style="color:var(--muted)">-</div></div>
+      <div class="box"><div class="label">Zone</div><div id="zone" class="value" style="color:var(--muted)">-</div></div>
+      <div class="box"><div class="label">Location</div><div id="location" class="value" style="color:var(--muted)">-</div></div>
     </div>
   </div>
 
@@ -189,12 +234,7 @@ body.pc-view #scanBtn { background: var(--muted); }
     <div class="form-group">
       <label for="user">Active User</label>
       <select id="user">
-        <option>M Read</option>
-        <option>I Rees</option>
-        <option>C Law</option>
-        <option>M Peters</option>
-        <option>J Meakin</option>
-        <option>M Goodhall</option>
+        <option>M Read</option><option>I Rees</option><option>C Law</option><option>M Peters</option><option>J Meakin</option><option>M Goodhall</option>
       </select>
     </div>
 
@@ -203,9 +243,7 @@ body.pc-view #scanBtn { background: var(--muted); }
       <input id="qty" type="number" placeholder="Enter amount...">
     </div>
 
-    <div id="offlineBar" class="offlineBar">
-      Checking System Status...
-    </div>
+    <div id="offlineBar" class="offlineBar">Checking System Status...</div>
 
     <div class="actions">
       <button class="save" onclick="saveStockTake()">✓ Save Count</button>
@@ -221,148 +259,99 @@ body.pc-view #scanBtn { background: var(--muted); }
       <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3"/></svg>
       Cache Data for Offline Use
     </button>
-
-    <div class="toggleRow">
-      <span>Continuous Scan Tracking</span>
-      <input id="continuousScan" type="checkbox" onchange="saveContinuousMode()">
-    </div>
-  </div>
-
-  <div class="card full-width">
-    <div class="dropdown-header" onclick="toggleAnalytics()">
-      <div class="product">📊 Live Analytics & Feed</div>
-      <div id="analyticsToggleIcon" class="toggle-icon">+</div>
-    </div>
     
-    <div id="analyticsContainer" style="display:none; margin-top:20px;">
-      <div class="data-grid">
-         <div class="box">
-           <div class="label">Outbound Transactions (Today)</div>
-           <div class="value" id="statOut" style="font-size:24px;">0 units</div>
-         </div>
-         <div class="box">
-           <div class="label">Inbound Transactions (Today)</div>
-           <div class="value" id="statIn" style="font-size:24px;">0 units</div>
-         </div>
-      </div>
-
-      <div style="margin-top:28px;">
-         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-           <div class="label" style="font-size:13px; color:var(--text);">Recent Activity Ledger</div>
-           <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="refreshAnalytics()">
-             🔄 Sync Feed
-           </button>
-         </div>
-         
-         <div class="table-wrapper">
-           <table class="ledger-table">
-             <thead>
-               <tr>
-                 <th>Timestamp</th>
-                 <th>User</th>
-                 <th>Product Match</th>
-                 <th>Bin Location</th>
-                 <th>Type</th>
-                 <th>Qty</th>
-               </tr>
-             </thead>
-             <tbody id="ledgerBody">
-               <tr><td colspan="6" style="text-align:center; padding: 30px; color: var(--muted);">Loading live feed data...</td></tr>
-             </tbody>
-           </table>
-         </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card full-width" style="margin-top: 0px;">
-    <div class="dropdown-header" onclick="toggleStocktake()">
-      <div class="product">📝 Active Stocktake</div>
-      <div id="stocktakeToggleIcon" class="toggle-icon">+</div>
-    </div>
-    
-    <div id="stocktakeContainer" style="display:none; margin-top:20px;">
-      <div class="box" style="align-items:flex-start;">
-         <div class="label">Stocktake Compliance</div>
-         <div class="value" id="stDropProg" style="font-size: 24px; color:var(--text);">0% Complete</div>
-         <div style="font-size: 13px; color: var(--muted); font-weight: 600; margin-top: 4px;" id="stDropDetails">
-           Awaiting synchronization...
-         </div>
-         <div class="progressWrap" style="width: 100%;">
-            <div id="stDropBar" class="progressBar"></div>
-         </div>
-      </div>
-      
-      <div style="margin-top:28px;">
-         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-           <div class="label" style="font-size:13px; color:var(--text);">Pending & Completed Items</div>
-           <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="renderPendingStocktake()">
-             🔄 Refresh List
-           </button>
-         </div>
-         
-         <div class="table-wrapper">
-           <table class="ledger-table">
-             <thead>
-               <tr>
-                 <th>Bin No</th>
-                 <th>Article No</th>
-                 <th>Description</th>
-               </tr>
-             </thead>
-             <tbody id="pendingBody">
-               <tr><td colspan="3" style="text-align:center; padding: 30px; color: var(--muted);">Load local cache to view active items...</td></tr>
-             </tbody>
-           </table>
-         </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card full-width" style="margin-top: 0px;">
-    <div class="dropdown-header" onclick="toggleReports()">
-      <div class="product">⚠️ Reorders & 🔥 Top Items</div>
-      <div id="reportsToggleIcon" class="toggle-icon">+</div>
-    </div>
-    
-    <div id="reportsContainer" style="display:none; margin-top:20px;">
-      
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <div class="label" style="font-size:13px; color:var(--error-text);">Stock Reorder Alerts</div>
-        <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="loadReportsData()">
-          🔄 Refresh Alerts
-        </button>
-      </div>
-      
-      <div class="table-wrapper">
-        <table class="ledger-table">
-          <thead><tr><th>Bin Location</th><th>Product Match</th><th>Current Stock</th><th>Reorder Level</th></tr></thead>
-          <tbody id="reorderBody">
-            <tr><td colspan="4" style="text-align:center; padding:30px; color:var(--muted);">Fetching live stock levels...</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:28px; margin-bottom:12px;">
-        <div class="label" style="font-size:13px; color:var(--text);">Top Used Items</div>
-      </div>
-      <div class="table-wrapper">
-        <table class="ledger-table">
-          <thead><tr><th>Rank & Description</th><th>Total Outbound (All Time)</th></tr></thead>
-          <tbody id="topUsedBody">
-            <tr><td colspan="2" style="text-align:center; padding:30px; color:var(--muted);">Calculating top items...</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="footer full-width">
-    Corporate Stores System • Supreme Edition
+    <div class="toggleRow"><span>Continuous Scan Tracking</span><input id="continuousScan" type="checkbox" onchange="saveContinuousMode()"></div>
   </div>
 
 </div>
+
+
+<div id="viewAnalytics" class="app-view">
+  <div class="card full-width">
+    <div class="card-title">📊 Live Analytics & Feed</div>
+    
+    <div class="data-grid">
+       <div class="box"><div class="label">Outbound Transactions (Today)</div><div class="value" id="statOut" style="font-size:24px;">0 units</div></div>
+       <div class="box"><div class="label">Inbound Transactions (Today)</div><div class="value" id="statIn" style="font-size:24px;">0 units</div></div>
+    </div>
+
+    <div style="margin-top:28px;">
+       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+         <div class="label" style="font-size:13px; color:var(--text);">Recent Activity Ledger</div>
+         <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="refreshAnalytics()">🔄 Sync Feed</button>
+       </div>
+       <div class="table-wrapper">
+         <table class="ledger-table">
+           <thead><tr><th>Timestamp</th><th>User</th><th>Product Match</th><th>Bin Location</th><th>Type</th><th>Qty</th></tr></thead>
+           <tbody id="ledgerBody"><tr><td colspan="6" style="text-align:center; padding: 30px; color: var(--muted);">Loading live feed data...</td></tr></tbody>
+         </table>
+       </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="viewStocktake" class="app-view">
+  <div class="card full-width">
+    <div class="card-title">📝 Active Stocktake</div>
+    
+    <div class="box" style="align-items:flex-start;">
+       <div class="label">Stocktake Compliance</div>
+       <div class="value" id="stDropProg" style="font-size: 24px; color:var(--text);">0% Complete</div>
+       <div style="font-size: 13px; color: var(--muted); font-weight: 600; margin-top: 4px;" id="stDropDetails">Awaiting synchronization...</div>
+       <div class="progressWrap" style="width: 100%;"><div id="stDropBar" class="progressBar"></div></div>
+    </div>
+    
+    <div style="margin-top:28px;">
+       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+         <div class="label" style="font-size:13px; color:var(--text);">Pending & Completed Items</div>
+         <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="renderPendingStocktake()">🔄 Refresh List</button>
+       </div>
+       <div class="table-wrapper">
+         <table class="ledger-table">
+           <thead><tr><th>Bin No</th><th>Article No</th><th>Description</th></tr></thead>
+           <tbody id="pendingBody"><tr><td colspan="3" style="text-align:center; padding: 30px; color: var(--muted);">Load local cache to view active items...</td></tr></tbody>
+         </table>
+       </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="viewReports" class="app-view">
+  <div class="card full-width">
+    <div class="card-title">⚠️ Reorders & 🔥 Top Items</div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <div class="label" style="font-size:13px; color:var(--error-text);">Stock Reorder Alerts (Click to Mark Ordered)</div>
+      <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="loadReportsData()">🔄 Refresh Alerts</button>
+    </div>
+    
+    <div class="table-wrapper">
+      <table class="ledger-table">
+        <thead><tr><th>Bin Location</th><th>Product Match</th><th>Current Stock</th><th>Reorder Level</th></tr></thead>
+        <tbody id="reorderBody">
+          <tr><td colspan="4" style="text-align:center; padding:30px; color:var(--muted);">Fetching live stock levels...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:28px; margin-bottom:12px;">
+      <div class="label" style="font-size:13px; color:var(--text);">Top Used Items</div>
+    </div>
+    
+    <div class="table-wrapper">
+      <table class="ledger-table">
+        <thead><tr><th>Rank & Description</th><th>Total Outbound (All Time)</th></tr></thead>
+        <tbody id="topUsedBody">
+          <tr><td colspan="2" style="text-align:center; padding:30px; color:var(--muted);">Calculating top items...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
 
 <script>
 // Replace this with your Google Script web app URL
@@ -385,10 +374,35 @@ function fetchAPI(action, params = {}) {
 let scanner = null;
 let currentItem = null;
 let scanLocked = false;
-let analyticsOpen = false;
-let stocktakeOpen = false;
-let reportsOpen = false;
 window.isResetting = false;
+
+// --- UI & VIEW SWITCHING LOGIC ---
+function toggleSidebar() {
+  const sidebar = document.getElementById("appSidebar");
+  const overlay = document.getElementById("sidebarOverlay");
+  sidebar.classList.toggle("active");
+  overlay.classList.toggle("active");
+}
+
+function switchView(viewId, navId) {
+  // Hide all views
+  document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active-view'));
+  // Show target view
+  document.getElementById(viewId).classList.add('active-view');
+  
+  // Update sidebar highlight
+  document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active-menu'));
+  document.getElementById(navId).classList.add('active-menu');
+  
+  // Close Sidebar
+  toggleSidebar();
+  window.scrollTo(0,0);
+  
+  // Trigger data refreshes if needed
+  if(viewId === 'viewAnalytics') refreshAnalytics();
+  if(viewId === 'viewStocktake') renderPendingStocktake();
+  if(viewId === 'viewReports') loadReportsData();
+}
 
 function isMobileDevice() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 850;
@@ -403,22 +417,7 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// --- TOGGLE REPORTS (REORDERS & TOP ITEMS) ---
-function toggleReports() {
-  const container = document.getElementById("reportsContainer");
-  const icon = document.getElementById("reportsToggleIcon");
-  reportsOpen = !reportsOpen;
-  if (reportsOpen) {
-    container.style.display = "block"; 
-    icon.innerText = "−"; 
-    loadReportsData();
-    setTimeout(() => { container.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
-  } else {
-    container.style.display = "none"; 
-    icon.innerText = "+";
-  }
-}
-
+// --- DATA LOGIC ---
 function loadReportsData() {
   document.getElementById("reorderBody").innerHTML = "<tr><td colspan='4' style='text-align:center; padding:30px; color:var(--muted);'>Fetching live stock levels...</td></tr>";
   document.getElementById("topUsedBody").innerHTML = "<tr><td colspan='2' style='text-align:center; padding:30px; color:var(--muted);'>Calculating top items...</td></tr>";
@@ -433,7 +432,7 @@ function loadReportsData() {
       rBody.innerHTML = data.reorderItems.map(item => {
         const qtyBadge = item.qty <= 0 ? "badge-out" : "badge-warn";
         return `
-        <tr>
+        <tr onclick="this.classList.toggle('row-ordered')" style="cursor:pointer;">
           <td><span class="badge badge-bin">${item.bin || "-"}</span></td>
           <td class="desc-text">
             <div style="font-weight:800;">${item.article}</div>
@@ -459,19 +458,6 @@ function loadReportsData() {
   }).catch(() => {
     document.getElementById("reorderBody").innerHTML = "<tr><td colspan='4' style='text-align:center; padding:30px; color:var(--error-text);'>Connection error. Please try again.</td></tr>";
   });
-}
-
-// --- ANALYTICS DASHBOARD LOGIC ---
-function toggleAnalytics() {
-  const container = document.getElementById("analyticsContainer");
-  const icon = document.getElementById("analyticsToggleIcon");
-  analyticsOpen = !analyticsOpen;
-  if (analyticsOpen) {
-    container.style.display = "block"; icon.innerText = "−"; refreshAnalytics();
-    setTimeout(() => { container.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
-  } else {
-    container.style.display = "none"; icon.innerText = "+";
-  }
 }
 
 function refreshAnalytics() {
@@ -510,21 +496,14 @@ function refreshAnalytics() {
     });
 }
 
-// --- ACTIVE STOCKTAKE LOGIC ---
-function toggleStocktake() {
-  const container = document.getElementById("stocktakeContainer");
-  const icon = document.getElementById("stocktakeToggleIcon");
-  stocktakeOpen = !stocktakeOpen;
-  if (stocktakeOpen) {
-    container.style.display = "block"; icon.innerText = "−"; renderPendingStocktake();
-    setTimeout(() => { container.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
-  } else {
-    container.style.display = "none"; icon.innerText = "+";
-  }
-}
-
 function renderPendingStocktake() {
-  const items = getOfflineStockData();
+  // CRITICAL UPDATE: Filter to ONLY include rows with both a Barcode and a Bin Number!
+  const allItems = getOfflineStockData();
+  const items = allItems.filter(item => 
+      item.barcode && String(item.barcode).trim() !== "" && 
+      item.bin && String(item.bin).trim() !== ""
+  );
+
   let total = items.length;
   let countedItems = []; let pendingItems = [];
   
@@ -538,11 +517,11 @@ function renderPendingStocktake() {
   
   document.getElementById("stDropProg").innerText = percent + "% Complete";
   document.getElementById("stDropBar").style.width = percent + "%";
-  document.getElementById("stDropDetails").innerText = `Verified: ${counted} lines • Pending Field Count: ${pendingItems.length} lines • Master Directory Size: ${total} profiles`;
+  document.getElementById("stDropDetails").innerText = `Verified: ${counted} lines • Pending Field Count: ${pendingItems.length} lines • Master Directory Size: ${total} tracked profiles`;
   
   const tbody = document.getElementById("pendingBody");
   if (total === 0) {
-    tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:30px; color:var(--muted);'>No directory found. Please click 'Cache Data for Offline Use' above.</td></tr>";
+    tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:30px; color:var(--muted);'>No tracked directory found. Please click 'Cache Data for Offline Use' on the scanner page.</td></tr>";
     return;
   }
   
@@ -583,13 +562,12 @@ function autoResetStocktake() {
       if (data.ok) {
          setMsg("Stocktake automatically reset", "good");
          downloadStockData(); 
-         if (analyticsOpen) refreshAnalytics();
+         if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics();
       }
     }).catch(err => console.error("Reset failed", err));
 }
 
 let pendingStocktake = JSON.parse(localStorage.getItem("pendingStocktake") || "[]");
-
 function savePendingStocktakeQueue() { localStorage.setItem("pendingStocktake", JSON.stringify(pendingStocktake)); }
 
 function updateOfflineBar() {
@@ -640,7 +618,8 @@ function queueOffline(actionType) {
   setStatus("🟡 QUEUED OFFLINE", "statusSearching");
 
   clearCachedItem(); clearForm(); maybeRestartScanner();
-  if (stocktakeOpen) renderPendingStocktake();
+  
+  if (document.getElementById('viewStocktake').classList.contains('active-view')) renderPendingStocktake();
   if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
 }
 
@@ -657,7 +636,7 @@ function syncPendingStocktakes() {
         } else {
           showBanner("🟢 CACHE SYNC COMPLETE");
           setMsg("All offline entries synchronized to server", "good");
-          if (stocktakeOpen) renderPendingStocktake();
+          if (document.getElementById('viewStocktake').classList.contains('active-view')) renderPendingStocktake();
         }
       } else {
         updateOfflineBar(); setMsg(data.message || "Cache sync failed", "error");
@@ -699,7 +678,7 @@ function downloadStockData() {
       setMsg("Cache refreshed: " + data.items.length + " profiles", "good");
       setStatus("✅ CACHE READY", "statusFound");
       updateOfflineBar();
-      if (stocktakeOpen) renderPendingStocktake();
+      if (document.getElementById('viewStocktake').classList.contains('active-view')) renderPendingStocktake();
     }).catch(() => { setMsg("Directory download failed due to network error", "error"); setStatus("❌ CONNECTION ERROR", "statusNotFound"); });
 }
 
@@ -800,7 +779,8 @@ function saveStockTake() {
       if (data.ok) {
         clearCachedItem(); updateOfflineItemQty(barcode, qty, "save"); showBanner("✅ FIELD AUDIT SAVED");
         lookup(barcode); syncPendingStocktakes(); maybeRestartScanner();
-        if (analyticsOpen) refreshAnalytics(); if (stocktakeOpen) renderPendingStocktake();
+        if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics(); 
+        if (document.getElementById('viewStocktake').classList.contains('active-view')) renderPendingStocktake();
       } else { setMsg(data.message || "Database write failed", "error"); }
     }).catch(() => { queueOffline("save"); });
 }
@@ -812,7 +792,8 @@ function bookOut() {
   fetchAPI("bookout", { barcode: barcode, qty: qty, who: who, comments: comments }).then(data => {
       if (data.ok) {
         clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookout"); showBanner("📤 OUTBOUND LOGGED<br>Current Level: " + data.stockRemaining);
-        clearForm(); maybeRestartScanner(); if (analyticsOpen) refreshAnalytics();
+        clearForm(); maybeRestartScanner(); 
+        if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics();
       } else { setMsg(data.message || "Transaction rejected", "error"); }
     }).catch(() => { queueOffline("bookout"); });
 }
@@ -824,7 +805,8 @@ function bookIn() {
   fetchAPI("bookin", { barcode: barcode, qty: qty, who: who, comments: comments }).then(data => {
       if (data.ok) {
         clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookin"); showBanner("📥 INBOUND LOGGED<br>Current Level: " + data.stockRemaining);
-        clearForm(); maybeRestartScanner(); if (analyticsOpen) refreshAnalytics();
+        clearForm(); maybeRestartScanner(); 
+        if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics();
       } else { setMsg(data.message || "Transaction rejected", "error"); }
     }).catch(() => { queueOffline("bookin"); });
 }
