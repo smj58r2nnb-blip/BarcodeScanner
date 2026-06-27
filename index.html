@@ -45,7 +45,7 @@ body {
 .header p { margin-top: 2px; font-size: 11px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; }
 
 .menu-btn { font-size: 28px; cursor: pointer; width: 40px; text-align: left; }
-.header-spacer { width: 40px; } /* Balances the flex layout */
+.header-spacer { width: 40px; } 
 
 /* PREMIUM SLIDE OUT SIDEBAR */
 .sidebar-overlay {
@@ -57,7 +57,7 @@ body {
 
 .sidebar {
   position: fixed; top: 0; left: -300px; width: 280px; height: 100vh;
-  background: #064e3b; /* Deep Premium Emerald */
+  background: #064e3b; 
   z-index: 100;
   box-shadow: 4px 0 25px rgba(0,0,0,0.5);
   transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
@@ -87,37 +87,20 @@ body {
 .app-view.active-view { display: grid; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ========================================= */
-/* PC SPECIFIC LAYOUT OVERRIDES (LARGER UI)  */
-/* ========================================= */
+/* PC LAYOUT UPSCALING */
 @media(min-width: 900px) {
   .grid-2 { grid-template-columns: 1fr 1fr; align-items: stretch; }
-  
-  /* Expands the width and forces vertical stretch to fill the screen */
-  .app-view { 
-    padding: 40px; 
-    max-width: 1500px; 
-    min-height: calc(100vh - 75px); 
-    gap: 30px;
-  }
-  
-  /* Makes cards and titles bigger */
+  .app-view { padding: 40px; max-width: 1500px; min-height: calc(100vh - 75px); gap: 30px; }
   .card { padding: 32px; border-radius: 20px; }
   .product { font-size: 28px; margin-bottom: 24px; }
   .card-title { font-size: 22px; margin-bottom: 20px; }
-
-  /* Makes the data boxes larger */
   .data-grid { gap: 24px; }
   .box { padding: 24px; border-radius: 16px; }
   .box .label { font-size: 13px; }
   .box .value { font-size: 26px; margin-top: 10px; }
-
-  /* Form Elements - scaled up */
   .form-group label { font-size: 14px; margin-bottom: 8px; }
-  input, select, textarea { padding: 16px 20px; font-size: 16px; border-radius: 12px; }
+  input, select { padding: 16px 20px; font-size: 16px; border-radius: 12px; }
   button { min-height: 56px; font-size: 16px; border-radius: 12px; }
-
-  /* PC Table Adjustments */
   .ledger-table th { font-size: 13px; padding: 16px; }
   .ledger-table td { font-size: 15px; padding: 16px; }
   .badge { font-size: 13px; padding: 6px 12px; }
@@ -368,7 +351,7 @@ body.pc-view #scanBtn { background: var(--muted); }
 
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
       <div class="label" style="font-size:13px; color:var(--error-text);">Stock Reorder Alerts (Click to Mark Ordered)</div>
-      <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="loadReportsData()">🔄 Refresh</button>
+      <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="loadReportsData()">🔄 Refresh Alerts</button>
     </div>
     
     <div class="table-wrapper">
@@ -380,7 +363,7 @@ body.pc-view #scanBtn { background: var(--muted); }
       </table>
     </div>
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:40px; margin-bottom:12px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:28px; margin-bottom:12px;">
       <div class="label" style="font-size:13px; color:var(--text);">Top Used Items</div>
     </div>
     
@@ -398,9 +381,9 @@ body.pc-view #scanBtn { background: var(--muted); }
 
 
 <script>
-// Replace this with your Google Script web app URL
 const API = "https://script.google.com/macros/s/AKfycbxWl7CNDGd1OKbL7cl1hiNZ5pt46DmxG4LGcJcTmKXNWe8wLECAi0k3UMiDIzsKUwTS/exec";
 
+// --- GITHUB / LOCAL PC COMPATIBLE FETCH WRAPPER ---
 function fetchAPI(action, params = {}) {
   return new Promise((resolve, reject) => {
     let url = API + "?action=" + encodeURIComponent(action);
@@ -409,9 +392,15 @@ function fetchAPI(action, params = {}) {
     }
     
     fetch(url)
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) throw new Error("Network error");
+        return response.json();
+      })
       .then(data => resolve(data))
-      .catch(error => reject(error));
+      .catch(error => {
+        console.error("Fetch Error:", error);
+        reject(error);
+      });
   });
 }
 
@@ -594,15 +583,13 @@ function renderPendingStocktake() {
   tbody.innerHTML = html;
 }
 
-// --- NEW: MANUAL RESET BUTTON LOGIC ---
 function manualResetStocktake() {
   if(confirm("⚠️ WARNING ⚠️\n\nAre you sure you want to completely wipe the active stocktake? This will clear all counted quantities!")) {
     showBanner("🔄 MANUAL RESET IN PROGRESS...");
     fetchAPI("resetstocktake", { pin: "1601" }).then(data => {
         if (data.ok) {
            setMsg("Stocktake manually reset", "good");
-           downloadStockData(); // Re-caches the new, empty list
-           if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics();
+           downloadStockData(); 
         } else {
            setMsg(data.message || "Reset failed", "error");
         }
@@ -633,7 +620,7 @@ function updateOfflineBar() {
 
   if (!navigator.onLine) {
     bar.className = "offlineBar offline";
-    bar.innerHTML = "🔴 System Offline" + (offlineItems ? " — Cache Ready (" + offlineItems + " items)" : " — Cache Empty") +
+    bar.innerHTML = "🔴 System Offline" + (offlineItems ? " — Inventory Ready (" + offlineItems + " items)" : " — Inventory Empty") +
       (pendingStocktake.length ? "<br>" + pendingStocktake.length + " entries queued" : "");
     return;
   }
@@ -645,7 +632,7 @@ function updateOfflineBar() {
   }
 
   bar.className = "offlineBar";
-  bar.innerHTML = "🟢 System Online" + (offlineItems ? "<br><span style='font-size:11px; opacity:0.9;'>Local Cache: " + offlineItems + " profiles</span>" : "");
+  bar.innerHTML = "🟢 System Online" + (offlineItems ? "<br><span style='font-size:11px; opacity:0.9;'>Local Inventory: " + offlineItems + " Items</span>" : "");
 }
 
 function queueOffline(actionType) {
@@ -680,14 +667,13 @@ function syncPendingStocktakes() {
   if (!navigator.onLine || !pendingStocktake.length) { updateOfflineBar(); return; }
 
   const item = pendingStocktake[0];
-  fetchAPI(item.action, { barcode: item.barcode, qty: item.qty, who: item.who, comments: item.comments || "" })
+  fetchAPI(item.action, { barcode: item.barcode, qty: item.qty, who: item.who, comments: "" })
     .then(data => {
       if (data.ok) {
         pendingStocktake.shift(); savePendingStocktakeQueue(); updateOfflineBar();
         if (pendingStocktake.length) {
           syncPendingStocktakes();
         } else {
-          showBanner("🟢 CACHE SYNC COMPLETE");
           setMsg("All offline entries synchronized to server", "good");
           if (document.getElementById('viewStocktake').classList.contains('active-view')) renderPendingStocktake();
         }
@@ -829,7 +815,7 @@ function saveStockTake() {
 
   fetchAPI("save", { barcode: barcode, qty: qty, who: who }).then(data => {
       if (data.ok) {
-        clearCachedItem(); updateOfflineItemQty(barcode, qty, "save");
+        clearCachedItem(); updateOfflineItemQty(barcode, qty, "save"); showBanner("✅ FIELD AUDIT SAVED");
         lookup(barcode); syncPendingStocktakes(); maybeRestartScanner();
         if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics(); 
         if (document.getElementById('viewStocktake').classList.contains('active-view')) renderPendingStocktake();
@@ -843,7 +829,7 @@ function bookOut() {
 
   fetchAPI("bookout", { barcode: barcode, qty: qty, who: who, comments: comments }).then(data => {
       if (data.ok) {
-        clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookout");
+        clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookout"); showBanner("📤 OUTBOUND LOGGED<br>Current Level: " + data.stockRemaining);
         clearForm(); maybeRestartScanner(); 
         if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics();
       } else { setMsg(data.message || "Transaction rejected", "error"); }
@@ -856,7 +842,7 @@ function bookIn() {
 
   fetchAPI("bookin", { barcode: barcode, qty: qty, who: who, comments: comments }).then(data => {
       if (data.ok) {
-        clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookin");
+        clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookin"); showBanner("📥 INBOUND LOGGED<br>Current Level: " + data.stockRemaining);
         clearForm(); maybeRestartScanner(); 
         if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics();
       } else { setMsg(data.message || "Transaction rejected", "error"); }
