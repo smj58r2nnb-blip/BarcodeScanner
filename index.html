@@ -13,9 +13,11 @@
 <script src="https://unpkg.com/@zxing/library@latest"></script>
 
 <style>
+/* Global Reset & Modern Box Model */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
+  /* Crisp Modern Green Theme */
   --green: #10b981; --green-dark: #047857; --green-light: #d1fae5;
   --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b;
   --border: #e2e8f0; --input-bg: #f1f5f9;
@@ -45,7 +47,7 @@ body {
 .menu-btn { font-size: 28px; cursor: pointer; width: 40px; text-align: left; }
 .header-spacer { width: 40px; } /* Balances the flex layout */
 
-/* SLIDE OUT SIDEBAR */
+/* PREMIUM SLIDE OUT SIDEBAR */
 .sidebar-overlay {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
   background: rgba(0,0,0,0.6); z-index: 99;
@@ -55,22 +57,27 @@ body {
 
 .sidebar {
   position: fixed; top: 0; left: -300px; width: 280px; height: 100vh;
-  background: var(--card); z-index: 100;
-  box-shadow: 4px 0 15px rgba(0,0,0,0.15);
-  transition: left 0.3s ease; display: flex; flex-direction: column;
+  background: #064e3b; /* Deep Premium Emerald */
+  z-index: 100;
+  box-shadow: 4px 0 25px rgba(0,0,0,0.5);
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+  display: flex; flex-direction: column;
 }
 .sidebar.active { left: 0; }
 .sidebar-header {
-  background: var(--green-light); padding: 24px 20px;
-  border-bottom: 1px solid var(--border);
+  background: #022c22; padding: 30px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
-.sidebar-header h2 { color: var(--green-dark); font-size: 18px; font-weight: 800; }
+.sidebar-header h2 { color: #ffffff; font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
+.sidebar-header p { color: var(--green-light); font-size: 11px; margin-top: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+
 .menu-item {
-  padding: 18px 20px; font-size: 16px; font-weight: 700; color: var(--text);
-  border-bottom: 1px solid var(--border); cursor: pointer;
-  display: flex; align-items: center; gap: 12px; transition: background 0.2s;
+  padding: 16px 20px; font-size: 15px; font-weight: 700; color: #a7f3d0;
+  margin: 8px 12px; border-radius: 12px; cursor: pointer;
+  display: flex; align-items: center; gap: 14px; transition: all 0.2s ease;
 }
-.menu-item:hover, .menu-item.active-menu { background: var(--input-bg); color: var(--green-dark); }
+.menu-item:hover { background: rgba(255,255,255,0.1); color: #ffffff; }
+.menu-item.active-menu { background: #ffffff; color: #064e3b; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
 /* MAIN CONTENT VIEWS */
 .app-view { 
@@ -80,9 +87,40 @@ body {
 .app-view.active-view { display: grid; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
+/* ========================================= */
+/* PC SPECIFIC LAYOUT OVERRIDES (LARGER UI)  */
+/* ========================================= */
 @media(min-width: 900px) {
   .grid-2 { grid-template-columns: 1fr 1fr; align-items: stretch; }
-  .app-view { padding: 40px 20px; }
+  
+  /* Expands the width and forces vertical stretch to fill the screen */
+  .app-view { 
+    padding: 40px; 
+    max-width: 1500px; 
+    min-height: calc(100vh - 75px); 
+    gap: 30px;
+  }
+  
+  /* Makes cards and titles bigger */
+  .card { padding: 32px; border-radius: 20px; }
+  .product { font-size: 28px; margin-bottom: 24px; }
+  .card-title { font-size: 22px; margin-bottom: 20px; }
+
+  /* Makes the data boxes larger */
+  .data-grid { gap: 24px; }
+  .box { padding: 24px; border-radius: 16px; }
+  .box .label { font-size: 13px; }
+  .box .value { font-size: 26px; margin-top: 10px; }
+
+  /* Form Elements - scaled up */
+  .form-group label { font-size: 14px; margin-bottom: 8px; }
+  input, select, textarea { padding: 16px 20px; font-size: 16px; border-radius: 12px; }
+  button { min-height: 56px; font-size: 16px; border-radius: 12px; }
+
+  /* PC Table Adjustments */
+  .ledger-table th { font-size: 13px; padding: 16px; }
+  .ledger-table td { font-size: 15px; padding: 16px; }
+  .badge { font-size: 13px; padding: 6px 12px; }
 }
 
 /* CARDS & UI ELEMENTS */
@@ -182,19 +220,22 @@ body.pc-view #scanBtn { background: var(--muted); }
 <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 <div id="appSidebar" class="sidebar">
   <div class="sidebar-header">
-    <h2>Menu</h2>
+    <h2>STORES PRO</h2>
+    <p>System Navigation</p>
   </div>
-  <div id="nav-scanner" class="menu-item active-menu" onclick="switchView('viewScanner', 'nav-scanner')">
-    📷 Scanner & Booking
-  </div>
-  <div id="nav-analytics" class="menu-item" onclick="switchView('viewAnalytics', 'nav-analytics')">
-    📊 Live Analytics
-  </div>
-  <div id="nav-stocktake" class="menu-item" onclick="switchView('viewStocktake', 'nav-stocktake')">
-    📝 Active Stocktake
-  </div>
-  <div id="nav-reports" class="menu-item" onclick="switchView('viewReports', 'nav-reports')">
-    ⚠️ Reorders & Alerts
+  <div style="padding: 12px 0;">
+    <div id="nav-scanner" class="menu-item active-menu" onclick="switchView('viewScanner', 'nav-scanner')">
+      <span style="font-size:20px;">📷</span> Scanner & Booking
+    </div>
+    <div id="nav-analytics" class="menu-item" onclick="switchView('viewAnalytics', 'nav-analytics')">
+      <span style="font-size:20px;">📊</span> Live Analytics
+    </div>
+    <div id="nav-stocktake" class="menu-item" onclick="switchView('viewStocktake', 'nav-stocktake')">
+      <span style="font-size:20px;">📝</span> Active Stocktake
+    </div>
+    <div id="nav-reports" class="menu-item" onclick="switchView('viewReports', 'nav-reports')">
+      <span style="font-size:20px;">⚠️</span> Reorders & Alerts
+    </div>
   </div>
 </div>
 
@@ -218,7 +259,7 @@ body.pc-view #scanBtn { background: var(--muted); }
     </div>
 
     <div id="statusBig" class="statusBig"></div>
-    <div id="product" class="product">Ready To Scan</div>
+    <div id="product" class="product">Ready to scan</div>
 
     <div class="data-grid">
       <div class="box"><div class="label">Article No</div><div id="articleNo" class="value" style="color:var(--muted)">-</div></div>
@@ -257,7 +298,7 @@ body.pc-view #scanBtn { background: var(--muted); }
 
     <button id="downloadStockBtn" class="mode" style="margin-top: 16px;" onclick="downloadStockData()">
       <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3"/></svg>
-      Download Inventory for Offline Use
+      Cache Data for Offline Use
     </button>
     
     <div class="toggleRow"><span>Continuous Scan Tracking</span><input id="continuousScan" type="checkbox" onchange="saveContinuousMode()"></div>
@@ -305,12 +346,15 @@ body.pc-view #scanBtn { background: var(--muted); }
     <div style="margin-top:28px;">
        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
          <div class="label" style="font-size:13px; color:var(--text);">Pending & Completed Items</div>
-         <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="renderPendingStocktake()">🔄 Refresh List</button>
+         <div style="display:flex; gap:8px;">
+           <button class="stop" style="display:inline-flex; width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="manualResetStocktake()">⚠️ Reset</button>
+           <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="renderPendingStocktake()">🔄 Refresh</button>
+         </div>
        </div>
        <div class="table-wrapper">
          <table class="ledger-table">
            <thead><tr><th>Bin No</th><th>Article No</th><th>Description</th></tr></thead>
-           <tbody id="pendingBody"><tr><td colspan="3" style="text-align:center; padding: 30px; color: var(--muted);">Load local inventory to view active items...</td></tr></tbody>
+           <tbody id="pendingBody"><tr><td colspan="3" style="text-align:center; padding: 30px; color: var(--muted);">Load local cache to view active items...</td></tr></tbody>
          </table>
        </div>
     </div>
@@ -324,7 +368,7 @@ body.pc-view #scanBtn { background: var(--muted); }
 
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
       <div class="label" style="font-size:13px; color:var(--error-text);">Stock Reorder Alerts (Click to Mark Ordered)</div>
-      <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="loadReportsData()">🔄 Refresh Alerts</button>
+      <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="loadReportsData()">🔄 Refresh</button>
     </div>
     
     <div class="table-wrapper">
@@ -336,7 +380,7 @@ body.pc-view #scanBtn { background: var(--muted); }
       </table>
     </div>
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:28px; margin-bottom:12px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:40px; margin-bottom:12px;">
       <div class="label" style="font-size:13px; color:var(--text);">Top Used Items</div>
     </div>
     
@@ -355,7 +399,7 @@ body.pc-view #scanBtn { background: var(--muted); }
 
 <script>
 // Replace this with your Google Script web app URL
-const API = "https://script.google.com/macros/s/AKfycbyy_7S004Ms7l5R4Xf4R1l2PbV14kGYku9AQxrUxJlwYlNXfza2OxjmQajrbPEY1zmU/exec";
+const API = "https://script.google.com/macros/s/AKfycbxWl7CNDGd1OKbL7cl1hiNZ5pt46DmxG4LGcJcTmKXNWe8wLECAi0k3UMiDIzsKUwTS/exec";
 
 function fetchAPI(action, params = {}) {
   return new Promise((resolve, reject) => {
@@ -385,20 +429,15 @@ function toggleSidebar() {
 }
 
 function switchView(viewId, navId) {
-  // Hide all views
   document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active-view'));
-  // Show target view
   document.getElementById(viewId).classList.add('active-view');
   
-  // Update sidebar highlight
   document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active-menu'));
   document.getElementById(navId).classList.add('active-menu');
   
-  // Close Sidebar
   toggleSidebar();
   window.scrollTo(0,0);
   
-  // Trigger data refreshes if needed
   if(viewId === 'viewAnalytics') refreshAnalytics();
   if(viewId === 'viewStocktake') renderPendingStocktake();
   if(viewId === 'viewReports') loadReportsData();
@@ -497,7 +536,6 @@ function refreshAnalytics() {
 }
 
 function renderPendingStocktake() {
-  // CRITICAL UPDATE: Filter to ONLY include rows with both a Barcode and a Bin Number!
   const allItems = getOfflineStockData();
   const items = allItems.filter(item => 
       item.barcode && String(item.barcode).trim() !== "" && 
@@ -517,11 +555,11 @@ function renderPendingStocktake() {
   
   document.getElementById("stDropProg").innerText = percent + "% Complete";
   document.getElementById("stDropBar").style.width = percent + "%";
-  document.getElementById("stDropDetails").innerText = `Verified: ${counted} lines • Pending Field Count: ${pendingItems.length} lines • Master Directory Size: ${total} tracked Items`;
+  document.getElementById("stDropDetails").innerText = `Verified: ${counted} lines • Pending Field Count: ${pendingItems.length} lines • Master Directory Size: ${total} tracked profiles`;
   
   const tbody = document.getElementById("pendingBody");
   if (total === 0) {
-    tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:30px; color:var(--muted);'>No tracked directory found. Please click 'Download Inventory for Offline Use' on the scanner page.</td></tr>";
+    tbody.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:30px; color:var(--muted);'>No tracked directory found. Please click 'Cache Data for Offline Use' on the scanner page.</td></tr>";
     return;
   }
   
@@ -556,6 +594,22 @@ function renderPendingStocktake() {
   tbody.innerHTML = html;
 }
 
+// --- NEW: MANUAL RESET BUTTON LOGIC ---
+function manualResetStocktake() {
+  if(confirm("⚠️ WARNING ⚠️\n\nAre you sure you want to completely wipe the active stocktake? This will clear all counted quantities!")) {
+    showBanner("🔄 MANUAL RESET IN PROGRESS...");
+    fetchAPI("resetstocktake", { pin: "1601" }).then(data => {
+        if (data.ok) {
+           setMsg("Stocktake manually reset", "good");
+           downloadStockData(); // Re-caches the new, empty list
+           if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics();
+        } else {
+           setMsg(data.message || "Reset failed", "error");
+        }
+      }).catch(err => console.error("Reset failed", err));
+  }
+}
+
 function autoResetStocktake() {
   showBanner("🔄 ALL ITEMS COUNTED! Auto-resetting stocktake...");
   fetchAPI("resetstocktake", { pin: "1601" }).then(data => {
@@ -579,7 +633,7 @@ function updateOfflineBar() {
 
   if (!navigator.onLine) {
     bar.className = "offlineBar offline";
-    bar.innerHTML = "🔴 System Offline" + (offlineItems ? " — Inventory Ready (" + offlineItems + " items)" : " — Inventory Empty") +
+    bar.innerHTML = "🔴 System Offline" + (offlineItems ? " — Cache Ready (" + offlineItems + " items)" : " — Cache Empty") +
       (pendingStocktake.length ? "<br>" + pendingStocktake.length + " entries queued" : "");
     return;
   }
@@ -591,20 +645,19 @@ function updateOfflineBar() {
   }
 
   bar.className = "offlineBar";
-  bar.innerHTML = "🟢 System Online" + (offlineItems ? "<br><span style='font-size:11px; opacity:0.9;'>Local Inventory: " + offlineItems + " Items</span>" : "");
+  bar.innerHTML = "🟢 System Online" + (offlineItems ? "<br><span style='font-size:11px; opacity:0.9;'>Local Cache: " + offlineItems + " profiles</span>" : "");
 }
 
 function queueOffline(actionType) {
   const barcode = document.getElementById("barcode").value.trim();
   const qty = document.getElementById("qty").value;
   const who = document.getElementById("user").value;
-  const comments = ""; 
 
   if (!barcode) { setMsg("Scan or enter a barcode first", "error"); setStatus("❌ ALIGNMENT FIELD NULL", "statusNotFound"); return; }
   if (qty === "" || Number(qty) < 0 || isNaN(Number(qty))) { setMsg("Enter a valid quantity", "error"); setStatus("❌ INVALID QTY", "statusNotFound"); return; }
   if ((actionType === "bookin" || actionType === "bookout") && Number(qty) === 0) { setMsg("Quantity must be greater than 0", "error"); setStatus("❌ INVALID QTY", "statusNotFound"); return; }
 
-  pendingStocktake.push({ action: actionType, barcode: barcode, qty: qty, who: who, comments: comments, queuedAt: new Date().toISOString() });
+  pendingStocktake.push({ action: actionType, barcode: barcode, qty: qty, who: who, comments: "", queuedAt: new Date().toISOString() });
   updateOfflineItemQty(barcode, qty, actionType);
   savePendingStocktakeQueue();
   updateOfflineBar();
@@ -634,12 +687,12 @@ function syncPendingStocktakes() {
         if (pendingStocktake.length) {
           syncPendingStocktakes();
         } else {
-          showBanner("🟢 INVENTORY SYNC COMPLETE");
+          showBanner("🟢 CACHE SYNC COMPLETE");
           setMsg("All offline entries synchronized to server", "good");
           if (document.getElementById('viewStocktake').classList.contains('active-view')) renderPendingStocktake();
         }
       } else {
-        updateOfflineBar(); setMsg(data.message || "Invento sync failed", "error");
+        updateOfflineBar(); setMsg(data.message || "Cache sync failed", "error");
       }
     }).catch(() => { updateOfflineBar(); setMsg("Connection unstable — entries remain queued", "error"); });
 }
@@ -667,16 +720,16 @@ function findOfflineProduct(barcode) {
 }
 
 function downloadStockData() {
-  if (!navigator.onLine) { setMsg("Cannot refresh Inventory while offline", "error"); setStatus("🔴 SYSTEM OFFLINE", "statusNotFound"); return; }
-  setMsg("Downloading inventory for offline...", "good");
+  if (!navigator.onLine) { setMsg("Cannot refresh cache while offline", "error"); setStatus("🔴 SYSTEM OFFLINE", "statusNotFound"); return; }
+  setMsg("Downloading directory for offline staging...", "good");
   setStatus("⬇️ DOWNLOADING...", "statusSearching");
 
   fetchAPI("stockdata").then(data => {
       if (!data.ok || !data.items) { setMsg(data.message || "Directory download failed", "error"); setStatus("❌ DOWNLOAD FAILED", "statusNotFound"); return; }
       saveOfflineStockData(data.items);
-      showBanner("✅ OFFLINE INVENTORY SECURED<br>" + data.items.length + " Items updated");
-      setMsg("Inventory refreshed: " + data.items.length + " Items", "good");
-      setStatus("✅ INVENTORY READY", "statusFound");
+      showBanner("✅ OFFLINE CACHE SECURED<br>" + data.items.length + " profiles updated");
+      setMsg("Cache refreshed: " + data.items.length + " profiles", "good");
+      setStatus("✅ CACHE READY", "statusFound");
       updateOfflineBar();
       if (document.getElementById('viewStocktake').classList.contains('active-view')) renderPendingStocktake();
     }).catch(() => { setMsg("Directory download failed due to network error", "error"); setStatus("❌ CONNECTION ERROR", "statusNotFound"); });
@@ -684,7 +737,6 @@ function downloadStockData() {
 
 function setMsg(text, cls="") { const el = document.getElementById("msg"); el.innerText = text; el.className = cls; }
 function setStatus(text, type) { const el = document.getElementById("statusBig"); el.innerText = text; el.className = "statusBig " + type; }
-function showBanner(text) { const banner = document.getElementById("banner"); banner.innerHTML = text; banner.style.display = "block"; setTimeout(() => { banner.style.display = "none"; }, 3000); }
 function manualEnter(e) { if (e.key === "Enter") lookup(document.getElementById("barcode").value); }
 
 function startScanner() {
@@ -716,8 +768,8 @@ function lookup(barcode) {
 
   if (!navigator.onLine) {
     const offlineItem = findOfflineProduct(barcode);
-    if (offlineItem) { showProduct(offlineItem); setMsg("Product sourced from local inventory", "good"); setStatus("✅ BARCODE MATCH", "statusFound"); } 
-    else { clearProductOnly(); setMsg("Index key missed in offline Inventory", "error"); setStatus("❌ NOT IN INVENTORY", "statusNotFound"); }
+    if (offlineItem) { showProduct(offlineItem); setMsg("Product sourced from local cache", "good"); setStatus("✅ CACHE MATCH", "statusFound"); } 
+    else { clearProductOnly(); setMsg("Index key missed in offline cache", "error"); setStatus("❌ NOT IN CACHE", "statusNotFound"); }
     updateOfflineBar(); return;
   }
 
@@ -726,7 +778,7 @@ function lookup(barcode) {
       showProduct(data); updateOfflineBar();
     }).catch(() => {
       const offlineItem = findOfflineProduct(barcode);
-      if (offlineItem) { showProduct(offlineItem); setMsg("Product sourced from local inventory", "good"); setStatus("✅ BARCODE MATCH", "statusFound"); } 
+      if (offlineItem) { showProduct(offlineItem); setMsg("Product sourced from local cache", "good"); setStatus("✅ CACHE MATCH", "statusFound"); } 
       else { setMsg("Database connection error", "error"); setStatus("❌ CONNECTION ERROR", "statusNotFound"); }
       if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]); updateOfflineBar();
     });
@@ -742,7 +794,7 @@ function showProduct(data) {
   document.getElementById("recordedQty").innerText = data.recordedQty || "-"; document.getElementById("capturedQty").innerText = data.capturedQty || "-";
 
   setCapturedStatus(data.capturedQty); colourStock(data.recordedQty);
-  setMsg("Product match confirmed", "good"); setStatus("✅ BARCODE CONFIRMED", "statusFound"); if (navigator.vibrate) navigator.vibrate(80);
+  setMsg("Product match confirmed", "good"); setStatus("✅ MATCH CONFIRMED", "statusFound"); if (navigator.vibrate) navigator.vibrate(80);
 }
 
 function setCapturedStatus(capturedQty) {
@@ -777,7 +829,7 @@ function saveStockTake() {
 
   fetchAPI("save", { barcode: barcode, qty: qty, who: who }).then(data => {
       if (data.ok) {
-        clearCachedItem(); updateOfflineItemQty(barcode, qty, "save"); showBanner("✅ SAVED");
+        clearCachedItem(); updateOfflineItemQty(barcode, qty, "save");
         lookup(barcode); syncPendingStocktakes(); maybeRestartScanner();
         if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics(); 
         if (document.getElementById('viewStocktake').classList.contains('active-view')) renderPendingStocktake();
@@ -791,7 +843,7 @@ function bookOut() {
 
   fetchAPI("bookout", { barcode: barcode, qty: qty, who: who, comments: comments }).then(data => {
       if (data.ok) {
-        clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookout"); showBanner("📤 OUTBOUND LOGGED<br>Current Level: " + data.stockRemaining);
+        clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookout");
         clearForm(); maybeRestartScanner(); 
         if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics();
       } else { setMsg(data.message || "Transaction rejected", "error"); }
@@ -804,7 +856,7 @@ function bookIn() {
 
   fetchAPI("bookin", { barcode: barcode, qty: qty, who: who, comments: comments }).then(data => {
       if (data.ok) {
-        clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookin"); showBanner("📥 INBOUND LOGGED<br>Current Level: " + data.stockRemaining);
+        clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookin");
         clearForm(); maybeRestartScanner(); 
         if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics();
       } else { setMsg(data.message || "Transaction rejected", "error"); }
@@ -825,7 +877,7 @@ function clearProductOnly() {
 }
 
 if (localStorage.getItem("continuousScan") === "yes") { const continuousBox = document.getElementById("continuousScan"); if (continuousBox) continuousBox.checked = true; }
-function saveContinuousMode() { const on = document.getElementById("continuousScan").checked; localStorage.setItem("continuousScan", on ? "yes" : "no"); showBanner(on ? "📷 TRACKING ENABLED" : "📷 TRACKING DISABLED"); }
+function saveContinuousMode() { const on = document.getElementById("continuousScan").checked; localStorage.setItem("continuousScan", on ? "yes" : "no"); }
 function shouldContinuousScan() { return localStorage.getItem("continuousScan") === "yes"; }
 function maybeRestartScanner() { if (shouldContinuousScan()) setTimeout(startScanner, 800); }
 
