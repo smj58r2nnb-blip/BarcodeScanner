@@ -117,8 +117,17 @@ input:focus, select:focus { background: var(--card); border-color: var(--green);
 
 button { width: 100%; border: none; color: white; font-weight: 700; font-size: 14px; border-radius: 10px; min-height: 48px; padding: 0 16px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease; }
 button:hover { filter: brightness(1.05); transform: translateY(-1px); }
+
+/* --- PC SPECIFIC HIDING FOR USB HAND SCANNERS --- */
 .scan { background: var(--green); font-size: 15px; }
-body.pc-view #scanBtn { background: var(--muted); }
+body.pc-view #scanBtn,
+body.pc-view #stopBtn,
+body.pc-view #scannerWrapper,
+body.pc-view .toggleRow { 
+  display: none !important; 
+}
+/* ------------------------------------------------ */
+
 .stop { background: #e11d48; display: none; }
 .save { background: #0284c7; }
 .in { background: #2563eb; }
@@ -330,7 +339,7 @@ body.pc-view #scanBtn { background: var(--muted); }
          <div class="label" style="font-size:13px; color:var(--text);">Pending & Completed Items</div>
          <div style="display:flex; gap:8px;">
            <button class="stop" style="display:inline-flex; width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="manualResetStocktake()">⚠️ Reset</button>
-           <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="renderPendingStocktake()">🔄 Refresh List</button>
+           <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="renderPendingStocktake()">🔄 Refresh</button>
          </div>
        </div>
        <div class="table-wrapper">
@@ -349,8 +358,8 @@ body.pc-view #scanBtn { background: var(--muted); }
     <div class="card-title">⚠️ Reorders & 🔥 Top Items</div>
 
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <div class="label" style="font-size:13px; color:var(--error-text);">Stock Reorder Alerts (Click to Mark Ordered)</div>
-      <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="loadReportsData()">🔄 Refresh Alerts</button>
+      <div class="label" style="font-size:13px; color:var(--error-text);">Stock Reorder Alerts</div>
+      <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="loadReportsData()">🔄 Refresh</button>
     </div>
     
     <div class="table-wrapper">
@@ -362,7 +371,7 @@ body.pc-view #scanBtn { background: var(--muted); }
       </table>
     </div>
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:40px; margin-bottom:12px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:28px; margin-bottom:12px;">
       <div class="label" style="font-size:13px; color:var(--text);">Top Used Items</div>
     </div>
     
@@ -381,7 +390,7 @@ body.pc-view #scanBtn { background: var(--muted); }
 
 <script>
 // =========================================================================
-// IMPORTANT: PASTE YOUR NEW GOOGLE APPS SCRIPT DEPLOYMENT URL BELOW
+// IMPORTANT: PASTE YOUR GOOGLE APPS SCRIPT DEPLOYMENT URL BELOW
 // =========================================================================
 const API = "https://script.google.com/macros/s/AKfycbyy_7S004Ms7l5R4Xf4R1l2PbV14kGYku9AQxrUxJlwYlNXfza2OxjmQajrbPEY1zmU/exec";
 
@@ -393,7 +402,6 @@ function fetchAPI(action, params = {}) {
       url += "&" + encodeURIComponent(key) + "=" + encodeURIComponent(params[key] || "");
     }
     
-    // Explicit GET configuration with redirect follow to handle Google Apps Script 302 redirects
     fetch(url, {
       method: 'GET',
       mode: 'cors',
@@ -656,6 +664,11 @@ function queueOffline(actionType) {
   savePendingStocktakeQueue();
   updateOfflineBar();
 
+  let actionText = "FIELD AUDIT";
+  if(actionType === "bookin") actionText = "INBOUND LOG";
+  if(actionType === "bookout") actionText = "OUTBOUND LOG";
+
+  showBanner("📴 OFFLINE " + actionText + " SAVED<br>" + pendingStocktake.length + " waiting to sync");
   setMsg("Transaction queued to local storage", "good");
   setStatus("🟡 QUEUED OFFLINE", "statusSearching");
 
