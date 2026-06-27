@@ -17,7 +17,6 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Crisp Modern Green Theme */
   --green: #10b981; --green-dark: #047857; --green-light: #d1fae5;
   --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b;
   --border: #e2e8f0; --input-bg: #f1f5f9;
@@ -331,13 +330,13 @@ body.pc-view #scanBtn { background: var(--muted); }
          <div class="label" style="font-size:13px; color:var(--text);">Pending & Completed Items</div>
          <div style="display:flex; gap:8px;">
            <button class="stop" style="display:inline-flex; width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="manualResetStocktake()">⚠️ Reset</button>
-           <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="renderPendingStocktake()">🔄 Refresh</button>
+           <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="renderPendingStocktake()">🔄 Refresh List</button>
          </div>
        </div>
        <div class="table-wrapper">
          <table class="ledger-table">
            <thead><tr><th>Bin No</th><th>Article No</th><th>Description</th></tr></thead>
-           <tbody id="pendingBody"><tr><td colspan="3" style="text-align:center; padding: 30px; color: var(--muted);">Load local cache to view active items...</td></tr></tbody>
+           <tbody id="pendingBody"><tr><td colspan="3" style="text-align:center; padding: 30px; color: var(--muted);">Load local inventory to view active items...</td></tr></tbody>
          </table>
        </div>
     </div>
@@ -363,7 +362,7 @@ body.pc-view #scanBtn { background: var(--muted); }
       </table>
     </div>
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:28px; margin-bottom:12px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:40px; margin-bottom:12px;">
       <div class="label" style="font-size:13px; color:var(--text);">Top Used Items</div>
     </div>
     
@@ -381,7 +380,10 @@ body.pc-view #scanBtn { background: var(--muted); }
 
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbyy_7S004Ms7l5R4Xf4R1l2PbV14kGYku9AQxrUxJlwYlNXfza2OxjmQajrbPEY1zmU/exec";
+// =========================================================================
+// IMPORTANT: PASTE YOUR NEW GOOGLE APPS SCRIPT DEPLOYMENT URL BELOW
+// =========================================================================
+const API = "https://script.google.com/macros/s/AKfycbxWl7CNDGd1OKbL7cl1hiNZ5pt46DmxG4LGcJcTmKXNWe8wLECAi0k3UMiDIzsKUwTS/exec";
 
 // --- GITHUB / LOCAL PC COMPATIBLE FETCH WRAPPER ---
 function fetchAPI(action, params = {}) {
@@ -391,9 +393,14 @@ function fetchAPI(action, params = {}) {
       url += "&" + encodeURIComponent(key) + "=" + encodeURIComponent(params[key] || "");
     }
     
-    fetch(url)
+    // Explicit GET configuration with redirect follow to handle Google Apps Script 302 redirects
+    fetch(url, {
+      method: 'GET',
+      mode: 'cors',
+      redirect: 'follow'
+    })
       .then(response => {
-        if (!response.ok) throw new Error("Network error");
+        if (!response.ok) throw new Error("Network response was not ok");
         return response.json();
       })
       .then(data => resolve(data))
@@ -466,8 +473,8 @@ function loadReportsData() {
             <div style="font-weight:800;">${item.article}</div>
             <div style="font-size:12px; color:var(--muted);">${item.description}</div>
           </td>
-          <td><span class="badge ${qtyBadge}" style="font-size:14px; padding:6px 12px;">${item.qty}</span></td>
-          <td style="font-weight:800; color:var(--muted);">Trigger at: ${item.reorderQty}</td>
+          <td><span class="badge ${qtyBadge}">${item.qty}</span></td>
+          <td>Trigger at: ${item.reorderQty}</td>
         </tr>
       `}).join("");
     }
@@ -585,7 +592,7 @@ function renderPendingStocktake() {
 
 function manualResetStocktake() {
   if(confirm("⚠️ WARNING ⚠️\n\nAre you sure you want to completely wipe the active stocktake? This will clear all counted quantities!")) {
-    showBanner("🔄 MANUAL RESET IN PROGRESS...");
+    document.getElementById("stDropDetails").innerText = "MANUAL RESET IN PROGRESS...";
     fetchAPI("resetstocktake", { pin: "1601" }).then(data => {
         if (data.ok) {
            setMsg("Stocktake manually reset", "good");
@@ -598,7 +605,7 @@ function manualResetStocktake() {
 }
 
 function autoResetStocktake() {
-  showBanner("🔄 ALL ITEMS COUNTED! Auto-resetting stocktake...");
+  document.getElementById("stDropDetails").innerText = "ALL ITEMS COUNTED! Auto-resetting stocktake...";
   fetchAPI("resetstocktake", { pin: "1601" }).then(data => {
       if (data.ok) {
          setMsg("Stocktake automatically reset", "good");
@@ -649,11 +656,6 @@ function queueOffline(actionType) {
   savePendingStocktakeQueue();
   updateOfflineBar();
 
-  let actionText = "FIELD AUDIT";
-  if(actionType === "bookin") actionText = "INBOUND LOG";
-  if(actionType === "bookout") actionText = "OUTBOUND LOG";
-
-  showBanner("📴 OFFLINE " + actionText + " SAVED<br>" + pendingStocktake.length + " waiting to sync");
   setMsg("Transaction queued to local storage", "good");
   setStatus("🟡 QUEUED OFFLINE", "statusSearching");
 
@@ -713,7 +715,6 @@ function downloadStockData() {
   fetchAPI("stockdata").then(data => {
       if (!data.ok || !data.items) { setMsg(data.message || "Directory download failed", "error"); setStatus("❌ DOWNLOAD FAILED", "statusNotFound"); return; }
       saveOfflineStockData(data.items);
-      showBanner("✅ OFFLINE CACHE SECURED<br>" + data.items.length + " profiles updated");
       setMsg("Cache refreshed: " + data.items.length + " profiles", "good");
       setStatus("✅ CACHE READY", "statusFound");
       updateOfflineBar();
@@ -815,7 +816,7 @@ function saveStockTake() {
 
   fetchAPI("save", { barcode: barcode, qty: qty, who: who }).then(data => {
       if (data.ok) {
-        clearCachedItem(); updateOfflineItemQty(barcode, qty, "save"); showBanner("✅ FIELD AUDIT SAVED");
+        clearCachedItem(); updateOfflineItemQty(barcode, qty, "save");
         lookup(barcode); syncPendingStocktakes(); maybeRestartScanner();
         if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics(); 
         if (document.getElementById('viewStocktake').classList.contains('active-view')) renderPendingStocktake();
@@ -829,7 +830,7 @@ function bookOut() {
 
   fetchAPI("bookout", { barcode: barcode, qty: qty, who: who, comments: comments }).then(data => {
       if (data.ok) {
-        clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookout"); showBanner("📤 OUTBOUND LOGGED<br>Current Level: " + data.stockRemaining);
+        clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookout");
         clearForm(); maybeRestartScanner(); 
         if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics();
       } else { setMsg(data.message || "Transaction rejected", "error"); }
@@ -842,7 +843,7 @@ function bookIn() {
 
   fetchAPI("bookin", { barcode: barcode, qty: qty, who: who, comments: comments }).then(data => {
       if (data.ok) {
-        clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookin"); showBanner("📥 INBOUND LOGGED<br>Current Level: " + data.stockRemaining);
+        clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookin");
         clearForm(); maybeRestartScanner(); 
         if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics();
       } else { setMsg(data.message || "Transaction rejected", "error"); }
