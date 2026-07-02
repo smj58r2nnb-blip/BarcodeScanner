@@ -117,17 +117,8 @@ input:focus, select:focus { background: var(--card); border-color: var(--green);
 
 button { width: 100%; border: none; color: white; font-weight: 700; font-size: 14px; border-radius: 10px; min-height: 48px; padding: 0 16px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease; }
 button:hover { filter: brightness(1.05); transform: translateY(-1px); }
-
-/* --- PC SPECIFIC HIDING FOR USB HAND SCANNERS --- */
 .scan { background: var(--green); font-size: 15px; }
-body.pc-view #scanBtn,
-body.pc-view #stopBtn,
-body.pc-view #scannerWrapper,
-body.pc-view .toggleRow { 
-  display: none !important; 
-}
-/* ------------------------------------------------ */
-
+body.pc-view #scanBtn { background: var(--muted); }
 .stop { background: #e11d48; display: none; }
 .save { background: #0284c7; }
 .in { background: #2563eb; }
@@ -200,7 +191,7 @@ body.pc-view .toggleRow {
 <body>
 
 <div class="header">
-  <div class="menu-btn" onclick="toggleSidebar()">☰</div>
+  <div class="menu-btn" onclick="toggleSidebar()">â°</div>
   <div class="header-titles">
     <h1>Stores Management</h1>
     <p>Precision Inventory Control</p>
@@ -216,16 +207,16 @@ body.pc-view .toggleRow {
   </div>
   <div style="padding: 12px 0;">
     <div id="nav-scanner" class="menu-item active-menu" onclick="switchView('viewScanner', 'nav-scanner')">
-      <span style="font-size:20px;">📷</span> Scanner & Booking
+      <span style="font-size:20px;">ð·</span> Scanner & Booking
     </div>
     <div id="nav-analytics" class="menu-item" onclick="switchView('viewAnalytics', 'nav-analytics')">
-      <span style="font-size:20px;">📊</span> Live Analytics
+      <span style="font-size:20px;">ð</span> Live Analytics
     </div>
     <div id="nav-stocktake" class="menu-item" onclick="switchView('viewStocktake', 'nav-stocktake')">
-      <span style="font-size:20px;">📝</span> Active Stocktake
+      <span style="font-size:20px;">ð</span> Active Stocktake
     </div>
     <div id="nav-reports" class="menu-item" onclick="switchView('viewReports', 'nav-reports')">
-      <span style="font-size:20px;">⚠️</span> Reorders & Alerts
+      <span style="font-size:20px;">â ï¸</span> Reorders & Alerts
     </div>
   </div>
 </div>
@@ -278,10 +269,10 @@ body.pc-view .toggleRow {
     <div id="offlineBar" class="offlineBar">Checking System Status...</div>
 
     <div class="actions">
-      <button class="save" onclick="saveStockTake()">✓ Save Count</button>
-      <button class="clear" onclick="clearForm()">✕ Clear</button>
-      <button class="in" onclick="bookIn()">↓ Book In</button>
-      <button class="out" onclick="bookOut()">↑ Book Out</button>
+      <button class="save" onclick="saveStockTake()">â Save Count</button>
+      <button class="clear" onclick="clearForm()">â Clear</button>
+      <button class="in" onclick="bookIn()">â Book In</button>
+      <button class="out" onclick="bookOut()">â Book Out</button>
     </div>
 
     <div id="banner" class="banner"></div>
@@ -300,7 +291,7 @@ body.pc-view .toggleRow {
 
 <div id="viewAnalytics" class="app-view">
   <div class="card full-width">
-    <div class="card-title">📊 Live Analytics & Feed</div>
+    <div class="card-title">ð Live Analytics & Feed</div>
     
     <div class="data-grid">
        <div class="box"><div class="label">Outbound Transactions (Today)</div><div class="value" id="statOut" style="font-size:24px;">0 units</div></div>
@@ -310,7 +301,7 @@ body.pc-view .toggleRow {
     <div style="margin-top:28px;">
        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
          <div class="label" style="font-size:13px; color:var(--text);">Recent Activity Ledger</div>
-         <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="refreshAnalytics()">🔄 Sync Feed</button>
+         <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="refreshAnalytics()">ð Sync Feed</button>
        </div>
        <div class="table-wrapper">
          <table class="ledger-table">
@@ -325,7 +316,7 @@ body.pc-view .toggleRow {
 
 <div id="viewStocktake" class="app-view">
   <div class="card full-width">
-    <div class="card-title">📝 Active Stocktake</div>
+    <div class="card-title">ð Active Stocktake</div>
     
     <div class="box" style="align-items:flex-start;">
        <div class="label">Stocktake Compliance</div>
@@ -338,8 +329,8 @@ body.pc-view .toggleRow {
        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
          <div class="label" style="font-size:13px; color:var(--text);">Pending & Completed Items</div>
          <div style="display:flex; gap:8px;">
-           <button class="stop" style="display:inline-flex; width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="manualResetStocktake()">⚠️ Reset</button>
-           <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="renderPendingStocktake()">🔄 Refresh</button>
+           <button class="stop" style="display:inline-flex; width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="manualResetStocktake()">â ï¸ Reset</button>
+           <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="renderPendingStocktake()">ð Refresh List</button>
          </div>
        </div>
        <div class="table-wrapper">
@@ -355,11 +346,11 @@ body.pc-view .toggleRow {
 
 <div id="viewReports" class="app-view">
   <div class="card full-width">
-    <div class="card-title">⚠️ Reorders & 🔥 Top Items</div>
+    <div class="card-title">â ï¸ Reorders & ð¥ Top Items</div>
 
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <div class="label" style="font-size:13px; color:var(--error-text);">Stock Reorder Alerts</div>
-      <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="loadReportsData()">🔄 Refresh</button>
+      <div class="label" style="font-size:13px; color:var(--error-text);">Stock Reorder Alerts (Click to Mark Ordered)</div>
+      <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="loadReportsData()">ð Refresh Alerts</button>
     </div>
     
     <div class="table-wrapper">
@@ -371,7 +362,7 @@ body.pc-view .toggleRow {
       </table>
     </div>
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:28px; margin-bottom:12px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:40px; margin-bottom:12px;">
       <div class="label" style="font-size:13px; color:var(--text);">Top Used Items</div>
     </div>
     
@@ -390,9 +381,9 @@ body.pc-view .toggleRow {
 
 <script>
 // =========================================================================
-// IMPORTANT: PASTE YOUR GOOGLE APPS SCRIPT DEPLOYMENT URL BELOW
+// IMPORTANT: PASTE YOUR NEW GOOGLE APPS SCRIPT DEPLOYMENT URL BELOW
 // =========================================================================
-const API = "https://script.google.com/macros/s/AKfycbyy_7S004Ms7l5R4Xf4R1l2PbV14kGYku9AQxrUxJlwYlNXfza2OxjmQajrbPEY1zmU/exec";
+const API = "https://script.google.com/macros/s/AKfycbzL2pxy-QjrUevuH4-Zd1q1cFGY9KiA5CYd-df8qw25gEirI9L85L_-uPiPNQtFeRXWBw/exec";
 
 // --- GITHUB / LOCAL PC COMPATIBLE FETCH WRAPPER ---
 function fetchAPI(action, params = {}) {
@@ -402,6 +393,7 @@ function fetchAPI(action, params = {}) {
       url += "&" + encodeURIComponent(key) + "=" + encodeURIComponent(params[key] || "");
     }
     
+    // Explicit GET configuration with redirect follow to handle Google Apps Script 302 redirects
     fetch(url, {
       method: 'GET',
       mode: 'cors',
@@ -470,7 +462,7 @@ function loadReportsData() {
     
     const rBody = document.getElementById("reorderBody");
     if (!data.reorderItems || data.reorderItems.length === 0) {
-      rBody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:30px; color:var(--green); font-size:16px; font-weight:800;'>All stock is above safe reorder levels! 🎉</td></tr>";
+      rBody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:30px; color:var(--green); font-size:16px; font-weight:800;'>All stock is above safe reorder levels! ð</td></tr>";
     } else {
       rBody.innerHTML = data.reorderItems.map(item => {
         const qtyBadge = item.qty <= 0 ? "badge-out" : "badge-warn";
@@ -559,7 +551,7 @@ function renderPendingStocktake() {
   
   document.getElementById("stDropProg").innerText = percent + "% Complete";
   document.getElementById("stDropBar").style.width = percent + "%";
-  document.getElementById("stDropDetails").innerText = `Verified: ${counted} lines • Pending Field Count: ${pendingItems.length} lines • Master Directory Size: ${total} tracked profiles`;
+  document.getElementById("stDropDetails").innerText = `Verified: ${counted} lines â¢ Pending Field Count: ${pendingItems.length} lines â¢ Master Directory Size: ${total} tracked profiles`;
   
   const tbody = document.getElementById("pendingBody");
   if (total === 0) {
@@ -584,7 +576,7 @@ function renderPendingStocktake() {
   let html = displayItems.map(item => {
     const isCounted = item.capturedQty !== "" && item.capturedQty !== null;
     const rowClass = isCounted ? "row-counted" : "";
-    const icon = isCounted ? " <span style='font-size:10px;'>✅</span>" : "";
+    const icon = isCounted ? " <span style='font-size:10px;'>â</span>" : "";
     return `
       <tr class="${rowClass}">
         <td><span class="badge badge-bin">${item.bin || "-"}</span></td>
@@ -599,7 +591,7 @@ function renderPendingStocktake() {
 }
 
 function manualResetStocktake() {
-  if(confirm("⚠️ WARNING ⚠️\n\nAre you sure you want to completely wipe the active stocktake? This will clear all counted quantities!")) {
+  if(confirm("â ï¸ WARNING â ï¸\n\nAre you sure you want to completely wipe the active stocktake? This will clear all counted quantities!")) {
     document.getElementById("stDropDetails").innerText = "MANUAL RESET IN PROGRESS...";
     fetchAPI("resetstocktake", { pin: "1601" }).then(data => {
         if (data.ok) {
@@ -635,19 +627,19 @@ function updateOfflineBar() {
 
   if (!navigator.onLine) {
     bar.className = "offlineBar offline";
-    bar.innerHTML = "🔴 System Offline" + (offlineItems ? " — Inventory Ready (" + offlineItems + " items)" : " — Inventory Empty") +
+    bar.innerHTML = "ð´ System Offline" + (offlineItems ? " â Inventory Ready (" + offlineItems + " items)" : " â Inventory Empty") +
       (pendingStocktake.length ? "<br>" + pendingStocktake.length + " entries queued" : "");
     return;
   }
 
   if (pendingStocktake.length) {
     bar.className = "offlineBar queue";
-    bar.innerHTML = "🟡 Connection Restored — " + pendingStocktake.length + " entries syncing";
+    bar.innerHTML = "ð¡ Connection Restored â " + pendingStocktake.length + " entries syncing";
     return;
   }
 
   bar.className = "offlineBar";
-  bar.innerHTML = "🟢 System Online" + (offlineItems ? "<br><span style='font-size:11px; opacity:0.9;'>Local Inventory: " + offlineItems + " Items</span>" : "");
+  bar.innerHTML = "ð¢ System Online" + (offlineItems ? "<br><span style='font-size:11px; opacity:0.9;'>Local Inventory: " + offlineItems + " Items</span>" : "");
 }
 
 function queueOffline(actionType) {
@@ -655,22 +647,17 @@ function queueOffline(actionType) {
   const qty = document.getElementById("qty").value;
   const who = document.getElementById("user").value;
 
-  if (!barcode) { setMsg("Scan or enter a barcode first", "error"); setStatus("❌ ALIGNMENT FIELD NULL", "statusNotFound"); return; }
-  if (qty === "" || Number(qty) < 0 || isNaN(Number(qty))) { setMsg("Enter a valid quantity", "error"); setStatus("❌ INVALID QTY", "statusNotFound"); return; }
-  if ((actionType === "bookin" || actionType === "bookout") && Number(qty) === 0) { setMsg("Quantity must be greater than 0", "error"); setStatus("❌ INVALID QTY", "statusNotFound"); return; }
+  if (!barcode) { setMsg("Scan or enter a barcode first", "error"); setStatus("â ALIGNMENT FIELD NULL", "statusNotFound"); return; }
+  if (qty === "" || Number(qty) < 0 || isNaN(Number(qty))) { setMsg("Enter a valid quantity", "error"); setStatus("â INVALID QTY", "statusNotFound"); return; }
+  if ((actionType === "bookin" || actionType === "bookout") && Number(qty) === 0) { setMsg("Quantity must be greater than 0", "error"); setStatus("â INVALID QTY", "statusNotFound"); return; }
 
   pendingStocktake.push({ action: actionType, barcode: barcode, qty: qty, who: who, comments: "", queuedAt: new Date().toISOString() });
   updateOfflineItemQty(barcode, qty, actionType);
   savePendingStocktakeQueue();
   updateOfflineBar();
 
-  let actionText = "FIELD AUDIT";
-  if(actionType === "bookin") actionText = "INBOUND LOG";
-  if(actionType === "bookout") actionText = "OUTBOUND LOG";
-
-  showBanner("📴 OFFLINE " + actionText + " SAVED<br>" + pendingStocktake.length + " waiting to sync");
   setMsg("Transaction queued to local storage", "good");
-  setStatus("🟡 QUEUED OFFLINE", "statusSearching");
+  setStatus("ð¡ QUEUED OFFLINE", "statusSearching");
 
   clearCachedItem(); clearForm(); maybeRestartScanner();
   
@@ -695,7 +682,7 @@ function syncPendingStocktakes() {
       } else {
         updateOfflineBar(); setMsg(data.message || "Cache sync failed", "error");
       }
-    }).catch(() => { updateOfflineBar(); setMsg("Connection unstable — entries remain queued", "error"); });
+    }).catch(() => { updateOfflineBar(); setMsg("Connection unstable â entries remain queued", "error"); });
 }
 
 window.addEventListener("online", function() { updateOfflineBar(); syncPendingStocktakes(); });
@@ -721,18 +708,18 @@ function findOfflineProduct(barcode) {
 }
 
 function downloadStockData() {
-  if (!navigator.onLine) { setMsg("Cannot refresh cache while offline", "error"); setStatus("🔴 SYSTEM OFFLINE", "statusNotFound"); return; }
+  if (!navigator.onLine) { setMsg("Cannot refresh cache while offline", "error"); setStatus("ð´ SYSTEM OFFLINE", "statusNotFound"); return; }
   setMsg("Downloading directory for offline staging...", "good");
-  setStatus("⬇️ DOWNLOADING...", "statusSearching");
+  setStatus("â¬ï¸ DOWNLOADING...", "statusSearching");
 
   fetchAPI("stockdata").then(data => {
-      if (!data.ok || !data.items) { setMsg(data.message || "Directory download failed", "error"); setStatus("❌ DOWNLOAD FAILED", "statusNotFound"); return; }
+      if (!data.ok || !data.items) { setMsg(data.message || "Directory download failed", "error"); setStatus("â DOWNLOAD FAILED", "statusNotFound"); return; }
       saveOfflineStockData(data.items);
       setMsg("Cache refreshed: " + data.items.length + " profiles", "good");
-      setStatus("✅ CACHE READY", "statusFound");
+      setStatus("â CACHE READY", "statusFound");
       updateOfflineBar();
       if (document.getElementById('viewStocktake').classList.contains('active-view')) renderPendingStocktake();
-    }).catch(() => { setMsg("Directory download failed due to network error", "error"); setStatus("❌ CONNECTION ERROR", "statusNotFound"); });
+    }).catch(() => { setMsg("Directory download failed due to network error", "error"); setStatus("â CONNECTION ERROR", "statusNotFound"); });
 }
 
 function setMsg(text, cls="") { const el = document.getElementById("msg"); el.innerText = text; el.className = cls; }
@@ -760,16 +747,16 @@ function stopScanner() { if (scanner) { scanner.reset(); scanner = null; } docum
 
 function lookup(barcode) {
   barcode = String(barcode || "").trim();
-  if (!barcode) { setMsg("Enter or scan a product code", "error"); setStatus("❌ ALIGNMENT FIELD NULL", "statusNotFound"); if (navigator.vibrate) navigator.vibrate([100, 50, 100]); return; }
-  setMsg("Querying database...", "good"); setStatus("🔎 SEARCHING DIRECTORY...", "statusSearching");
+  if (!barcode) { setMsg("Enter or scan a product code", "error"); setStatus("â ALIGNMENT FIELD NULL", "statusNotFound"); if (navigator.vibrate) navigator.vibrate([100, 50, 100]); return; }
+  setMsg("Querying database...", "good"); setStatus("ð SEARCHING DIRECTORY...", "statusSearching");
 
   const cached = localStorage.getItem("item_" + barcode);
   if (cached) showProduct(JSON.parse(cached));
 
   if (!navigator.onLine) {
     const offlineItem = findOfflineProduct(barcode);
-    if (offlineItem) { showProduct(offlineItem); setMsg("Product sourced from local cache", "good"); setStatus("✅ CACHE MATCH", "statusFound"); } 
-    else { clearProductOnly(); setMsg("Index key missed in offline cache", "error"); setStatus("❌ NOT IN CACHE", "statusNotFound"); }
+    if (offlineItem) { showProduct(offlineItem); setMsg("Product sourced from local cache", "good"); setStatus("â CACHE MATCH", "statusFound"); } 
+    else { clearProductOnly(); setMsg("Index key missed in offline cache", "error"); setStatus("â NOT IN CACHE", "statusNotFound"); }
     updateOfflineBar(); return;
   }
 
@@ -778,14 +765,14 @@ function lookup(barcode) {
       showProduct(data); updateOfflineBar();
     }).catch(() => {
       const offlineItem = findOfflineProduct(barcode);
-      if (offlineItem) { showProduct(offlineItem); setMsg("Product sourced from local cache", "good"); setStatus("✅ CACHE MATCH", "statusFound"); } 
-      else { setMsg("Database connection error", "error"); setStatus("❌ CONNECTION ERROR", "statusNotFound"); }
+      if (offlineItem) { showProduct(offlineItem); setMsg("Product sourced from local cache", "good"); setStatus("â CACHE MATCH", "statusFound"); } 
+      else { setMsg("Database connection error", "error"); setStatus("â CONNECTION ERROR", "statusNotFound"); }
       if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]); updateOfflineBar();
     });
 }
 
 function showProduct(data) {
-  if (!data.found) { clearProductOnly(); setMsg("Record unallocated", "error"); setStatus("❌ RECORD NOT FOUND", "statusNotFound"); if (navigator.vibrate) navigator.vibrate([100, 50, 100]); return; }
+  if (!data.found) { clearProductOnly(); setMsg("Record unallocated", "error"); setStatus("â RECORD NOT FOUND", "statusNotFound"); if (navigator.vibrate) navigator.vibrate([100, 50, 100]); return; }
   currentItem = data;
   document.getElementById("product").innerText = data.description || "-";
   
@@ -794,7 +781,7 @@ function showProduct(data) {
   document.getElementById("recordedQty").innerText = data.recordedQty || "-"; document.getElementById("capturedQty").innerText = data.capturedQty || "-";
 
   setCapturedStatus(data.capturedQty); colourStock(data.recordedQty);
-  setMsg("Product match confirmed", "good"); setStatus("✅ MATCH CONFIRMED", "statusFound"); if (navigator.vibrate) navigator.vibrate(80);
+  setMsg("Product match confirmed", "good"); setStatus("â MATCH CONFIRMED", "statusFound"); if (navigator.vibrate) navigator.vibrate(80);
 }
 
 function setCapturedStatus(capturedQty) {
