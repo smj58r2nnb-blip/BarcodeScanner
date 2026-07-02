@@ -122,16 +122,13 @@ button:hover { filter: brightness(1.05); transform: translateY(-1px); }
 .scan { background: var(--green); font-size: 15px; }
 body.pc-view #scanBtn,
 body.pc-view #stopBtn,
-body.pc-view #scannerWrapper,
-body.pc-view .toggleRow { 
+body.pc-view #scannerWrapper { 
   display: none !important; 
 }
 /* ------------------------------------------------ */
 
 .stop { background: #e11d48; display: none; }
 .save { background: #0284c7; }
-.in { background: #2563eb; }
-.out { background: #e11d48; }
 .clear { background: var(--border); color: var(--text); }
 .mode { background: #475569; }
 
@@ -139,7 +136,6 @@ body.pc-view .toggleRow {
 .card-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 16px; border-bottom: 2px solid var(--green-light); padding-bottom: 10px; }
 
 .data-grid { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 12px; flex-grow: 1; }
-@media(max-width: 480px) { .data-grid { grid-template-columns: 1fr 1fr; } } /* Kept 2 columns for minimal view */
 .box { background: var(--card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; }
 .box .label { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; }
 .box .value { margin-top: 6px; font-size: 18px; font-weight: 800; word-break: break-word; }
@@ -158,12 +154,10 @@ body.pc-view .toggleRow {
 @keyframes scan-line { 0% { top: 20%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 80%; opacity: 0; } }
 .scanner-target::after { content: ""; position: absolute; left: 20%; width: 60%; height: 2px; background: var(--green); box-shadow: 0 0 8px var(--green); animation: scan-line 2s infinite linear; }
 
-.actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: auto; }
 #msg { text-align: center; font-size: 14px; font-weight: 700; margin-top: 12px; min-height: 21px; }
 .good { color: var(--green); }
 .error { color: #dc2626; }
 
-.banner { display: none; margin-top: 16px; background: var(--success-bg); color: var(--success-text); border: 1px solid var(--green-light); border-radius: 10px; padding: 16px; text-align: center; font-weight: 700; }
 .statusBig { display: none; margin: 16px 0; padding: 16px; border-radius: 10px; text-align: center; font-size: 15px; font-weight: 800; text-transform: uppercase; }
 .statusSearching { display: block; background: var(--info-bg); color: var(--info-text); border: 1px solid #bfdbfe; }
 .statusFound { display: block; background: var(--success-bg); color: var(--success-text); border: 1px solid var(--green-light); }
@@ -172,9 +166,6 @@ body.pc-view .toggleRow {
 .offlineBar { margin-top: 0px; margin-bottom: 16px; padding: 16px; border-radius: 10px; text-align: center; font-weight: 800; font-size: 13px; background: var(--success-bg); color: var(--success-text); border: 1px solid var(--green-light); text-transform: uppercase; }
 .offlineBar.offline { background: var(--error-bg); color: var(--error-text); border-color: #fecaca; }
 .offlineBar.queue { background: var(--warn-bg); color: var(--warn-text); border-color: #fde68a; }
-
-.toggleRow { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; padding: 16px; border-radius: 10px; background: var(--input-bg); border: 1px solid var(--border); font-weight: 700; font-size: 14px; }
-.toggleRow input[type="checkbox"] { width: auto; transform: scale(1.3); margin: 0; cursor: pointer; }
 
 /* TABLES & DATA */
 .progressWrap { background: var(--border); border-radius: 999px; overflow: hidden; height: 10px; margin-top: 12px; }
@@ -185,15 +176,11 @@ body.pc-view .toggleRow {
 .ledger-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-weight: 500; }
 .ledger-table tr:hover td { background: var(--bg); }
 
-.badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
-.badge-in { background: #dbeafe; color: #1d4ed8; }
-.badge-out { background: #fee2e2; color: #b91c1c; }
-.badge-warn { background: var(--warn-bg); color: var(--warn-text); }
-.badge-bin { background: var(--input-bg); color: var(--text); border: 1px solid var(--border); font-family: monospace; font-size: 12px; }
+.badge-bin { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; text-transform: uppercase; background: var(--input-bg); color: var(--text); border: 1px solid var(--border); font-family: monospace; font-size: 12px; }
 
-.row-counted td, .row-ordered td { background: var(--success-bg) !important; border-bottom: 1px solid var(--green-light) !important; color: var(--green-dark) !important; }
-.row-counted .badge-bin, .row-ordered .badge-bin { background: var(--green) !important; color: white !important; border-color: var(--green) !important; }
-.row-counted .desc-text, .row-ordered .desc-text { color: var(--green-dark) !important; font-weight: 600; }
+.row-counted td { background: var(--success-bg) !important; border-bottom: 1px solid var(--green-light) !important; color: var(--green-dark) !important; }
+.row-counted .badge-bin { background: var(--green) !important; color: white !important; border-color: var(--green) !important; }
+.row-counted .desc-text { color: var(--green-dark) !important; font-weight: 600; }
 </style>
 </head>
 
@@ -218,24 +205,16 @@ body.pc-view .toggleRow {
     <div id="nav-scanner" class="menu-item active-menu" onclick="switchView('viewScanner', 'nav-scanner')">
       <span style="font-size:20px;">📷</span> Scanner & Booking
     </div>
-    <div id="nav-analytics" class="menu-item" onclick="switchView('viewAnalytics', 'nav-analytics')">
-      <span style="font-size:20px;">📊</span> Live Analytics
-    </div>
     <div id="nav-stocktake" class="menu-item" onclick="switchView('viewStocktake', 'nav-stocktake')">
       <span style="font-size:20px;">📝</span> Active Stocktake
-    </div>
-    <div id="nav-reports" class="menu-item" onclick="switchView('viewReports', 'nav-reports')">
-      <span style="font-size:20px;">⚠️</span> Reorders & Alerts
     </div>
   </div>
 </div>
 
-<!-- COMPACT MINIMAL SCANNER VIEW -->
 <div id="viewScanner" class="app-view active-view">
   
   <div class="card full-width" style="padding: 16px;">
     
-    <!-- Top Scanner Actions -->
     <button id="scanBtn" class="scan" onclick="startScanner()">
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 7V4h3m10 0h3v3M4 17v3h3m10 0h3v-3M12 8v8M8 12h8"/></svg>
       Open Camera Scanner
@@ -247,17 +226,16 @@ body.pc-view .toggleRow {
       <div class="scanner-target"></div>
     </div>
 
-    <!-- Live Status & Product Name -->
+    <input type="hidden" id="barcode">
+
     <div id="statusBig" class="statusBig"></div>
     <div id="product" class="product" style="margin-top: 12px; margin-bottom: 16px;">Ready to scan</div>
 
-    <!-- Quick Entry Form (Directly under product name) -->
     <div style="display: flex; gap: 12px; margin-bottom: 24px;">
       <input id="qty" type="number" placeholder="Enter Qty..." style="flex: 1; font-size: 20px; font-weight: bold; text-align: center; padding: 18px;">
       <button class="save" onclick="saveStockTake()" style="flex: 1; margin: 0; font-size: 18px;">✓ Save Count</button>
     </div>
 
-    <!-- Essential Stock Data -->
     <div class="data-grid" style="margin-bottom: 20px;">
       <div class="box"><div class="label">Bin No</div><div id="bin" class="value" style="color:var(--muted)">-</div></div>
       <div class="box"><div class="label">Qty Recorded</div><div id="recordedQty" class="value greenStock">-</div></div>
@@ -265,24 +243,7 @@ body.pc-view .toggleRow {
       <div class="box"><div id="capturedLabel" class="label">Not Counted</div><div id="capturedQty" class="value" style="color:var(--muted)">-</div></div>
     </div>
 
-    <!-- Secondary / Fallback Actions (Hidden by default to save space) -->
-    <details style="margin-bottom: 16px; padding: 12px; background: var(--input-bg); border-radius: 12px; border: 1px solid var(--border);">
-      <summary style="font-weight: 700; font-size: 14px; color: var(--muted); cursor: pointer; outline: none;">Manual Entry & Actions</summary>
-      <div style="margin-top: 16px;">
-        <div class="form-group">
-          <label for="barcode">Barcode / Search</label>
-          <input id="barcode" placeholder="Scan or type barcode here..." autocomplete="off" onkeydown="manualEnter(event)">
-        </div>
-        <div class="actions">
-          <button class="in" onclick="bookIn()">↓ Book In</button>
-          <button class="out" onclick="bookOut()">↑ Book Out</button>
-          <button class="clear" onclick="clearForm()">✕ Clear</button>
-        </div>
-      </div>
-    </details>
-
     <div id="offlineBar" class="offlineBar">Checking System Status...</div>
-    <div id="banner" class="banner"></div>
     <div id="msg"></div>
 
     <button id="downloadStockBtn" class="mode" style="margin-top: 16px;" onclick="downloadStockData()">
@@ -292,32 +253,6 @@ body.pc-view .toggleRow {
     
   </div>
 </div>
-
-
-<div id="viewAnalytics" class="app-view">
-  <div class="card full-width">
-    <div class="card-title">📊 Live Analytics & Feed</div>
-    
-    <div class="data-grid">
-       <div class="box"><div class="label">Outbound Transactions (Today)</div><div class="value" id="statOut" style="font-size:24px;">0 units</div></div>
-       <div class="box"><div class="label">Inbound Transactions (Today)</div><div class="value" id="statIn" style="font-size:24px;">0 units</div></div>
-    </div>
-
-    <div style="margin-top:28px;">
-       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-         <div class="label" style="font-size:13px; color:var(--text);">Recent Activity Ledger</div>
-         <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="refreshAnalytics()">🔄 Sync Feed</button>
-       </div>
-       <div class="table-wrapper">
-         <table class="ledger-table">
-           <thead><tr><th>Timestamp</th><th>User</th><th>Product Match</th><th>Bin Location</th><th>Type</th><th>Qty</th></tr></thead>
-           <tbody id="ledgerBody"><tr><td colspan="6" style="text-align:center; padding: 30px; color: var(--muted);">Loading live feed data...</td></tr></tbody>
-         </table>
-       </div>
-    </div>
-  </div>
-</div>
-
 
 <div id="viewStocktake" class="app-view">
   <div class="card full-width">
@@ -347,42 +282,6 @@ body.pc-view .toggleRow {
     </div>
   </div>
 </div>
-
-
-<div id="viewReports" class="app-view">
-  <div class="card full-width">
-    <div class="card-title">⚠️ Reorders & 🔥 Top Items</div>
-
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <div class="label" style="font-size:13px; color:var(--error-text);">Stock Reorder Alerts</div>
-      <button class="clear" style="width:auto; min-height:36px; font-size:12px; padding:0 14px;" onclick="loadReportsData()">🔄 Refresh</button>
-    </div>
-    
-    <div class="table-wrapper">
-      <table class="ledger-table">
-        <thead><tr><th>Bin Location</th><th>Product Match</th><th>Current Stock</th><th>Reorder Level</th></tr></thead>
-        <tbody id="reorderBody">
-          <tr><td colspan="4" style="text-align:center; padding:30px; color:var(--muted);">Fetching live stock levels...</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:28px; margin-bottom:12px;">
-      <div class="label" style="font-size:13px; color:var(--text);">Top Used Items</div>
-    </div>
-    
-    <div class="table-wrapper">
-      <table class="ledger-table">
-        <thead><tr><th>Rank & Description</th><th>Total Outbound (All Time)</th></tr></thead>
-        <tbody id="topUsedBody">
-          <tr><td colspan="2" style="text-align:center; padding:30px; color:var(--muted);">Calculating top items...</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-  </div>
-</div>
-
 
 <script>
 // =========================================================================
@@ -438,9 +337,7 @@ function switchView(viewId, navId) {
   toggleSidebar();
   window.scrollTo(0,0);
   
-  if(viewId === 'viewAnalytics') refreshAnalytics();
   if(viewId === 'viewStocktake') renderPendingStocktake();
-  if(viewId === 'viewReports') loadReportsData();
 }
 
 function isMobileDevice() {
@@ -452,89 +349,10 @@ window.addEventListener("DOMContentLoaded", () => {
     document.body.classList.add('mobile-view');
   } else {
     document.body.classList.add('pc-view');
-    setTimeout(() => { const bc = document.getElementById("barcode"); if(bc) bc.focus(); }, 300);
   }
 });
 
 // --- DATA LOGIC ---
-function loadReportsData() {
-  document.getElementById("reorderBody").innerHTML = "<tr><td colspan='4' style='text-align:center; padding:30px; color:var(--muted);'>Fetching live stock levels...</td></tr>";
-  document.getElementById("topUsedBody").innerHTML = "<tr><td colspan='2' style='text-align:center; padding:30px; color:var(--muted);'>Calculating top items...</td></tr>";
-
-  fetchAPI("reports").then(data => {
-    if (!data.ok) { setMsg("Reports failed to load", "error"); return; }
-    
-    const rBody = document.getElementById("reorderBody");
-    if (!data.reorderItems || data.reorderItems.length === 0) {
-      rBody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:30px; color:var(--green); font-size:16px; font-weight:800;'>All stock is above safe reorder levels! 🎉</td></tr>";
-    } else {
-      rBody.innerHTML = data.reorderItems.map(item => {
-        const qtyBadge = item.qty <= 0 ? "badge-out" : "badge-warn";
-        return `
-        <tr onclick="this.classList.toggle('row-ordered')" style="cursor:pointer;">
-          <td><span class="badge badge-bin">${item.bin || "-"}</span></td>
-          <td class="desc-text">
-            <div style="font-weight:800;">${item.article}</div>
-            <div style="font-size:12px; color:var(--muted);">${item.description}</div>
-          </td>
-          <td><span class="badge ${qtyBadge}">${item.qty}</span></td>
-          <td>Trigger at: ${item.reorderQty}</td>
-        </tr>
-      `}).join("");
-    }
-
-    const tBody = document.getElementById("topUsedBody");
-    if (!data.topParts || data.topParts.length === 0) {
-      tBody.innerHTML = "<tr><td colspan='2' style='text-align:center; padding:30px; color:var(--muted);'>No outbound data available yet.</td></tr>";
-    } else {
-      tBody.innerHTML = data.topParts.map((item, i) => `
-        <tr>
-          <td style="font-weight:700; color:var(--text);"><span style="color:var(--green); margin-right:10px;">#${i+1}</span>${item.description}</td>
-          <td style="font-weight:900; font-size:16px; color:var(--text);">${item.qty} units</td>
-        </tr>
-      `).join("");
-    }
-  }).catch(() => {
-    document.getElementById("reorderBody").innerHTML = "<tr><td colspan='4' style='text-align:center; padding:30px; color:var(--error-text);'>Connection error. Please try again.</td></tr>";
-  });
-}
-
-function refreshAnalytics() {
-  document.getElementById("statOut").innerText = "...";
-  document.getElementById("statIn").innerText = "...";
-  document.getElementById("ledgerBody").innerHTML = "<tr><td colspan='6' style='text-align:center; padding:30px; color:var(--muted);'>Connecting to remote database...</td></tr>";
-
-  fetchAPI("dashboard").then(data => {
-      if (!data.ok) { setMsg("Analytics failed to load", "error"); return; }
-      document.getElementById("statOut").innerText = data.bookedOutToday + " units";
-      document.getElementById("statIn").innerText = data.bookedInToday + " units";
-
-      const ledger = document.getElementById("ledgerBody");
-      if (!data.serverHistory || data.serverHistory.length === 0) {
-        ledger.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:30px; color:var(--muted);'>No recent activity found.</td></tr>";
-        return;
-      }
-
-      ledger.innerHTML = data.serverHistory.map(act => {
-        const badgeCls = act.action === 'Book Out' ? 'badge-out' : 'badge-in';
-        return `
-        <tr>
-          <td style="color:var(--muted); font-weight:600; font-size:12px;">${act.formattedDate}</td>
-          <td style="font-weight:700;">${act.who}</td>
-          <td>
-            <div style="font-weight:800; color:var(--text);">${act.barcode}</div>
-            <div style="font-size:12px; color:var(--muted); margin-top:2px;">${act.description}</div>
-          </td>
-          <td><span class="badge badge-bin">${act.bin || "-"}</span></td>
-          <td><span class="badge ${badgeCls}">${act.action}</span></td>
-          <td style="font-weight:800; font-size:15px;">${act.qty}</td>
-        </tr>
-      `}).join("");
-    }).catch(() => {
-      document.getElementById("ledgerBody").innerHTML = "<tr><td colspan='6' style='text-align:center; padding:30px; color:var(--error-text);'>Connection error. Please check your network.</td></tr>";
-    });
-}
-
 function renderPendingStocktake() {
   const allItems = getOfflineStockData();
   const items = allItems.filter(item => 
@@ -583,7 +401,7 @@ function renderPendingStocktake() {
     const icon = isCounted ? " <span style='font-size:10px;'>✅</span>" : "";
     return `
       <tr class="${rowClass}">
-        <td><span class="badge badge-bin">${item.bin || "-"}</span></td>
+        <td><span class="badge-bin">${item.bin || "-"}</span></td>
         <td style="font-weight:700;">${item.articleNo || "-"}${icon}</td>
         <td class="desc-text" style="font-size:12px; color:var(--muted);">${item.description || "-"}</td>
       </tr>
@@ -614,7 +432,6 @@ function autoResetStocktake() {
       if (data.ok) {
          setMsg("Stocktake automatically reset", "good");
          downloadStockData(); 
-         if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics();
       }
     }).catch(err => console.error("Reset failed", err));
 }
@@ -649,22 +466,16 @@ function updateOfflineBar() {
 function queueOffline(actionType) {
   const barcode = document.getElementById("barcode").value.trim();
   const qty = document.getElementById("qty").value;
-  const who = "M Read"; // User strictly hardcoded
+  const who = "M Read"; // Hardcoded for this device
 
-  if (!barcode) { setMsg("Scan or enter a barcode first", "error"); setStatus("❌ ALIGNMENT FIELD NULL", "statusNotFound"); return; }
+  if (!barcode) { setMsg("Scan a barcode first", "error"); setStatus("❌ NO SCAN DETECTED", "statusNotFound"); return; }
   if (qty === "" || Number(qty) < 0 || isNaN(Number(qty))) { setMsg("Enter a valid quantity", "error"); setStatus("❌ INVALID QTY", "statusNotFound"); return; }
-  if ((actionType === "bookin" || actionType === "bookout") && Number(qty) === 0) { setMsg("Quantity must be greater than 0", "error"); setStatus("❌ INVALID QTY", "statusNotFound"); return; }
 
   pendingStocktake.push({ action: actionType, barcode: barcode, qty: qty, who: who, comments: "", queuedAt: new Date().toISOString() });
   updateOfflineItemQty(barcode, qty, actionType);
   savePendingStocktakeQueue();
   updateOfflineBar();
 
-  let actionText = "FIELD AUDIT";
-  if(actionType === "bookin") actionText = "INBOUND LOG";
-  if(actionType === "bookout") actionText = "OUTBOUND LOG";
-
-  showBanner("📴 OFFLINE " + actionText + " SAVED<br>" + pendingStocktake.length + " waiting to sync");
   setMsg("Transaction queued to local storage", "good");
   setStatus("🟡 QUEUED OFFLINE", "statusSearching");
 
@@ -672,7 +483,7 @@ function queueOffline(actionType) {
   clearForm(); 
   
   if(actionType === 'save') {
-    setTimeout(startScanner, 800); // Auto open scanner
+    startScanner(); // Restart immediately without delay
   }
 
   if (document.getElementById('viewStocktake').classList.contains('active-view')) renderPendingStocktake();
@@ -738,7 +549,6 @@ function downloadStockData() {
 
 function setMsg(text, cls="") { const el = document.getElementById("msg"); el.innerText = text; el.className = cls; }
 function setStatus(text, type) { const el = document.getElementById("statusBig"); el.innerText = text; el.className = "statusBig " + type; }
-function manualEnter(e) { if (e.key === "Enter") lookup(document.getElementById("barcode").value); }
 
 function startScanner() {
   scanLocked = false;
@@ -761,7 +571,7 @@ function stopScanner() { if (scanner) { scanner.reset(); scanner = null; } docum
 
 function lookup(barcode) {
   barcode = String(barcode || "").trim();
-  if (!barcode) { setMsg("Enter or scan a product code", "error"); setStatus("❌ ALIGNMENT FIELD NULL", "statusNotFound"); if (navigator.vibrate) navigator.vibrate([100, 50, 100]); return; }
+  if (!barcode) { setMsg("Scan a product code", "error"); setStatus("❌ ALIGNMENT FIELD NULL", "statusNotFound"); if (navigator.vibrate) navigator.vibrate([100, 50, 100]); return; }
   setMsg("Querying database...", "good"); setStatus("🔎 SEARCHING DIRECTORY...", "statusSearching");
 
   const cached = localStorage.getItem("item_" + barcode);
@@ -815,10 +625,7 @@ function updateOfflineItemQty(barcode, qty, actionType) {
   const items = getOfflineStockData(); const search = String(barcode || "").trim(); const nQty = Number(qty) || 0;
   for (let i = 0; i < items.length; i++) {
     if (String(items[i].barcode || "").trim() === search || String(items[i].bin || "").trim() === search) {
-      let currentRecorded = Number(items[i].recordedQty) || 0;
       if (actionType === "save") { items[i].recordedQty = nQty; items[i].capturedQty = nQty; } 
-      else if (actionType === "bookin") { items[i].recordedQty = currentRecorded + nQty; } 
-      else if (actionType === "bookout") { items[i].recordedQty = Math.max(0, currentRecorded - nQty); }
       saveOfflineStockData(items); break;
     }
   }
@@ -828,56 +635,25 @@ function saveStockTake() {
   if (!navigator.onLine) { queueOffline("save"); return; }
   const barcode = document.getElementById("barcode").value.trim(); 
   const qty = document.getElementById("qty").value; 
-  const who = "M Read"; // User strictly hardcoded
+  const who = "M Read"; // Hardcoded for this device
 
   fetchAPI("save", { barcode: barcode, qty: qty, who: who }).then(data => {
       if (data.ok) {
-        clearCachedItem(); updateOfflineItemQty(barcode, qty, "save");
-        lookup(barcode); syncPendingStocktakes(); 
-        clearForm(); // Clear the quantity input for the next item
-        setTimeout(startScanner, 800); // Auto open scanner
-        if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics(); 
+        clearCachedItem(); 
+        updateOfflineItemQty(barcode, qty, "save");
+        syncPendingStocktakes(); 
+        clearForm(); // Wipe previous item info immediately
+        startScanner(); // Instantly open camera for the next item
         if (document.getElementById('viewStocktake').classList.contains('active-view')) renderPendingStocktake();
       } else { setMsg(data.message || "Database write failed", "error"); }
     }).catch(() => { queueOffline("save"); });
 }
 
-function bookOut() {
-  if (!navigator.onLine) { queueOffline("bookout"); return; }
-  const barcode = document.getElementById("barcode").value.trim(); 
-  const qty = document.getElementById("qty").value; 
-  const who = "M Read"; // User strictly hardcoded
-  const comments = "";
-
-  fetchAPI("bookout", { barcode: barcode, qty: qty, who: who, comments: comments }).then(data => {
-      if (data.ok) {
-        clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookout");
-        clearForm(); 
-        if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics();
-      } else { setMsg(data.message || "Transaction rejected", "error"); }
-    }).catch(() => { queueOffline("bookout"); });
-}
-
-function bookIn() {
-  if (!navigator.onLine) { queueOffline("bookin"); return; }
-  const barcode = document.getElementById("barcode").value.trim(); 
-  const qty = document.getElementById("qty").value; 
-  const who = "M Read"; // User strictly hardcoded
-  const comments = "";
-
-  fetchAPI("bookin", { barcode: barcode, qty: qty, who: who, comments: comments }).then(data => {
-      if (data.ok) {
-        clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookin");
-        clearForm(); 
-        if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics();
-      } else { setMsg(data.message || "Transaction rejected", "error"); }
-    }).catch(() => { queueOffline("bookin"); });
-}
-
 function clearForm() {
-  document.getElementById("barcode").value = ""; document.getElementById("qty").value = "";
-  currentItem = null; clearProductOnly();
-  if(!isMobileDevice()) { const bc = document.getElementById("barcode"); if(bc) bc.focus(); }
+  document.getElementById("barcode").value = ""; 
+  document.getElementById("qty").value = "";
+  currentItem = null; 
+  clearProductOnly();
 }
 
 function clearProductOnly() {
