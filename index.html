@@ -139,7 +139,7 @@ body.pc-view .toggleRow {
 .card-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 16px; border-bottom: 2px solid var(--green-light); padding-bottom: 10px; }
 
 .data-grid { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 12px; flex-grow: 1; }
-@media(max-width: 480px) { .data-grid { grid-template-columns: 1fr; } }
+@media(max-width: 480px) { .data-grid { grid-template-columns: 1fr 1fr; } } /* Kept 2 columns for minimal view */
 .box { background: var(--card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; }
 .box .label { color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; }
 .box .value { margin-top: 6px; font-size: 18px; font-weight: 800; word-break: break-word; }
@@ -158,7 +158,7 @@ body.pc-view .toggleRow {
 @keyframes scan-line { 0% { top: 20%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 80%; opacity: 0; } }
 .scanner-target::after { content: ""; position: absolute; left: 20%; width: 60%; height: 2px; background: var(--green); box-shadow: 0 0 8px var(--green); animation: scan-line 2s infinite linear; }
 
-.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: auto; }
+.actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: auto; }
 #msg { text-align: center; font-size: 14px; font-weight: 700; margin-top: 12px; min-height: 21px; }
 .good { color: var(--green); }
 .error { color: #dc2626; }
@@ -230,9 +230,12 @@ body.pc-view .toggleRow {
   </div>
 </div>
 
-<div id="viewScanner" class="app-view grid-2 active-view">
+<!-- COMPACT MINIMAL SCANNER VIEW -->
+<div id="viewScanner" class="app-view active-view">
   
-  <div class="card">
+  <div class="card full-width" style="padding: 16px;">
+    
+    <!-- Top Scanner Actions -->
     <button id="scanBtn" class="scan" onclick="startScanner()">
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 7V4h3m10 0h3v3M4 17v3h3m10 0h3v-3M12 8v8M8 12h8"/></svg>
       Open Camera Scanner
@@ -244,46 +247,41 @@ body.pc-view .toggleRow {
       <div class="scanner-target"></div>
     </div>
 
-    <div class="form-group" style="margin-top: 16px;">
-      <label for="barcode">Barcode / Search</label>
-      <input id="barcode" placeholder="Scan or type barcode here..." autocomplete="off" onkeydown="manualEnter(event)">
-    </div>
-
+    <!-- Live Status & Product Name -->
     <div id="statusBig" class="statusBig"></div>
-    <div id="product" class="product">Ready to scan</div>
+    <div id="product" class="product" style="margin-top: 12px; margin-bottom: 16px;">Ready to scan</div>
 
-    <div class="data-grid">
-      <div class="box"><div class="label">Article No</div><div id="articleNo" class="value" style="color:var(--muted)">-</div></div>
-      <div class="box"><div class="label">Qty Recorded</div><div id="recordedQty" class="value greenStock">-</div></div>
-      <div class="box"><div id="capturedLabel" class="label">Not Counted</div><div id="capturedQty" class="value" style="color:var(--muted)">-</div></div>
+    <!-- Quick Entry Form (Directly under product name) -->
+    <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+      <input id="qty" type="number" placeholder="Enter Qty..." style="flex: 1; font-size: 20px; font-weight: bold; text-align: center; padding: 18px;">
+      <button class="save" onclick="saveStockTake()" style="flex: 1; margin: 0; font-size: 18px;">✓ Save Count</button>
+    </div>
+
+    <!-- Essential Stock Data -->
+    <div class="data-grid" style="margin-bottom: 20px;">
       <div class="box"><div class="label">Bin No</div><div id="bin" class="value" style="color:var(--muted)">-</div></div>
-      <div class="box"><div class="label">Zone</div><div id="zone" class="value" style="color:var(--muted)">-</div></div>
-      <div class="box"><div class="label">Location</div><div id="location" class="value" style="color:var(--muted)">-</div></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="form-group">
-      <label for="user">Active User</label>
-      <select id="user">
-        <option>M Read</option><option>I Rees</option><option>C Law</option><option>M Peters</option><option>J Meakin</option><option>M Goodhall</option>
-      </select>
+      <div class="box"><div class="label">Qty Recorded</div><div id="recordedQty" class="value greenStock">-</div></div>
+      <div class="box"><div class="label">Article No</div><div id="articleNo" class="value" style="color:var(--muted)">-</div></div>
+      <div class="box"><div id="capturedLabel" class="label">Not Counted</div><div id="capturedQty" class="value" style="color:var(--muted)">-</div></div>
     </div>
 
-    <div class="form-group">
-      <label for="qty">Quantity</label>
-      <input id="qty" type="number" placeholder="Enter amount...">
-    </div>
+    <!-- Secondary / Fallback Actions (Hidden by default to save space) -->
+    <details style="margin-bottom: 16px; padding: 12px; background: var(--input-bg); border-radius: 12px; border: 1px solid var(--border);">
+      <summary style="font-weight: 700; font-size: 14px; color: var(--muted); cursor: pointer; outline: none;">Manual Entry & Actions</summary>
+      <div style="margin-top: 16px;">
+        <div class="form-group">
+          <label for="barcode">Barcode / Search</label>
+          <input id="barcode" placeholder="Scan or type barcode here..." autocomplete="off" onkeydown="manualEnter(event)">
+        </div>
+        <div class="actions">
+          <button class="in" onclick="bookIn()">↓ Book In</button>
+          <button class="out" onclick="bookOut()">↑ Book Out</button>
+          <button class="clear" onclick="clearForm()">✕ Clear</button>
+        </div>
+      </div>
+    </details>
 
     <div id="offlineBar" class="offlineBar">Checking System Status...</div>
-
-    <div class="actions">
-      <button class="save" onclick="saveStockTake()">✓ Save Count</button>
-      <button class="clear" onclick="clearForm()">✕ Clear</button>
-      <button class="in" onclick="bookIn()">↓ Book In</button>
-      <button class="out" onclick="bookOut()">↑ Book Out</button>
-    </div>
-
     <div id="banner" class="banner"></div>
     <div id="msg"></div>
 
@@ -292,9 +290,7 @@ body.pc-view .toggleRow {
       Cache Data for Offline Use
     </button>
     
-    <div class="toggleRow"><span>Continuous Scan Tracking</span><input id="continuousScan" type="checkbox" onchange="saveContinuousMode()"></div>
   </div>
-
 </div>
 
 
@@ -653,7 +649,7 @@ function updateOfflineBar() {
 function queueOffline(actionType) {
   const barcode = document.getElementById("barcode").value.trim();
   const qty = document.getElementById("qty").value;
-  const who = document.getElementById("user").value;
+  const who = "M Read"; // User strictly hardcoded
 
   if (!barcode) { setMsg("Scan or enter a barcode first", "error"); setStatus("❌ ALIGNMENT FIELD NULL", "statusNotFound"); return; }
   if (qty === "" || Number(qty) < 0 || isNaN(Number(qty))) { setMsg("Enter a valid quantity", "error"); setStatus("❌ INVALID QTY", "statusNotFound"); return; }
@@ -672,8 +668,13 @@ function queueOffline(actionType) {
   setMsg("Transaction queued to local storage", "good");
   setStatus("🟡 QUEUED OFFLINE", "statusSearching");
 
-  clearCachedItem(); clearForm(); maybeRestartScanner();
+  clearCachedItem(); 
+  clearForm(); 
   
+  if(actionType === 'save') {
+    setTimeout(startScanner, 800); // Auto open scanner
+  }
+
   if (document.getElementById('viewStocktake').classList.contains('active-view')) renderPendingStocktake();
   if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
 }
@@ -790,7 +791,7 @@ function showProduct(data) {
   document.getElementById("product").innerText = data.description || "-";
   
   const styleVal = (id, val) => { const el = document.getElementById(id); el.innerText = val || "-"; el.style.color = val ? "var(--text)" : "var(--muted)"; };
-  styleVal("articleNo", data.articleNo); styleVal("bin", data.bin); styleVal("zone", data.zone); styleVal("location", data.location);
+  styleVal("articleNo", data.articleNo); styleVal("bin", data.bin);
   document.getElementById("recordedQty").innerText = data.recordedQty || "-"; document.getElementById("capturedQty").innerText = data.capturedQty || "-";
 
   setCapturedStatus(data.capturedQty); colourStock(data.recordedQty);
@@ -825,12 +826,16 @@ function updateOfflineItemQty(barcode, qty, actionType) {
 
 function saveStockTake() {
   if (!navigator.onLine) { queueOffline("save"); return; }
-  const barcode = document.getElementById("barcode").value.trim(); const qty = document.getElementById("qty").value; const who = document.getElementById("user").value;
+  const barcode = document.getElementById("barcode").value.trim(); 
+  const qty = document.getElementById("qty").value; 
+  const who = "M Read"; // User strictly hardcoded
 
   fetchAPI("save", { barcode: barcode, qty: qty, who: who }).then(data => {
       if (data.ok) {
         clearCachedItem(); updateOfflineItemQty(barcode, qty, "save");
-        lookup(barcode); syncPendingStocktakes(); maybeRestartScanner();
+        lookup(barcode); syncPendingStocktakes(); 
+        clearForm(); // Clear the quantity input for the next item
+        setTimeout(startScanner, 800); // Auto open scanner
         if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics(); 
         if (document.getElementById('viewStocktake').classList.contains('active-view')) renderPendingStocktake();
       } else { setMsg(data.message || "Database write failed", "error"); }
@@ -839,12 +844,15 @@ function saveStockTake() {
 
 function bookOut() {
   if (!navigator.onLine) { queueOffline("bookout"); return; }
-  const barcode = document.getElementById("barcode").value.trim(); const qty = document.getElementById("qty").value; const who = document.getElementById("user").value; const comments = "";
+  const barcode = document.getElementById("barcode").value.trim(); 
+  const qty = document.getElementById("qty").value; 
+  const who = "M Read"; // User strictly hardcoded
+  const comments = "";
 
   fetchAPI("bookout", { barcode: barcode, qty: qty, who: who, comments: comments }).then(data => {
       if (data.ok) {
         clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookout");
-        clearForm(); maybeRestartScanner(); 
+        clearForm(); 
         if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics();
       } else { setMsg(data.message || "Transaction rejected", "error"); }
     }).catch(() => { queueOffline("bookout"); });
@@ -852,12 +860,15 @@ function bookOut() {
 
 function bookIn() {
   if (!navigator.onLine) { queueOffline("bookin"); return; }
-  const barcode = document.getElementById("barcode").value.trim(); const qty = document.getElementById("qty").value; const who = document.getElementById("user").value; const comments = "";
+  const barcode = document.getElementById("barcode").value.trim(); 
+  const qty = document.getElementById("qty").value; 
+  const who = "M Read"; // User strictly hardcoded
+  const comments = "";
 
   fetchAPI("bookin", { barcode: barcode, qty: qty, who: who, comments: comments }).then(data => {
       if (data.ok) {
         clearCachedItem(); updateOfflineItemQty(barcode, qty, "bookin");
-        clearForm(); maybeRestartScanner(); 
+        clearForm(); 
         if (document.getElementById('viewAnalytics').classList.contains('active-view')) refreshAnalytics();
       } else { setMsg(data.message || "Transaction rejected", "error"); }
     }).catch(() => { queueOffline("bookin"); });
@@ -872,14 +883,9 @@ function clearForm() {
 function clearProductOnly() {
   document.getElementById("product").innerText = "Ready to scan";
   const resetVal = (id) => { const el = document.getElementById(id); el.innerText = "-"; el.style.color = "var(--muted)"; };
-  resetVal("articleNo"); resetVal("recordedQty"); resetVal("capturedQty"); resetVal("bin"); resetVal("zone"); resetVal("location");
+  resetVal("articleNo"); resetVal("recordedQty"); resetVal("capturedQty"); resetVal("bin");
   setCapturedStatus(""); const status = document.getElementById("statusBig"); status.innerText = ""; status.className = "statusBig";
 }
-
-if (localStorage.getItem("continuousScan") === "yes") { const continuousBox = document.getElementById("continuousScan"); if (continuousBox) continuousBox.checked = true; }
-function saveContinuousMode() { const on = document.getElementById("continuousScan").checked; localStorage.setItem("continuousScan", on ? "yes" : "no"); }
-function shouldContinuousScan() { return localStorage.getItem("continuousScan") === "yes"; }
-function maybeRestartScanner() { if (shouldContinuousScan()) setTimeout(startScanner, 800); }
 
 updateOfflineBar(); syncPendingStocktakes();
 </script>
